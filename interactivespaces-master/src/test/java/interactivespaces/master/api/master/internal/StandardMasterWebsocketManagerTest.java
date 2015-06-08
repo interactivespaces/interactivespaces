@@ -41,7 +41,6 @@ public class StandardMasterWebsocketManagerTest {
 
   @Before
   public void setup() {
-
     spaceEnvironment = Mockito.mock(InteractiveSpacesEnvironment.class);
 
     timeProvider = Mockito.mock(TimeProvider.class);

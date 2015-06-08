@@ -16,7 +16,6 @@
 
 package interactivespaces.master.api.master;
 
-import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.domain.basic.pojo.SimpleActivity;
@@ -29,8 +28,8 @@ import java.util.Map;
  * A Master API manager for working with activities.
  *
  * <p>
- * This is mostly for crud operations. To work with activities on controllers,
- * see {@link MasterApiSpaceControllerManager}.
+ * This is mostly for crud operations. To work with activities on controllers, see
+ * {@link MasterApiSpaceControllerManager}.
  *
  * @author Keith M. Hughes
  */
@@ -40,16 +39,17 @@ public interface MasterApiActivityManager extends ManagedResource {
    * Save an activity.
    *
    * <p>
-   * Includes saving the activity file in the activity repository.
+   * Includes saving the activity file in the activity repository. The method also closes the input stream regardless of
+   * internal errors.
    *
    * @param activity
    *          the activity
-   * @param activityStream
+   * @param activityContentStream
    *          the input stream containing the contents of the activity
    *
-   * @return the updated activity
+   * @return the master API message for the activity view for the activity
    */
-  Activity saveActivity(SimpleActivity activity, InputStream activityStream);
+  Map<String, Object> saveActivity(SimpleActivity activity, InputStream activityContentStream);
 
   /**
    * Get all activities that meet a filter.
@@ -91,10 +91,8 @@ public interface MasterApiActivityManager extends ManagedResource {
    * The command map contains a field called command. This field will be one of
    *
    * <ul>
-   * <li>replace - data contains a map, replace the entire metadata map with the
-   * map</li>
-   * <li>modify - data contains a map, replace just the fields found in the map
-   * with the values found in the map</li>
+   * <li>replace - data contains a map, replace the entire metadata map with the map</li>
+   * <li>modify - data contains a map, replace just the fields found in the map with the values found in the map</li>
    * <li>delete - data contains a list of keys, remove all keys found in data</li>
    * </ul>
    *
@@ -271,10 +269,8 @@ public interface MasterApiActivityManager extends ManagedResource {
    * The command map contains a field called command. This field will be one of
    *
    * <ul>
-   * <li>replace - data contains a map, replace the entire metadata map with the
-   * map</li>
-   * <li>modify - data contains a map, replace just the fields found in the map
-   * with the values found in the map</li>
+   * <li>replace - data contains a map, replace the entire metadata map with the map</li>
+   * <li>modify - data contains a map, replace just the fields found in the map with the values found in the map</li>
    * <li>delete - data contains a list of keys, remove all keys found in data</li>
    * </ul>
    *
@@ -307,10 +303,8 @@ public interface MasterApiActivityManager extends ManagedResource {
    * The command map contains a field called command. This field will be one of
    *
    * <ul>
-   * <li>replace - data contains a map, replace the entire metadata map with the
-   * map</li>
-   * <li>modify - data contains a map, replace just the fields found in the map
-   * with the values found in the map</li>
+   * <li>replace - data contains a map, replace the entire metadata map with the map</li>
+   * <li>modify - data contains a map, replace just the fields found in the map with the values found in the map</li>
    * <li>delete - data contains a list of keys, remove all keys found in data</li>
    * </ul>
    *
@@ -323,10 +317,9 @@ public interface MasterApiActivityManager extends ManagedResource {
    */
   Map<String, Object> updateLiveActivityGroupMetadata(String id, Object metadataCommandObj);
 
-
   /**
-   * Get the full view of an activity. This will include additional information
-   * about the activity, such as which live activities are based on it.
+   * Get the full view of an activity. This will include additional information about the activity, such as which live
+   * activities are based on it.
    *
    * @param id
    *          ID for the activity
@@ -375,7 +368,6 @@ public interface MasterApiActivityManager extends ManagedResource {
    */
   Map<String, Object> getSpaceLiveActivityGroupView(String id);
 
-
   /**
    * Delete a space from the space repository.
    *
@@ -396,10 +388,8 @@ public interface MasterApiActivityManager extends ManagedResource {
    * The command map contains a field called command. This field will be one of
    *
    * <ul>
-   * <li>replace - data contains a map, replace the entire metadata map with the
-   * map</li>
-   * <li>modify - data contains a map, replace just the fields found in the map
-   * with the values found in the map</li>
+   * <li>replace - data contains a map, replace the entire metadata map with the map</li>
+   * <li>modify - data contains a map, replace just the fields found in the map with the values found in the map</li>
    * <li>delete - data contains a list of keys, remove all keys found in data</li>
    * </ul>
    *

@@ -77,9 +77,8 @@ public class StandardConfigurationPropertyAnnotationProcessor implements Configu
       log.debug(success);
     }
     if (!errors.isEmpty()) {
-      SimpleInteractiveSpacesException
-          .throwFormattedException("Errors while processing configuration annotations on %s:\n%s",
-              obj, Joiner.on('\n').join(errors));
+      throw SimpleInteractiveSpacesException.newFormattedException(
+          "Errors while processing configuration annotations on %s:\n%s", obj, Joiner.on('\n').join(errors));
     }
   }
 

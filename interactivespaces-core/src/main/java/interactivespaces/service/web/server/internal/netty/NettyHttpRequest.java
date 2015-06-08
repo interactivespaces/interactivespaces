@@ -16,15 +16,15 @@
 
 package interactivespaces.service.web.server.internal.netty;
 
+import interactivespaces.InteractiveSpacesException;
+import interactivespaces.service.web.server.HttpRequest;
+
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
-
-import interactivespaces.InteractiveSpacesException;
-import interactivespaces.service.web.server.HttpRequest;
 
 import org.apache.commons.logging.Log;
 import org.jboss.netty.handler.codec.http.Cookie;
@@ -41,7 +41,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- * An HTTP request that proxies the Netty HTTP request
+ * An HTTP request that proxies the Netty HTTP request.
  *
  * @author Keith M. Hughes
  */
@@ -57,8 +57,19 @@ public class NettyHttpRequest implements HttpRequest {
    */
   private Log log;
 
+  /**
+   * The headers for the request.
+   */
   private Multimap<String, String> headers;
 
+  /**
+   * Construct a new request.
+   *
+   * @param request
+   *          the Netty HTTP request
+   * @param log
+   *          the logger for the request
+   */
   public NettyHttpRequest(org.jboss.netty.handler.codec.http.HttpRequest request, Log log) {
     this.request = request;
     this.log = log;
@@ -71,8 +82,7 @@ public class NettyHttpRequest implements HttpRequest {
       return new URI(request.getUri());
     } catch (URISyntaxException e) {
       // Should never, ever happen
-      throw new InteractiveSpacesException(
-          String.format("Illegal URI syntax %s", request.getUri()), e);
+      throw new InteractiveSpacesException(String.format("Illegal URI syntax %s", request.getUri()), e);
     }
   }
 
@@ -108,8 +118,7 @@ public class NettyHttpRequest implements HttpRequest {
   }
 
   /**
-   * Return the map of key:value pairs of strings making up the header for this
-   * request.
+   * Return the map of key:value pairs of strings making up the header for this request.
    *
    * @return the map of all header key:value pairs
    */
@@ -122,9 +131,12 @@ public class NettyHttpRequest implements HttpRequest {
   }
 
   /**
-   * Return the value of the header string associated with the given key, or
-   * null if no such key is present.
+   * Get the values of the header string associated with the given key.
    *
+   * @param key
+   *          the key for the desired headers
+   *
+   * @return the set of values for the header, or {@code null} if the key isn't present
    */
   @Override
   public Set<String> getHeader(String key) {
@@ -138,16 +150,17 @@ public class NettyHttpRequest implements HttpRequest {
     return null;
   }
 
+  /**
+   * Build up the request headers.
+   */
   private void buildHeaders() {
     headers = HashMultimap.create();
 
-    for (Entry<String, String> header : request.getHeaders()) {
+    for (Entry<String, String> header : request.headers()) {
       headers.put(header.getKey(), header.getValue());
     }
   }
 
-  /*
-   */
   @Override
   public HttpCookie getCookie(String key) {
     Collection<HttpCookie> cookies = getCookies();
@@ -160,8 +173,6 @@ public class NettyHttpRequest implements HttpRequest {
     return null;
   }
 
-  /*
-   */
   @Override
   public Set<HttpCookie> getCookies() {
 
@@ -171,18 +182,25 @@ public class NettyHttpRequest implements HttpRequest {
     }
     Collection<HttpCookie> cookies = Sets.newHashSet();
     for (String cookie : cookieHeader) {
-      cookies.addAll(Collections2.transform(new CookieDecoder().decode(cookie),
-          new Function<Cookie, HttpCookie>() {
-            @Override
-            public HttpCookie apply(final Cookie cookie) {
-              return convertFromNettyCookie(cookie);
-            }
-          }));
+      cookies.addAll(Collections2.transform(new CookieDecoder().decode(cookie), new Function<Cookie, HttpCookie>() {
+        @Override
+        public HttpCookie apply(final Cookie cookie) {
+          return convertFromNettyCookie(cookie);
+        }
+      }));
     }
     return Sets.newHashSet(cookies);
   }
 
-  public static HttpCookie convertFromNettyCookie(Cookie cookie) {
+  /**
+   * Convert a Netty cookie to a Java HTTP cookie.
+   *
+   * @param cookie
+   *          the Netty cookie
+   *
+   * @return the Java cookie
+   */
+  private HttpCookie convertFromNettyCookie(Cookie cookie) {
     HttpCookie httpCookie = new HttpCookie(cookie.getName(), cookie.getValue());
     httpCookie.setComment(cookie.getComment());
     httpCookie.setDomain(cookie.getDomain());
@@ -196,7 +214,15 @@ public class NettyHttpRequest implements HttpRequest {
     return httpCookie;
   }
 
-  private static String createPortString(Set<Integer> ports) {
+  /**
+   * Create the port string for a cookie.
+   *
+   * @param ports
+   *          the set of ports from the Netty cookie
+   *
+   * @return the port string for Java cookies
+   */
+  private String createPortString(Set<Integer> ports) {
     StringBuilder portString = new StringBuilder();
     Iterator<Integer> iter = ports.iterator();
     while (iter.hasNext()) {

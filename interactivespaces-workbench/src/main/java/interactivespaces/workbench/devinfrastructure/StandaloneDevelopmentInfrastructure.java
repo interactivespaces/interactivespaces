@@ -73,7 +73,7 @@ public class StandaloneDevelopmentInfrastructure implements DevelopmentInfrastru
       initializeRosMasterController();
 
     } catch (Throwable e) {
-      InteractiveSpacesException.throwFormattedException(e,
+      throw InteractiveSpacesException.newFormattedException(e,
           "Could not start up the Interactive Spaces Development Infrastructure");
     }
   }

@@ -41,30 +41,81 @@ public class BaseMasterApiManager {
   protected InteractiveSpacesEnvironment spaceEnvironment;
 
   /**
-   * Get the Master API response for no such live activity.
+   * Log a response error.
+   *
+   * @param errorPreamble
+   *          the error preamble
+   * @param response
+   *          the API response
+   */
+  protected void logResponseError(String errorPreamble, Map<String, Object> response) {
+    spaceEnvironment.getLog().error(errorPreamble + "\n" + MasterApiMessageSupport.getResponseDetail(response));
+  }
+
+  /**
+   * Get the Master API response for no such activity.
+   *
+   * @param id
+   *          the ID of the activity
    *
    * @return the API response
    */
-  protected Map<String, Object> noSuchLiveActivityResult() {
-    return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_DOMAIN_LIVEACTIVITY_UNKNOWN);
+  protected Map<String, Object> getNoSuchActivityResponse(String id) {
+    return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_DOMAIN_ACTIVITY_UNKNOWN,
+        String.format("Unknown activity %s", id));
+  }
+
+  /**
+   * Get the Master API response for no such live activity.
+   *
+   * @param id
+   *          the ID of the live activity
+   *
+   * @return the API response
+   */
+  protected Map<String, Object> getNoSuchLiveActivityResponse(String id) {
+    return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_DOMAIN_LIVEACTIVITY_UNKNOWN,
+        String.format("Unknown live activity %s", id));
   }
 
   /**
    * Get the Master API response for no such live activity group.
    *
+   * @param id
+   *          the ID of the live activity group
+   *
    * @return the API response
    */
-  protected Map<String, Object> noSuchLiveActivityGroupResult() {
-    return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_DOMAIN_LIVEACTIVITYGROUP_UNKNOWN);
+  protected Map<String, Object> getNoSuchLiveActivityGroupResponse(String id) {
+    return MasterApiMessageSupport.getFailureResponse(
+        MasterApiMessages.MESSAGE_SPACE_DOMAIN_LIVEACTIVITYGROUP_UNKNOWN,
+        String.format("Unknown live activity group %s", id));
   }
 
   /**
    * Get a no such space API response.
    *
+   * @param id
+   *          the ID of the space
+   *
    * @return a no such space API response
    */
-  protected Map<String, Object> getNoSuchSpaceResponse() {
-    return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_DOMAIN_SPACE_UNKNOWN);
+  protected Map<String, Object> getNoSuchSpaceResponse(String id) {
+    return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_DOMAIN_SPACE_UNKNOWN,
+        String.format("Unknown space %s", id));
+  }
+
+  /**
+   * Get a master API response for no such space controller.
+   *
+   * @param id
+   *          the ID for the group
+   *
+   * @return the API response
+   */
+  protected Map<String, Object> getNoSuchSpaceControllerResponse(String id) {
+    return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_DOMAIN_CONTROLLER_UNKNOWN,
+        String.format("Unknown space controller %s", id));
   }
 
   /**

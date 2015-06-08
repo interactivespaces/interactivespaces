@@ -336,7 +336,7 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
         runnerState.set(NativeApplicationRunnerState.STARTUP_FAILED);
         handleApplicationStartupFailed();
 
-        InteractiveSpacesException.throwFormattedException(e, "Can't start up native application " + executablePath);
+        throw InteractiveSpacesException.newFormattedException(e, "Can't start up native application " + executablePath);
       }
 
       return null;

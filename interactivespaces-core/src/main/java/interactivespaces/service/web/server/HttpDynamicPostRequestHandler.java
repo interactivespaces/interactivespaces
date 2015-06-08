@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2015 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -17,20 +17,21 @@
 package interactivespaces.service.web.server;
 
 /**
- * A listener for new file uploads.
+ * A handler for dynamic POST requests.
  *
  * @author Keith M. Hughes
- *
- * @deprecated Use {@link HttpDynamicPostRequestHandler}
  */
-@Deprecated
-public interface HttpFileUploadListener {
+public interface HttpDynamicPostRequestHandler {
 
   /**
-   * A new file has been uploaded.
+   * Handle an HTTP request.
    *
-   * @param fileUpload
-   *          the file which has just been uploaded
+   * @param request
+   *          the request to handle
+   * @param upload
+   *          the file upload from the request
+   * @param response
+   *          the response
    */
-  void handleHttpFileUpload(HttpFileUpload fileUpload);
+  void handle(HttpRequest request, HttpFileUpload upload, HttpResponse response);
 }

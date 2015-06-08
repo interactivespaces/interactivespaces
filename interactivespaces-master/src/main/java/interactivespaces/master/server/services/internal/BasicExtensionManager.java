@@ -177,13 +177,14 @@ public class BasicExtensionManager implements ExtensionManager {
         Map<String, Object> result = (Map<String, Object>) script.eval(completeBindings);
 
         return MasterApiMessageSupport.getSuccessResponse(result);
-      } catch (Exception e) {
+      } catch (Throwable e) {
         spaceEnvironment.getLog().error(String.format("Could not run extension %s", extensionName), e);
 
-        return MasterApiMessageSupport.getFailureResponse(RESULT_KEY_SPACE_MASTER_EXTENSION_EXCEPTION);
+        return MasterApiMessageSupport.getFailureResponse(RESULT_KEY_SPACE_MASTER_EXTENSION_EXCEPTION, e);
       }
     } else {
-      return MasterApiMessageSupport.getFailureResponse(RESULT_KEY_SPACE_MASTER_EXTENSION_UNKNOWN);
+      return MasterApiMessageSupport.getFailureResponse(RESULT_KEY_SPACE_MASTER_EXTENSION_UNKNOWN,
+          String.format("The requested master extension %s is not found", extensionName));
     }
   }
 

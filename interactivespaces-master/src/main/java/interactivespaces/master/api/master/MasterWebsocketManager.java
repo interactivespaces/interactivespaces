@@ -29,4 +29,9 @@ public interface MasterWebsocketManager extends ManagedResource {
    * Prefix for the master API websocket endpoint.
    */
   String MASTERAPI_WEBSOCKET_URI_PREFIX = "/masterapi/websocket";
+
+  /**
+   * URI prefix for activity uploads.
+   */
+  String MASTERAPI_PATH_PREFIX_ACTIVITY_UPLOAD = "/masterapi/activity/upload";
 }

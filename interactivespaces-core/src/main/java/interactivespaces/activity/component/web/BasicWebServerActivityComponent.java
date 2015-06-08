@@ -17,12 +17,15 @@
 package interactivespaces.activity.component.web;
 
 import interactivespaces.activity.Activity;
+import interactivespaces.activity.component.ActivityComponent;
 import interactivespaces.activity.component.ActivityComponentContext;
 import interactivespaces.activity.component.BaseActivityComponent;
 import interactivespaces.activity.configuration.WebServerActivityResourceConfigurator;
 import interactivespaces.activity.impl.StatusDetail;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.service.web.WebSocketConnection;
+import interactivespaces.service.web.WebSocketHandler;
+import interactivespaces.service.web.server.HttpDynamicPostRequestHandler;
 import interactivespaces.service.web.server.HttpDynamicRequestHandler;
 import interactivespaces.service.web.server.HttpFileUploadListener;
 import interactivespaces.service.web.server.WebServer;
@@ -31,6 +34,7 @@ import interactivespaces.service.web.server.WebServerWebSocketHandler;
 import interactivespaces.service.web.server.WebServerWebSocketHandlerFactory;
 
 import com.google.common.collect.Lists;
+
 import org.apache.commons.logging.Log;
 
 import java.io.File;
@@ -65,9 +69,14 @@ public class BasicWebServerActivityComponent extends BaseActivityComponent imple
   private final List<StaticContent> staticContent = Lists.newArrayList();
 
   /**
-   * List of dynamic content for the web server.
+   * List of dynamic GET content for the web server.
    */
-  private final List<DynamicContent> dynamicContent = Lists.newArrayList();
+  private final List<DynamicContent<HttpDynamicRequestHandler>> dynamicGetContent = Lists.newArrayList();
+
+  /**
+   * List of dynamic POST content for the web server.
+   */
+  private final List<DynamicContent<HttpDynamicPostRequestHandler>> dynamicPostContent = Lists.newArrayList();
 
   /**
    * Configurator for this component.
@@ -100,8 +109,12 @@ public class BasicWebServerActivityComponent extends BaseActivityComponent imple
       webServer.addStaticContentHandler(content.getUriPrefix(), content.getBaseDir());
     }
 
-    for (DynamicContent content : dynamicContent) {
+    for (DynamicContent<HttpDynamicRequestHandler> content : dynamicGetContent) {
       webServer.addDynamicContentHandler(content.getUriPrefix(), content.isUsePath(), content.getRequestHandler());
+    }
+
+    for (DynamicContent<HttpDynamicPostRequestHandler> content : dynamicPostContent) {
+      webServer.addDynamicPostRequestHandler(content.getUriPrefix(), content.isUsePath(), content.getRequestHandler());
     }
 
     if (webSocketHandlerFactory != null) {
@@ -218,7 +231,19 @@ public class BasicWebServerActivityComponent extends BaseActivityComponent imple
     if (webServer != null) {
       webServer.addDynamicContentHandler(uriPrefix, usePath, handler);
     } else {
-      dynamicContent.add(new DynamicContent(handler, uriPrefix, usePath));
+      dynamicGetContent.add(new DynamicContent<HttpDynamicRequestHandler>(handler, uriPrefix, usePath));
+    }
+
+    return this;
+  }
+
+  @Override
+  public WebServerActivityComponent addDynamicPostRequestHandler(String uriPrefix, boolean usePath,
+      HttpDynamicPostRequestHandler handler) {
+    if (webServer != null) {
+      webServer.addDynamicPostRequestHandler(uriPrefix, usePath, handler);
+    } else {
+      dynamicPostContent.add(new DynamicContent<HttpDynamicPostRequestHandler>(handler, uriPrefix, usePath));
     }
 
     return this;
@@ -255,7 +280,7 @@ public class BasicWebServerActivityComponent extends BaseActivityComponent imple
      * @param uriPrefix
      *          content prefix
      * @param baseDir
-     *          directory path for content
+     *          the base directory for content
      */
     public StaticContent(String uriPrefix, File baseDir) {
       this.uriPrefix = uriPrefix;
@@ -263,6 +288,8 @@ public class BasicWebServerActivityComponent extends BaseActivityComponent imple
     }
 
     /**
+     * Get the URI prefix.
+     *
      * @return the uriPrefix
      */
     public String getUriPrefix() {
@@ -270,7 +297,9 @@ public class BasicWebServerActivityComponent extends BaseActivityComponent imple
     }
 
     /**
-     * @return the baseDir
+     * Get the base directory for content.
+     *
+     * @return the base directory
      */
     public File getBaseDir() {
       return baseDir;
@@ -282,7 +311,12 @@ public class BasicWebServerActivityComponent extends BaseActivityComponent imple
    *
    * @author Keith M. Hughes
    */
-  public static class DynamicContent {
+  public static class DynamicContent<T> {
+
+    /**
+     * The request handler.
+     */
+    private final T requestHandler;
 
     /**
      * URI prefix where the content will be referenced from.
@@ -295,11 +329,6 @@ public class BasicWebServerActivityComponent extends BaseActivityComponent imple
     private final boolean usePath;
 
     /**
-     * The request handler being added.
-     */
-    private final HttpDynamicRequestHandler requestHandler;
-
-    /**
      * Create a dynamic content object.
      *
      * @param requestHandler
@@ -309,7 +338,7 @@ public class BasicWebServerActivityComponent extends BaseActivityComponent imple
      * @param usePath
      *          path for handling the content
      */
-    public DynamicContent(HttpDynamicRequestHandler requestHandler, String uriPrefix, boolean usePath) {
+    public DynamicContent(T requestHandler, String uriPrefix, boolean usePath) {
       this.requestHandler = requestHandler;
       this.uriPrefix = uriPrefix;
       this.usePath = usePath;
@@ -330,9 +359,11 @@ public class BasicWebServerActivityComponent extends BaseActivityComponent imple
     }
 
     /**
-     * @return the requestHandler
+     * Get the request handler.
+     *
+     * @return the request andler
      */
-    public HttpDynamicRequestHandler getRequestHandler() {
+    public T getRequestHandler() {
       return requestHandler;
     }
   }

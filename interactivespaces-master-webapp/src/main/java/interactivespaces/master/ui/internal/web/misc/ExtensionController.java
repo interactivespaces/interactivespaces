@@ -17,6 +17,7 @@
 package interactivespaces.master.ui.internal.web.misc;
 
 import interactivespaces.master.api.messages.MasterApiMessageSupport;
+import interactivespaces.master.api.messages.MasterApiMessages;
 import interactivespaces.master.server.services.ExtensionManager;
 import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
 
@@ -45,8 +46,7 @@ public class ExtensionController extends BaseSpaceMasterController {
   private ExtensionManager extensionManager;
 
   @RequestMapping(value = "/extension/{extensionName}.json", method = RequestMethod.POST)
-  public @ResponseBody
-  Map<String, ? extends Object> executeExtension(@PathVariable String extensionName,
+  public @ResponseBody Map<String, ? extends Object> executeExtension(@PathVariable String extensionName,
       @RequestBody Object argsIn, HttpServletResponse response) {
     if (Map.class.isAssignableFrom(argsIn.getClass())) {
       @SuppressWarnings("unchecked")
@@ -54,7 +54,8 @@ public class ExtensionController extends BaseSpaceMasterController {
 
       return extensionManager.evaluateApiExtension(extensionName, args);
     } else {
-      return MasterApiMessageSupport.getFailureResponse("Extension arguments are not a dictionary");
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_ARGS_NOMAP,
+          MasterApiMessages.MESSAGE_SPACE_DETAIL_CALL_ARGS_NOMAP);
     }
   }
 

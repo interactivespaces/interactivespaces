@@ -43,21 +43,6 @@ public class SimpleInteractiveSpacesException extends InteractiveSpacesException
   /**
    * Create a new formatted exception.
    *
-   * @param message
-   *          the message
-   * @param args
-   *          the args
-   *
-   * @throws SimpleInteractiveSpacesException
-   *           the exception just created
-   */
-  public static void throwFormattedException(String message, Object... args) throws SimpleInteractiveSpacesException {
-    throw newFormattedException(message, args);
-  }
-
-  /**
-   * Create a new formatted exception.
-   *
    * @param cause
    *          the cause of the exception
    * @param message
@@ -67,7 +52,8 @@ public class SimpleInteractiveSpacesException extends InteractiveSpacesException
    *
    * @return the new message
    */
-  public static SimpleInteractiveSpacesException newFormattedException(Throwable cause, String message, Object... args) {
+  public static SimpleInteractiveSpacesException
+      newFormattedException(Throwable cause, String message, Object... args) {
     return new SimpleInteractiveSpacesException(String.format(message, args), cause);
   }
 
@@ -84,8 +70,24 @@ public class SimpleInteractiveSpacesException extends InteractiveSpacesException
    * @throws SimpleInteractiveSpacesException
    *           the exception just created
    */
-  public static void throwFormattedException(Throwable cause, String message, Object... args) throws SimpleInteractiveSpacesException {
+  public static void throwFormattedException(Throwable cause, String message, Object... args)
+      throws SimpleInteractiveSpacesException {
     throw newFormattedException(cause, message, args);
+  }
+
+  /**
+   * Create a new formatted exception.
+   *
+   * @param message
+   *          the message
+   * @param args
+   *          the args
+   *
+   * @throws SimpleInteractiveSpacesException
+   *           the exception just created
+   */
+  public static void throwFormattedException(String message, Object... args) throws SimpleInteractiveSpacesException {
+    throw newFormattedException(message, args);
   }
 
   /**

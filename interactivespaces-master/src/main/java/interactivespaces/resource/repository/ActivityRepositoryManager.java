@@ -24,7 +24,7 @@ import java.io.InputStream;
  * A manager for handling the Interactive Spaces activity repository.
  *
  * <p>
- * The activity repository will handle
+ * The activity repository will handle the actual saving of activities.
  *
  * @author Keith M. Hughes
  */
@@ -34,18 +34,18 @@ public interface ActivityRepositoryManager {
    * Add an activity to the repository.
    *
    * @param activityStream
-   *          Stream containing the activity.
-   * @return The activity loaded.
+   *          the stream containing the activity
+   *
+   * @return the activity loaded
    */
   Activity addActivity(InputStream activityStream);
 
   /**
-   * Calculate and update the content hash for the activity bundle.  This updates
-   * the activity's hash record with the calculated hash.
+   * Calculate and update the content hash for the activity bundle. This updates the activity's hash record with the
+   * calculated hash.
    *
    * @param activity
    *          activity for which to update the bundle hash
    */
   void calculateBundleContentHash(Activity activity);
-
 }

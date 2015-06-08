@@ -16,10 +16,12 @@
 
 package interactivespaces.master.ui.internal.web.activity;
 
+import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.pojo.SimpleActivity;
 import interactivespaces.master.api.master.MasterApiActivityManager;
+import interactivespaces.master.api.messages.MasterApiMessageSupport;
+import interactivespaces.master.api.messages.MasterApiMessages;
 import interactivespaces.master.ui.internal.web.BaseSpaceMasterController;
 
 import org.springframework.web.multipart.MultipartFile;
@@ -27,6 +29,7 @@ import org.springframework.webflow.core.collection.MutableAttributeMap;
 import org.springframework.webflow.execution.RequestContext;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * The webflow action for activity upload.
@@ -70,28 +73,46 @@ public class ActivityAction extends BaseSpaceMasterController {
    */
   public String saveActivity(ActivityForm form) {
     try {
-      Activity activity =
-          masterApiActivityManager.saveActivity(form.getActivity(), form.getActivityFile()
-              .getInputStream());
+      Map<String, Object> activityResponse =
+          masterApiActivityManager.saveActivity(form.getActivity(), form.getActivityFile().getInputStream());
 
       // So the ID gets copied out of the flow.
-      form.getActivity().setId(activity.getId());
-      return "success";
-    } catch (Exception e) {
-      // On an error, need to clear the activity file else flow serialization fails.
-      form.setActivityFile(null);
+      if (MasterApiMessageSupport.isSuccessResponse(activityResponse)) {
 
-      String message = SimpleInteractiveSpacesException.getStackTrace(e);
-      if (e instanceof SimpleInteractiveSpacesException) {
-        message = ((SimpleInteractiveSpacesException) e).getCompoundMessage();
-        spaceEnvironment.getLog().error("Could not get uploaded activity file\n" + message);
+        form.getActivity().setId(
+            (String) MasterApiMessageSupport.getResponseDataMap(activityResponse).get(
+                MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID));
+        return "success";
       } else {
-        spaceEnvironment.getLog().error("Could not get uploaded activity file", e);
+        return handleError(form, MasterApiMessageSupport.getResponseDetail(activityResponse));
       }
-      form.setActivityError(message);
+    } catch (Throwable e) {
+      String message =
+          (e instanceof SimpleInteractiveSpacesException) ? ((SimpleInteractiveSpacesException) e)
+              .getCompoundMessage() : InteractiveSpacesException.getStackTrace(e);
 
-      return "error";
+      spaceEnvironment.getLog().error("Could not get uploaded activity file\n" + message);
+
+      return handleError(form, message);
     }
+  }
+
+  /**
+   * handle an error from an activity upload attempt.
+   *
+   * @param form
+   *          the submission form
+   * @param responseDetail
+   *          the detail of the error response
+   *
+   * @return the key for webflow for the error handling
+   */
+  private String handleError(ActivityForm form, String responseDetail) {
+    // On an error, need to clear the activity file else flow serialization fails.
+    form.setActivityFile(null);
+    form.setActivityError(responseDetail);
+
+    return "error";
   }
 
   /**

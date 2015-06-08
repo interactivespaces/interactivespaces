@@ -158,10 +158,10 @@ public class BasicMasterApiAutomationManager extends BaseMasterApiManager implem
       }
 
       return MasterApiMessageSupport.getSuccessResponse(responseData);
-    } catch (Exception e) {
+    } catch (Throwable e) {
       spaceEnvironment.getLog().error("Attempt to get named script data failed", e);
 
-      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE);
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE, e);
     }
   }
 
@@ -198,7 +198,8 @@ public class BasicMasterApiAutomationManager extends BaseMasterApiManager implem
   @Override
   public Map<String, Object> updateNamedScriptMetadata(String id, Object metadataCommandObj) {
     if (!(metadataCommandObj instanceof Map)) {
-      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_ARGS_NOMAP);
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_ARGS_NOMAP,
+          MasterApiMessages.MESSAGE_SPACE_DETAIL_CALL_ARGS_NOMAP);
     }
 
     @SuppressWarnings("unchecked")
@@ -240,16 +241,17 @@ public class BasicMasterApiAutomationManager extends BaseMasterApiManager implem
 
         script.setMetadata(metadata);
       } else {
-        return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_COMMAND_UNKNOWN);
+        return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_COMMAND_UNKNOWN,
+            String.format("Unknown command %s", command));
       }
 
       automationRepository.saveNamedScript(script);
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
-    } catch (Exception e) {
+    } catch (Throwable e) {
       spaceEnvironment.getLog().error("Could not modify named script metadata", e);
 
-      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE);
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE, e);
     }
   }
 
@@ -259,8 +261,8 @@ public class BasicMasterApiAutomationManager extends BaseMasterApiManager implem
    * @return the Master API response
    */
   private Map<String, Object> noSuchNamedScriptResult() {
-    return MasterApiMessageSupport
-        .getFailureResponse(MasterApiAutomationManager.MESSAGE_SPACE_DOMAIN_NAMEDSCRIPT_UNKNOWN);
+    return MasterApiMessageSupport.getFailureResponse(
+        MasterApiAutomationManager.MESSAGE_SPACE_DOMAIN_NAMEDSCRIPT_UNKNOWN, "The requested named script is unknown");
   }
 
   /**

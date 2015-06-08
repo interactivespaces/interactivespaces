@@ -109,7 +109,8 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
 
     Project project = context.getProject();
     File mainSourceDirectory = fileSupport.newFile(project.getBaseDirectory(), JavaProjectType.SOURCE_MAIN_JAVA);
-    File generatedSourceDirectory = fileSupport.newFile(context.getBuildDirectory(), JavaProjectType.SOURCE_GENERATED_MAIN_JAVA);
+    File generatedSourceDirectory =
+        fileSupport.newFile(context.getBuildDirectory(), JavaProjectType.SOURCE_GENERATED_MAIN_JAVA);
 
     List<File> compilationFiles = Lists.newArrayList();
     projectCompiler.getCompilationFiles(mainSourceDirectory, compilationFiles);
@@ -233,7 +234,7 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
 
       writeJarFile(compilationFolder, buf, out, "", context);
     } catch (IOException e) {
-      InteractiveSpacesException.throwFormattedException(e, "Failed creating jar file %s",
+      throw InteractiveSpacesException.newFormattedException(e, "Failed creating jar file %s",
           jarDestinationFile.getAbsolutePath());
     } finally {
       fileSupport.close(out, true);

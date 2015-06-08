@@ -30,6 +30,7 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
@@ -576,7 +577,7 @@ public class FileSupportImpl implements FileSupport {
     try {
       dir = Files.createTempDirectory(baseDir.toPath(), prefix).toFile();
     } catch (IOException e) {
-       InteractiveSpacesException.throwFormattedException(e, "Error creating temp directory in %s",
+      throw InteractiveSpacesException.newFormattedException(e, "Error creating temp directory in %s",
           baseDir.getAbsolutePath(), e);
     }
     return dir;
@@ -645,6 +646,26 @@ public class FileSupportImpl implements FileSupport {
           collectFiles(file, filter, true, files);
         }
       }
+    }
+  }
+
+  @Override
+  public FileInputStream newFileInputStream(File file) {
+    try {
+      return new FileInputStream(file);
+    } catch (FileNotFoundException e) {
+      throw SimpleInteractiveSpacesException.newFormattedException(
+          e, "Could not create a new file input stream for file %s", file.getAbsolutePath());
+    }
+  }
+
+  @Override
+  public FileOutputStream newFileOutputStream(File file) {
+    try {
+      return new FileOutputStream(file);
+    } catch (FileNotFoundException e) {
+      throw SimpleInteractiveSpacesException.newFormattedException(
+          e, "Could not create a new file output stream for file %s", file.getAbsolutePath());
     }
   }
 }

@@ -17,6 +17,7 @@
 package interactivespaces.activity.component.web;
 
 import interactivespaces.activity.component.ActivityComponent;
+import interactivespaces.service.web.server.HttpDynamicPostRequestHandler;
 import interactivespaces.service.web.server.HttpDynamicRequestHandler;
 import interactivespaces.service.web.server.HttpFileUploadListener;
 import interactivespaces.service.web.server.WebServer;
@@ -88,9 +89,8 @@ public interface WebServerActivityComponent extends ActivityComponent {
    *
    * <p>
    * This can be called either before or after calling
-   * {@link BasicWebServerActivityComponent#configureComponent(Activity, Configuration)}
-   * . But if called both before and after, the second call will be the one
-   * used.
+   * {@link BasicWebServerActivityComponent#configureComponent(Activity, Configuration)} . But if called both before and
+   * after, the second call will be the one used.
    *
    * @param webSocketUriPrefix
    *          the prefix for web socket connections (can be {@code null})
@@ -104,9 +104,8 @@ public interface WebServerActivityComponent extends ActivityComponent {
    *
    * <p>
    * This can be called either before or after calling
-   * {@link BasicWebServerActivityComponent#configureComponent(Activity, Configuration)}
-   * . But if called both before and after, the second call will be the one
-   * used.
+   * {@link BasicWebServerActivityComponent#configureComponent(Activity, Configuration)} . But if called both before and
+   * after, the second call will be the one used.
    *
    * @param webSocketHandlerFactory
    *          the webSocketHandlerFactory to set
@@ -120,9 +119,8 @@ public interface WebServerActivityComponent extends ActivityComponent {
    *
    * <p>
    * This can be called either before or after calling
-   * {@link BasicWebServerActivityComponent#configureComponent(Activity, Configuration)}
-   * . But if called both before and after, the second call will be the one
-   * used.
+   * {@link BasicWebServerActivityComponent#configureComponent(Activity, Configuration)} . But if called both before and
+   * after, the second call will be the one used.
    *
    * @param httpFileUploadListener
    *          the HTTP file upload listener to use (can be {@code null})
@@ -136,9 +134,8 @@ public interface WebServerActivityComponent extends ActivityComponent {
    *
    * <p>
    * This can be called either before or after calling
-   * {@link BasicWebServerActivityComponent#configureComponent(Activity, Configuration)}
-   * . But if called both before and after, the second call will be the one
-   * used.
+   * {@link BasicWebServerActivityComponent#configureComponent(Activity, Configuration)} . But if called both before and
+   * after, the second call will be the one used.
    *
    * @param uriPrefix
    *          the URI prefix for this particular content
@@ -154,19 +151,37 @@ public interface WebServerActivityComponent extends ActivityComponent {
    *
    * <p>
    * This can be called either before or after calling
-   * {@link BasicWebServerActivityComponent#configureComponent(Activity, Configuration)}
-   * . But if called both before and after, the second call will be the one
-   * used.
+   * {@link BasicWebServerActivityComponent#configureComponent(Activity, Configuration)} . But if called both before and
+   * after, the second call will be the one used.
    *
    * @param uriPrefix
    *          the URI prefix for this particular content
    * @param usePath
-   *          {@code true} if the path will be used as part of request
-   *          processing
+   *          {@code true} if the path will be used as part of request processing
    * @param handler
    *          content handler being added
    *
    * @return the web server component this method was called on
    */
   WebServerActivityComponent addDynamicContent(String uriPrefix, boolean usePath, HttpDynamicRequestHandler handler);
+
+  /**
+   * Add dynamic content for the web server to serve.
+   *
+   * <p>
+   * This can be called either before or after calling
+   * {@link BasicWebServerActivityComponent#configureComponent(Activity, Configuration)} . But if called both before and
+   * after, the second call will be the one used.
+   *
+   * @param uriPrefix
+   *          the URI prefix for this particular content
+   * @param usePath
+   *          {@code true} if the path will be used as part of request processing
+   * @param handler
+   *          content handler being added
+   *
+   * @return the web server component this method was called on
+   */
+  WebServerActivityComponent addDynamicPostRequestHandler(String uriPrefix, boolean usePath,
+      HttpDynamicPostRequestHandler handler);
 }

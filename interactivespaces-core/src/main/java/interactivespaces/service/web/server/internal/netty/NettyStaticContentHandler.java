@@ -64,7 +64,7 @@ import java.util.regex.Pattern;
  *
  * @author Keith M. Hughes
  */
-public class NettyStaticContentHandler implements NettyHttpContentHandler, HttpStaticContentRequestHandler {
+public class NettyStaticContentHandler implements NettyHttpGetRequestHandler, HttpStaticContentRequestHandler {
 
   /**
    * The first portion of a content range header.
@@ -99,7 +99,7 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler, HttpS
   /**
    * Fallback handler to use in case of missing target.
    */
-  private NettyHttpDynamicRequestHandlerHandler fallbackHandler;
+  private NettyHttpDynamicGetRequestHandlerHandler fallbackHandler;
 
   /**
    * The URI prefix to be handled by this handler.
@@ -150,7 +150,7 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler, HttpS
    *          fallback handler to use, can be {@code null}
    */
   public NettyStaticContentHandler(NettyWebServerHandler parentHandler, String uriPrefix, File baseDir,
-      Map<String, String> extraHttpContentHeaders, NettyHttpDynamicRequestHandlerHandler fallbackHandler) {
+      Map<String, String> extraHttpContentHeaders, NettyHttpDynamicGetRequestHandlerHandler fallbackHandler) {
     this.parentHandler = parentHandler;
     this.fallbackHandler = fallbackHandler;
 

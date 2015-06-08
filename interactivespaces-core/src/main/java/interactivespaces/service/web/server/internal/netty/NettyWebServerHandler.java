@@ -36,6 +36,7 @@ import interactivespaces.service.web.server.WebServer;
 import interactivespaces.service.web.server.WebServerWebSocketHandlerFactory;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 
@@ -67,7 +68,6 @@ import org.jboss.netty.util.CharsetUtil;
 import java.io.IOException;
 import java.net.HttpCookie;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -107,9 +107,14 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
   private String fullWebSocketUriPrefix;
 
   /**
-   * All content handlers handled by this instance.
+   * All GET request handlers handled by this instance.
    */
-  private List<NettyHttpContentHandler> httpContentHandlers = new ArrayList<NettyHttpContentHandler>();
+  private List<NettyHttpGetRequestHandler> httpGetRequestHandlers = Lists.newArrayList();
+
+  /**
+   * All POST request handlers handled by this instance.
+   */
+  private List<NettyHttpPostRequestHandler> httpPostRequestHandlers = Lists.newArrayList();
 
   /**
    * Map of Netty channel IDs to web socket handlers.
@@ -125,7 +130,7 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
    * Map of host names to the handshaker factory for that host.
    *
    * <p>
-   * Not concurrent, so needs to be prote
+   * Not concurrent, so needs to be protected.
    */
   private Map<String, WebSocketServerHandshakerFactory> webSocketHandshakerFactories = Maps.newHashMap();
 
@@ -141,7 +146,7 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
    * The listener for file uploads.
    *
    * <p>
-   * Can be null.
+   * Can be {@code null}.
    */
   private HttpFileUploadListener fileUploadListener;
 
@@ -173,13 +178,23 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
   }
 
   /**
-   * Register a new content handler to the server.
+   * Register a new GET request handler to the server.
    *
    * @param handler
    *          the handler to add
    */
-  public void addHttpContentHandler(NettyHttpContentHandler handler) {
-    httpContentHandlers.add(handler);
+  public void addHttpGetRequestHandler(NettyHttpGetRequestHandler handler) {
+    httpGetRequestHandlers.add(handler);
+  }
+
+  /**
+   * Register a new POST request handler to the server.
+   *
+   * @param handler
+   *          the handler to add
+   */
+  public void addHttpPostRequestHandler(NettyHttpPostRequestHandler handler) {
+    httpPostRequestHandlers.add(handler);
   }
 
   /**
@@ -279,7 +294,7 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
       // The method handled the request if the return value was true.
     } else if (webSocketHandlerFactory != null && tryWebSocketUpgradeRequest(ctx, req, user)) {
       // The method handled the request if the return value was true.
-    } else if (handleWebPutRequest(ctx, req, response)) {
+    } else if (handleWebPostRequest(ctx, req, response)) {
       // The method handled the request if the return value was true.
     } else {
       // Nothing we handle.
@@ -325,7 +340,7 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
         cookies = authResponse.getCookies();
       }
 
-      for (NettyHttpContentHandler handler : httpContentHandlers) {
+      for (NettyHttpGetRequestHandler handler : httpGetRequestHandlers) {
         if (handler.isHandledBy(request)) {
           try {
             handler.handleWebRequest(context, request, cookies);
@@ -357,10 +372,14 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
    * @throws IOException
    *           an IO exception happened
    */
-  private boolean
-      handleWebPutRequest(ChannelHandlerContext context, HttpRequest request, HttpAuthResponse authResponse)
-          throws IOException {
-    if (request.getMethod() != POST || fileUploadListener == null) {
+  private boolean handleWebPostRequest(ChannelHandlerContext context, HttpRequest request,
+      HttpAuthResponse authResponse) throws IOException {
+    if (request.getMethod() != POST) {
+      return false;
+    }
+
+    NettyHttpPostRequestHandler postRequestHandler = locatePostRequestHandler(request);
+    if (postRequestHandler == null && fileUploadListener == null) {
       return false;
     }
 
@@ -368,27 +387,49 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
       return false;
     }
 
+    Set<HttpCookie> cookies = null;
+    if (authResponse != null) {
+      cookies = authResponse.getCookies();
+    }
+
     try {
       NettyHttpFileUpload fileUpload =
-          new NettyHttpFileUpload(request, new HttpPostRequestDecoder(HTTP_DATA_FACTORY, request), webServer);
+          new NettyHttpFileUpload(request, new HttpPostRequestDecoder(HTTP_DATA_FACTORY, request), postRequestHandler,
+              this, cookies);
 
       if (request.isChunked()) {
         // Chunked data so more coming.
         fileUploadHandlers.put(context.getChannel().getId(), fileUpload);
       } else {
         fileUpload.completeNonChunked();
-        fileUploadComplete(fileUpload);
-        HttpResponseStatus status = HttpResponseStatus.OK;
-        webServer.getLog().debug(String.format("HTTP [%s] %s --> (File Upload)", status.getCode(), request.getUri()));
-        sendSuccessHttpResponse(context, request);
+
+        fileUpload.fileUploadComplete(context);
       }
-    } catch (Exception e) {
+    } catch (Throwable e) {
       webServer.getLog().error("Could not start file upload", e);
 
       sendError(context, HttpResponseStatus.INTERNAL_SERVER_ERROR);
     }
 
     return true;
+  }
+
+  /**
+   * Locate a registered POST request handler that can handle the given request.
+   *
+   * @param nettyRequest
+   *          the Netty request
+   *
+   * @return the first handler that handles the request, or {@code null} if none
+   */
+  private NettyHttpPostRequestHandler locatePostRequestHandler(HttpRequest nettyRequest) {
+    for (NettyHttpPostRequestHandler handler : httpPostRequestHandlers) {
+      if (handler.isHandledBy(nettyRequest)) {
+        return handler;
+      }
+    }
+
+    return null;
   }
 
   /**
@@ -477,48 +518,32 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
   /**
    * handle a chunk.
    *
-   * @param ctx
+   * @param context
    *          the channel event context
    * @param chunk
    *          the chunk frame
    */
-  private void handleHttpChunk(ChannelHandlerContext ctx, HttpChunk chunk) {
-    NettyHttpFileUpload fileUpload = fileUploadHandlers.get(ctx.getChannel().getId());
+  private void handleHttpChunk(ChannelHandlerContext context, HttpChunk chunk) {
+    NettyHttpFileUpload fileUpload = fileUploadHandlers.get(context.getChannel().getId());
     if (fileUpload != null) {
       try {
-        fileUpload.addChunk(ctx, chunk);
+        fileUpload.addChunk(context, chunk);
 
         if (chunk.isLast()) {
-          fileUploadHandlers.remove(ctx.getChannel().getId());
-          fileUploadComplete(fileUpload);
-          sendSuccessHttpResponse(ctx, fileUpload.getRequest());
+          fileUploadHandlers.remove(context.getChannel().getId());
+
+          fileUpload.fileUploadComplete(context);
         }
-      } catch (Exception e) {
+      } catch (Throwable e) {
         // An error, so don't leave handler around.
-        fileUploadHandlers.remove(ctx.getChannel().getId());
+        fileUploadHandlers.remove(context.getChannel().getId());
 
         webServer.getLog().error("Error while processing a chunk of file upload", e);
-        sendError(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR);
+        sendError(context, HttpResponseStatus.INTERNAL_SERVER_ERROR);
       }
     } else {
       webServer.getLog().warn("Received HTTP chunk for unknown channel");
     }
-  }
-
-  /**
-   * The file upload is complete. Finish processing and alert everyone who needs to know.
-   *
-   * @param fileUpload
-   *          the completed file upload object
-   */
-  private void fileUploadComplete(NettyHttpFileUpload fileUpload) {
-    try {
-      fileUploadListener.handleHttpFileUpload(fileUpload);
-    } catch (Exception e) {
-      webServer.getLog().error("Error while calling file upload listener", e);
-    }
-
-    fileUpload.clean();
   }
 
   /**
@@ -659,7 +684,7 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
    * @param req
    *          the request which has come in
    */
-  private void sendSuccessHttpResponse(ChannelHandlerContext ctx, HttpRequest req) {
+  public void sendSuccessHttpResponse(ChannelHandlerContext ctx, HttpRequest req) {
     DefaultHttpResponse res = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
     addGlobalHttpResponseHeaders(res);
     sendHttpResponse(ctx, req, res, false, false);
@@ -801,5 +826,14 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
     String filename =
         pos >= 0 ? uriPath.substring(pos + HttpConstants.URL_PATH_COMPONENT_SEPARATOR.length()) : uriPath;
     return !UNWARNED_MISSING_FILE_NAMES.contains(filename);
+  }
+
+  /**
+   * Get the file upload listener.
+   *
+   * @return the file upload listener
+   */
+  public HttpFileUploadListener getHttpFileUploadListener() {
+    return fileUploadListener;
   }
 }

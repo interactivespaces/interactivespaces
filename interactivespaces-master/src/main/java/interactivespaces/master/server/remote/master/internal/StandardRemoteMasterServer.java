@@ -159,7 +159,7 @@ public class StandardRemoteMasterServer implements RemoteMasterServer {
         try {
           response.getOutputStream().write(RemoteMasterServerMessages.MASTER_METHOD_RESPONSE_FAILURE.getBytes());
         } catch (IOException e) {
-          InteractiveSpacesException.throwFormattedException(e,
+          throw InteractiveSpacesException.newFormattedException(e,
               "Could not write failure response for remote master server request %s", request.getUri());
         }
       }
@@ -189,10 +189,11 @@ public class StandardRemoteMasterServer implements RemoteMasterServer {
         try {
           response.getOutputStream().write(RemoteMasterServerMessages.CONTROLLER_REGISTRATION_FAILURE.getBytes());
         } catch (IOException e1) {
-          InteractiveSpacesException.throwFormattedException(e,
+          throw InteractiveSpacesException.newFormattedException(e,
               "Could not write failure response for controller registration %s", request.getUri());
         }
-        InteractiveSpacesException.throwFormattedException(e, "Could not process controller registration %s",
+
+        throw InteractiveSpacesException.newFormattedException(e, "Could not process controller registration %s",
             request.getUri());
       }
     }

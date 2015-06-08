@@ -16,20 +16,23 @@
 
 package interactivespaces.master.server.services.internal;
 
-import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.system.NamedScript;
 import interactivespaces.master.api.master.MasterApiActivityManager;
 import interactivespaces.master.api.master.MasterApiMasterSupportManager;
 import interactivespaces.master.api.master.MasterApiSpaceControllerManager;
+import interactivespaces.master.api.messages.MasterApiMessageSupport;
+import interactivespaces.master.api.messages.MasterApiMessages;
 import interactivespaces.master.server.services.ActiveSpaceControllerManager;
 import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.master.server.services.AutomationManager;
-import interactivespaces.master.server.services.SpaceControllerRepository;
 import interactivespaces.master.server.services.ScriptingNames;
+import interactivespaces.master.server.services.SpaceControllerRepository;
 import interactivespaces.service.scheduler.SchedulerService;
 import interactivespaces.service.script.ScriptService;
 import interactivespaces.service.script.StringScriptSource;
 import interactivespaces.system.InteractiveSpacesEnvironment;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.util.io.directorywatcher.BaseDirectoryWatcherListener;
 import interactivespaces.util.io.directorywatcher.DirectoryWatcher;
 import interactivespaces.util.io.directorywatcher.SimpleDirectoryWatcher;
@@ -120,6 +123,11 @@ public class BasicAutomationManager implements AutomationManager {
    */
   private Map<String, Object> automationBindings;
 
+  /**
+   * The file support to use.
+   */
+  private FileSupport fileSupport = FileSupportImpl.INSTANCE;
+
   @Override
   public void startup() {
     prepareImportDirectoryWatcher();
@@ -183,10 +191,13 @@ public class BasicAutomationManager implements AutomationManager {
     automationBindings.put(ScriptingNames.SCRIPTING_NAME_SPACE_CONTROLLER_REPOSITORY, spaceControllerRepository);
     automationBindings.put(ScriptingNames.SCRIPTING_NAME_SCRIPT_SERVICE, scriptService);
     automationBindings.put(ScriptingNames.SCRIPTING_NAME_SCHEDULER_SERVICE, schedulerService);
-    automationBindings.put(ScriptingNames.SCRIPTING_NAME_ACTIVE_SPACE_CONTROLLER_MANAGER, activeSpaceControllerManager);
+    automationBindings
+        .put(ScriptingNames.SCRIPTING_NAME_ACTIVE_SPACE_CONTROLLER_MANAGER, activeSpaceControllerManager);
     automationBindings.put(ScriptingNames.SCRIPTING_NAME_MASTER_API_ACTIVITY_MANAGER, masterApiActivityManager);
-    automationBindings.put(ScriptingNames.SCRIPTING_NAME_MASTER_API_SPACE_CONTROLLER_MANAGER, masterApiSpaceControllerManager);
-    automationBindings.put(ScriptingNames.SCRIPTING_NAME_MASTER_API_MASTER_SUPPORT_MANAGER, masterApiMasterSupportManager);
+    automationBindings.put(ScriptingNames.SCRIPTING_NAME_MASTER_API_SPACE_CONTROLLER_MANAGER,
+        masterApiSpaceControllerManager);
+    automationBindings.put(ScriptingNames.SCRIPTING_NAME_MASTER_API_MASTER_SUPPORT_MANAGER,
+        masterApiMasterSupportManager);
     automationBindings.put(ScriptingNames.SCRIPTING_NAME_SPACE_ENVIRONMENT, spaceEnvironment);
     automationBindings.put(ScriptingNames.SCRIPTING_NAME_AUTOMATION_MANAGER, this);
   }
@@ -203,13 +214,16 @@ public class BasicAutomationManager implements AutomationManager {
     FileInputStream activityStream = null;
     try {
       activityStream = new FileInputStream(file);
-      Activity activity = masterApiActivityManager.saveActivity(null, activityStream);
+      Map<String, Object> activityResponse = masterApiActivityManager.saveActivity(null, activityStream);
 
-      String watchedFolder = file.getParent();
-      if (watchedFolder.endsWith(ACTIVITY_DEPLOY_DIRECTORY)) {
-        masterApiSpaceControllerManager.deployAllLiveActivityInstances(activity.getId());
+      if (MasterApiMessageSupport.isSuccessResponse(activityResponse)) {
+        String watchedFolder = file.getParent();
+        if (watchedFolder.endsWith(ACTIVITY_DEPLOY_DIRECTORY)) {
+          masterApiSpaceControllerManager.deployAllLiveActivityInstances((String) MasterApiMessageSupport
+              .getResponseDataMap(activityResponse).get(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID));
+        }
       }
-    } catch (Exception e) {
+    } catch (Throwable e) {
       spaceEnvironment.getLog().error(String.format("Could not read imported activity file %s", file), e);
     } finally {
       if (activityStream != null) {

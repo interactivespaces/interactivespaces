@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2015 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,23 +14,22 @@
  * the License.
  */
 
-package interactivespaces.service.web.server;
+package interactivespaces.util.web;
 
 /**
- * A listener for new file uploads.
+ * A collection of common MIME types.
  *
  * @author Keith M. Hughes
- *
- * @deprecated Use {@link HttpDynamicPostRequestHandler}
  */
-@Deprecated
-public interface HttpFileUploadListener {
+public class CommonMimeTypes {
 
   /**
-   * A new file has been uploaded.
-   *
-   * @param fileUpload
-   *          the file which has just been uploaded
+   * The plain text MIME type.
    */
-  void handleHttpFileUpload(HttpFileUpload fileUpload);
+  public static final String MIME_TYPE_TEXT_PLAIN = "text/plain";
+
+  /**
+   * The JSON MIME type.
+   */
+  public static final String MIME_TYPE_APPLICATION_JSON = "application/json";
 }

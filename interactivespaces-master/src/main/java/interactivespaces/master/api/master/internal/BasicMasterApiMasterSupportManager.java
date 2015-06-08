@@ -56,10 +56,10 @@ public class BasicMasterApiMasterSupportManager extends BaseMasterApiManager imp
       fileSupport.writeFile(new File(MASTER_DOMAIN_FILE), description);
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
-    } catch (Exception e) {
+    } catch (Throwable e) {
       spaceEnvironment.getLog().error("Error while writing master domain model", e);
 
-      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE);
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE, e);
     }
   }
 
@@ -71,10 +71,10 @@ public class BasicMasterApiMasterSupportManager extends BaseMasterApiManager imp
       masterSupportManager.importMasterDomainDescription(description);
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
-    } catch (Exception e) {
+    } catch (Throwable e) {
       spaceEnvironment.getLog().error("Error while importing master domain model", e);
 
-      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE);
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE, e);
     }
   }
 

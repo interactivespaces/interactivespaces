@@ -21,6 +21,7 @@ import static org.jboss.netty.channel.Channels.pipeline;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.service.web.server.HttpAuthProvider;
+import interactivespaces.service.web.server.HttpDynamicPostRequestHandler;
 import interactivespaces.service.web.server.HttpDynamicRequestHandler;
 import interactivespaces.service.web.server.HttpFileUploadListener;
 import interactivespaces.service.web.server.HttpStaticContentRequestHandler;
@@ -155,9 +156,14 @@ public class NettyWebServer implements WebServer {
   private List<HttpStaticContentRequestHandler> staticContentRequestHandlers = Lists.newArrayList();
 
   /**
-   * The complete collection of static content handlers.
+   * The complete collection of dynamic GET request handlers.
    */
-  private List<HttpDynamicRequestHandler> dynamicRequestHandlers = Lists.newArrayList();
+  private List<HttpDynamicRequestHandler> dynamicGetRequestHandlers = Lists.newArrayList();
+
+  /**
+   * The complete collection of dynamic POST request handlers.
+   */
+  private List<HttpDynamicPostRequestHandler> dynamicPostRequestHandlers = Lists.newArrayList();
 
   /**
    * Create a web server using a singular thread pool.
@@ -278,8 +284,8 @@ public class NettyWebServer implements WebServer {
       throw new InteractiveSpacesException(String.format("Cannot find web folder %s", baseDir.getAbsolutePath()));
     }
 
-    NettyHttpDynamicRequestHandlerHandler fallbackNettyHandler =
-        fallbackHandler == null ? null : new NettyHttpDynamicRequestHandlerHandler(serverHandler, uriPrefix, false,
+    NettyHttpDynamicGetRequestHandlerHandler fallbackNettyHandler =
+        fallbackHandler == null ? null : new NettyHttpDynamicGetRequestHandlerHandler(serverHandler, uriPrefix, false,
             fallbackHandler, extraHttpContentHeaders);
 
     NettyStaticContentHandler staticContentHandler =
@@ -290,7 +296,7 @@ public class NettyWebServer implements WebServer {
     }
 
     staticContentHandler.setMimeResolver(defaultMimeResolver);
-    serverHandler.addHttpContentHandler(staticContentHandler);
+    serverHandler.addHttpGetRequestHandler(staticContentHandler);
 
     staticContentRequestHandlers.add(staticContentHandler);
   }
@@ -303,9 +309,22 @@ public class NettyWebServer implements WebServer {
   @Override
   public void addDynamicContentHandler(String uriPrefix, boolean usePath, HttpDynamicRequestHandler handler,
       Map<String, String> extraHttpContentHeaders) {
-    serverHandler.addHttpContentHandler(new NettyHttpDynamicRequestHandlerHandler(serverHandler, uriPrefix, usePath,
-        handler, extraHttpContentHeaders));
-    dynamicRequestHandlers.add(handler);
+    serverHandler.addHttpGetRequestHandler(new NettyHttpDynamicGetRequestHandlerHandler(serverHandler, uriPrefix,
+        usePath, handler, extraHttpContentHeaders));
+    dynamicGetRequestHandlers.add(handler);
+  }
+
+  @Override
+  public void addDynamicPostRequestHandler(String uriPrefix, boolean usePath, HttpDynamicPostRequestHandler handler) {
+    addDynamicPostRequestHandler(uriPrefix, usePath, handler, null);
+  }
+
+  @Override
+  public void addDynamicPostRequestHandler(String uriPrefix, boolean usePath, HttpDynamicPostRequestHandler handler,
+      Map<String, String> extraHttpContentHeaders) {
+    serverHandler.addHttpPostRequestHandler(new NettyHttpDynamicPostRequestHandlerHandler(serverHandler, uriPrefix,
+        usePath, handler, extraHttpContentHeaders));
+    dynamicPostRequestHandlers.add(handler);
   }
 
   @Override
@@ -315,7 +334,12 @@ public class NettyWebServer implements WebServer {
 
   @Override
   public List<HttpDynamicRequestHandler> getDynamicRequestHandlers() {
-    return Lists.newArrayList(dynamicRequestHandlers);
+    return Lists.newArrayList(dynamicGetRequestHandlers);
+  }
+
+  @Override
+  public List<HttpDynamicPostRequestHandler> getDynamicPostRequestHandlers() {
+    return Lists.newArrayList(dynamicPostRequestHandlers);
   }
 
   @Override

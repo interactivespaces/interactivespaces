@@ -22,6 +22,8 @@ import interactivespaces.SimpleInteractiveSpacesException;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -710,4 +712,24 @@ public interface FileSupport {
    * @return the collection of files that pass the filter
    */
   List<File> collectFiles(File baseDir, FileFilter filter, boolean recurse);
+
+  /**
+   * Create a new file input stream for the requested file.
+   *
+   * @param file
+   *          the file
+   *
+   * @return the new stream
+   */
+  FileInputStream newFileInputStream(File file);
+
+  /**
+   * Create a new file output stream for the requested file.
+   *
+   * @param file
+   *          the file
+   *
+   * @return the new stream
+   */
+  FileOutputStream newFileOutputStream(File file);
 }

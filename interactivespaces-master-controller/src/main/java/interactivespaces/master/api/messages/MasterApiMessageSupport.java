@@ -16,6 +16,9 @@
 
 package interactivespaces.master.api.messages;
 
+import interactivespaces.InteractiveSpacesException;
+import interactivespaces.SimpleInteractiveSpacesException;
+
 import com.google.common.collect.Maps;
 
 import java.util.Map;
@@ -61,15 +64,36 @@ public class MasterApiMessageSupport {
    *
    * @param reason
    *          the reason for the failure
+   * @param detail
+   *          details about the failure
    *
    * @return the Master API response object
    */
-  public static Map<String, Object> getFailureResponse(String reason) {
-    Map<String, Object> result = Maps.newHashMap();
-    result.put(MasterApiMessages.MASTER_API_MESSAGE_ENVELOPE_RESULT, MasterApiMessages.MASTER_API_RESULT_FAILURE);
-    result.put(MasterApiMessages.MASTER_API_MESSAGE_ENVELOPE_REASON, reason);
+  public static Map<String, Object> getFailureResponse(String reason, String detail) {
+    Map<String, Object> response = Maps.newHashMap();
+    response.put(MasterApiMessages.MASTER_API_MESSAGE_ENVELOPE_RESULT, MasterApiMessages.MASTER_API_RESULT_FAILURE);
+    response.put(MasterApiMessages.MASTER_API_MESSAGE_ENVELOPE_REASON, reason);
+    response.put(MasterApiMessages.MASTER_API_MESSAGE_ENVELOPE_DETAIL, detail);
 
-    return result;
+    return response;
+  }
+
+  /**
+   * Get a failure Master API response.
+   *
+   * @param reason
+   *          the reason for the failure
+   * @param throwable
+   *          the throwable that caused the error
+   *
+   * @return the Master API response object
+   */
+  public static Map<String, Object> getFailureResponse(String reason, Throwable throwable) {
+    String detail =
+        (throwable instanceof SimpleInteractiveSpacesException) ? ((SimpleInteractiveSpacesException) throwable)
+            .getCompoundMessage() : InteractiveSpacesException.getStackTrace(throwable);
+
+    return getFailureResponse(reason, detail);
   }
 
   /**
@@ -81,7 +105,8 @@ public class MasterApiMessageSupport {
    * @return {@code true} if the response was a success
    */
   public static boolean isSuccessResponse(Map<String, Object> response) {
-    return MasterApiMessages.MASTER_API_RESULT_SUCCESS.equals(response.get(MasterApiMessages.MASTER_API_MESSAGE_ENVELOPE_RESULT));
+    return MasterApiMessages.MASTER_API_RESULT_SUCCESS.equals(response
+        .get(MasterApiMessages.MASTER_API_MESSAGE_ENVELOPE_RESULT));
   }
 
   /**
@@ -96,6 +121,18 @@ public class MasterApiMessageSupport {
    */
   public static boolean isResponseReason(Map<String, Object> response, String reason) {
     return reason.equals(response.get(MasterApiMessages.MASTER_API_MESSAGE_ENVELOPE_REASON));
+  }
+
+  /**
+   * Get the response detail.
+   *
+   * @param response
+   *          the Master API response
+   *
+   * @return the detail, or {@code null} if none
+   */
+  public static String getResponseDetail(Map<String, Object> response) {
+    return (String) response.get(MasterApiMessages.MASTER_API_MESSAGE_ENVELOPE_DETAIL);
   }
 
   /**

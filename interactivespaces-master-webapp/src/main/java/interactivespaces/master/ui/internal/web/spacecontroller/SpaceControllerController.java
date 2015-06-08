@@ -92,27 +92,23 @@ public class SpaceControllerController extends BaseActiveSpaceMasterController {
   }
 
   @RequestMapping(value = "/spacecontroller/all.json", method = RequestMethod.GET)
-  public @ResponseBody
-  Map<String, ? extends Object> listAllControllersJson() {
+  public @ResponseBody Map<String, ? extends Object> listAllControllersJson() {
     return masterApiSpaceControllerManager.getSpaceControllerAllView();
   }
 
   @RequestMapping(value = "/spacecontroller/{id}/view.json", method = RequestMethod.GET)
-  public @ResponseBody
-  Map<String, ? extends Object> viewControllerJson(@PathVariable String id) {
+  public @ResponseBody Map<String, ? extends Object> viewControllerJson(@PathVariable String id) {
     return masterApiSpaceControllerManager.getSpaceControllerView(id);
   }
 
   @RequestMapping(value = "/spacecontroller/{id}/configuration.json", method = RequestMethod.GET)
-  public @ResponseBody
-  Map<String, ? extends Object> getSpaceControllerConfiguration(@PathVariable String id) {
+  public @ResponseBody Map<String, ? extends Object> getSpaceControllerConfiguration(@PathVariable String id) {
     return masterApiSpaceControllerManager.getSpaceControllerConfiguration(id);
   }
 
   @RequestMapping(value = "/spacecontroller/{id}/configuration.json", method = RequestMethod.POST)
-  public @ResponseBody
-  Map<String, ? extends Object> setSpaceControllerConfiguration(@PathVariable String id, @RequestBody Object config,
-      HttpServletResponse response) {
+  public @ResponseBody Map<String, ? extends Object> setSpaceControllerConfiguration(@PathVariable String id,
+      @RequestBody Object config, HttpServletResponse response) {
 
     if (Map.class.isAssignableFrom(config.getClass())) {
       @SuppressWarnings("unchecked")
@@ -120,93 +116,80 @@ public class SpaceControllerController extends BaseActiveSpaceMasterController {
 
       return masterApiSpaceControllerManager.setSpaceControllerConfiguration(id, map);
     } else {
-      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_ARGS_NOMAP);
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_ARGS_NOMAP,
+          MasterApiMessages.MESSAGE_SPACE_DETAIL_CALL_ARGS_NOMAP);
     }
   }
 
   @RequestMapping(value = "/spacecontroller/{id}/configure.json", method = RequestMethod.GET)
-  public @ResponseBody
-  Map<String, ? extends Object> configureSpaceController(@PathVariable String id) {
+  public @ResponseBody Map<String, ? extends Object> configureSpaceController(@PathVariable String id) {
     return masterApiSpaceControllerManager.configureSpaceController(id);
   }
 
   @RequestMapping(value = "/spacecontroller/{id}/metadata.json", method = RequestMethod.POST)
-  public @ResponseBody
-  Map<String, ? extends Object> modifySpaceControllerMetadata(@PathVariable String id,
+  public @ResponseBody Map<String, ? extends Object> modifySpaceControllerMetadata(@PathVariable String id,
       @RequestBody Object metadataCommand, HttpServletResponse response) {
 
     return masterApiSpaceControllerManager.updateSpaceControllerMetadata(id, metadataCommand);
   }
 
   @RequestMapping(value = "/spacecontroller/{id}/connect.json", method = RequestMethod.GET)
-  public @ResponseBody
-  Map<String, ? extends Object> connectController(@PathVariable String id) {
+  public @ResponseBody Map<String, ? extends Object> connectController(@PathVariable String id) {
     return masterApiSpaceControllerManager.connectToSpaceControllers(Collections.singletonList(id));
   }
 
   @RequestMapping(value = "/spacecontroller/{id}/disconnect.json", method = RequestMethod.GET)
-  public @ResponseBody
-  Map<String, ? extends Object> disconnectSpaceController(@PathVariable String id) {
+  public @ResponseBody Map<String, ? extends Object> disconnectSpaceController(@PathVariable String id) {
     return masterApiSpaceControllerManager.disconnectFromSpaceControllers(Collections.singletonList(id));
   }
 
   @RequestMapping(value = "/spacecontroller/{id}/cleantmpdata.json", method = RequestMethod.GET)
-  public @ResponseBody
-  Map<String, ? extends Object> cleanTempData(@PathVariable String id) {
+  public @ResponseBody Map<String, ? extends Object> cleanTempData(@PathVariable String id) {
     return masterApiSpaceControllerManager.cleanSpaceControllerTempData(id);
   }
 
   @RequestMapping(value = "/spacecontroller/{id}/cleanactivitiestmpdata.json", method = RequestMethod.GET)
-  public @ResponseBody
-  Map<String, ? extends Object> cleanActivitiesTempData(@PathVariable String id) {
+  public @ResponseBody Map<String, ? extends Object> cleanActivitiesTempData(@PathVariable String id) {
     return masterApiSpaceControllerManager.cleanSpaceControllerActivitiesTempData(id);
   }
 
   @RequestMapping(value = "/spacecontroller/{id}/cleanpermanentdata.json", method = RequestMethod.GET)
-  public @ResponseBody
-  Map<String, ? extends Object> cleanPermanentData(@PathVariable String id) {
+  public @ResponseBody Map<String, ? extends Object> cleanPermanentData(@PathVariable String id) {
     return masterApiSpaceControllerManager.cleanSpaceControllerPermanentData(id);
   }
 
   @RequestMapping(value = "/spacecontroller/{id}/cleanactivitiespermanentdata.json", method = RequestMethod.GET)
-  public @ResponseBody
-  Map<String, ? extends Object> cleanActivitiesPermanentData(@PathVariable String id) {
+  public @ResponseBody Map<String, ? extends Object> cleanActivitiesPermanentData(@PathVariable String id) {
     return masterApiSpaceControllerManager.cleanSpaceControllerActivitiesPermanentData(id);
   }
 
   @RequestMapping(value = "/spacecontroller/{id}/restoredata.json", method = RequestMethod.GET)
-  public @ResponseBody
-  Map<String, ? extends Object> restoreData(@PathVariable String id) {
+  public @ResponseBody Map<String, ? extends Object> restoreData(@PathVariable String id) {
     return masterApiSpaceControllerManager.restoreDataSpaceController(id);
   }
 
   @RequestMapping(value = "/spacecontroller/{id}/capturedata.json", method = RequestMethod.GET)
-  public @ResponseBody
-  Map<String, ? extends Object> captureData(@PathVariable String id) {
+  public @ResponseBody Map<String, ? extends Object> captureData(@PathVariable String id) {
     return masterApiSpaceControllerManager.captureDataSpaceController(id);
   }
 
   @RequestMapping(value = "/spacecontroller/{id}/shutdown.json", method = RequestMethod.GET)
-  public @ResponseBody
-  Map<String, ? extends Object> shutdownController(@PathVariable String id) {
+  public @ResponseBody Map<String, ? extends Object> shutdownController(@PathVariable String id) {
     return masterApiSpaceControllerManager.shutdownSpaceControllers(Lists.newArrayList(id));
   }
 
   @RequestMapping(value = "/spacecontroller/{id}/activities/shutdown.json", method = RequestMethod.GET)
-  public @ResponseBody
-  Map<String, ? extends Object> shutdownAllAppsController(@PathVariable String id) {
+  public @ResponseBody Map<String, ? extends Object> shutdownAllAppsController(@PathVariable String id) {
     return masterApiSpaceControllerManager.shutdownAllActivities(id);
   }
 
   @RequestMapping(value = "/spacecontroller/{id}/status.json", method = RequestMethod.GET)
-  public @ResponseBody
-  Map<String, ? extends Object> statusController(@PathVariable String id) {
+  public @ResponseBody Map<String, ? extends Object> statusController(@PathVariable String id) {
     return masterApiSpaceControllerManager.statusSpaceControllers(Collections.singletonList(id));
   }
 
   @RequestMapping(value = "/spacecontroller/{id}/deploy.json", method = RequestMethod.GET)
-  public @ResponseBody
-  Map<String, ? extends Object> deployLiveActivities(@PathVariable String id) {
+  public @ResponseBody Map<String, ? extends Object> deployLiveActivities(@PathVariable String id) {
     return masterApiSpaceControllerManager.deployAllActivityInstancesSpaceController(id);
   }
 
@@ -232,50 +215,42 @@ public class SpaceControllerController extends BaseActiveSpaceMasterController {
   }
 
   @RequestMapping(value = "/spacecontroller/all/cleantmpdata.json", method = RequestMethod.GET)
-  public @ResponseBody
-  Map<String, ? extends Object> cleanTempDataAllControllers() {
+  public @ResponseBody Map<String, ? extends Object> cleanTempDataAllControllers() {
     return masterApiSpaceControllerManager.cleanSpaceControllerTempDataAllSpaceControllers();
   }
 
   @RequestMapping(value = "/spacecontroller/all/cleanactivitiestmpdata.json", method = RequestMethod.GET)
-  public @ResponseBody
-  Map<String, ? extends Object> cleanActivitiesTempDataAllControllers() {
+  public @ResponseBody Map<String, ? extends Object> cleanActivitiesTempDataAllControllers() {
     return masterApiSpaceControllerManager.cleanSpaceControllerActivitiesTempDataAllSpaceControllers();
   }
 
   @RequestMapping(value = "/spacecontroller/all/cleanpermanentdata.json", method = RequestMethod.GET)
-  public @ResponseBody
-  Map<String, ? extends Object> cleanPermanentDataAllControllers() {
+  public @ResponseBody Map<String, ? extends Object> cleanPermanentDataAllControllers() {
     return masterApiSpaceControllerManager.cleanSpaceControllerPermanentDataAllSpaceControllers();
   }
 
   @RequestMapping(value = "/spacecontroller/all/cleanactivitiespermanentdata.json", method = RequestMethod.GET)
-  public @ResponseBody
-  Map<String, ? extends Object> cleanActivitiesPermanentDataAllControllers() {
+  public @ResponseBody Map<String, ? extends Object> cleanActivitiesPermanentDataAllControllers() {
     return masterApiSpaceControllerManager.cleanSpaceControllerActivitiesPermanentDataAllSpaceControllers();
   }
 
   @RequestMapping(value = "/spacecontroller/all/capturedata.json", method = RequestMethod.GET)
-  public @ResponseBody
-  Map<String, ? extends Object> captureDataAllControllers() {
+  public @ResponseBody Map<String, ? extends Object> captureDataAllControllers() {
     return masterApiSpaceControllerManager.captureDataAllSpaceControllers();
   }
 
   @RequestMapping(value = "/spacecontroller/all/restoredata.json", method = RequestMethod.GET)
-  public @ResponseBody
-  Map<String, ? extends Object> restoreDataAllControllers() {
+  public @ResponseBody Map<String, ? extends Object> restoreDataAllControllers() {
     return masterApiSpaceControllerManager.restoreDataAllSpaceControllers();
   }
 
   @RequestMapping(value = "/spacecontroller/all/status.json", method = RequestMethod.GET)
-  public @ResponseBody
-  Map<String, ? extends Object> statusAllControllers() {
+  public @ResponseBody Map<String, ? extends Object> statusAllControllers() {
     return masterApiSpaceControllerManager.statusFromAllSpaceControllers();
   }
 
   @RequestMapping(value = "/spacecontroller/all/forcestatus.json", method = RequestMethod.GET)
-  public @ResponseBody
-  Map<String, ? extends Object> forceStatusAllControllers() {
+  public @ResponseBody Map<String, ? extends Object> forceStatusAllControllers() {
     return masterApiSpaceControllerManager.forceStatusFromAllSpaceControllers();
   }
 

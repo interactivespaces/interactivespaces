@@ -98,10 +98,10 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
       }
 
       return MasterApiMessageSupport.getSuccessResponse(responseData);
-    } catch (Exception e) {
+    } catch (Throwable e) {
       spaceEnvironment.getLog().error("Attempt to get activity data failed", e);
 
-      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE);
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE, e);
     }
   }
 
@@ -145,7 +145,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSuccessResponse(responseData);
     } else {
-      return getNoSuchSpaceControllerResult();
+      return getNoSuchSpaceControllerResponse(id);
     }
   }
 
@@ -159,7 +159,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSuccessResponse(controllerData);
     } else {
-      return getNoSuchSpaceControllerResult();
+      return getNoSuchSpaceControllerResponse(id);
     }
   }
 
@@ -178,7 +178,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSuccessResponse(data);
     } else {
-      return getNoSuchSpaceControllerResult();
+      return getNoSuchSpaceControllerResponse(id);
     }
   }
 
@@ -192,7 +192,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchSpaceControllerResult();
+      return getNoSuchSpaceControllerResponse(id);
     }
   }
 
@@ -204,7 +204,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchLiveActivityResult();
+      return getNoSuchLiveActivityResponse(id);
     }
   }
 
@@ -310,7 +310,8 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
   @Override
   public Map<String, Object> updateSpaceControllerMetadata(String id, Object metadataCommandObj) {
     if (!(metadataCommandObj instanceof Map)) {
-      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_ARGS_NOMAP);
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_ARGS_NOMAP,
+          MasterApiMessages.MESSAGE_SPACE_DETAIL_CALL_ARGS_NOMAP);
     }
 
     @SuppressWarnings("unchecked")
@@ -319,7 +320,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
     try {
       SpaceController spaceController = spaceControllerRepository.getSpaceControllerById(id);
       if (spaceController == null) {
-        return getNoSuchSpaceControllerResult();
+        return getNoSuchSpaceControllerResponse(id);
       }
 
       String command = (String) metadataCommand.get(MasterApiMessages.MASTER_API_PARAMETER_COMMAND);
@@ -352,16 +353,17 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
         spaceController.setMetadata(metadata);
       } else {
-        return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_COMMAND_UNKNOWN);
+        return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_COMMAND_UNKNOWN,
+            String.format("Unknown space controller metadata update command %s", command));
       }
 
       spaceControllerRepository.saveSpaceController(spaceController);
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
-    } catch (Exception e) {
+    } catch (Throwable e) {
       spaceEnvironment.getLog().error("Could not modify space controller metadata", e);
 
-      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE);
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE, e);
     }
   }
 
@@ -373,7 +375,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchSpaceControllerResult();
+      return getNoSuchSpaceControllerResponse(id);
     }
   }
 
@@ -382,7 +384,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
     for (SpaceController controller : getAllEnabledSpaceControllers()) {
       try {
         activeSpaceControllerManager.connectSpaceController(controller);
-      } catch (Exception e) {
+      } catch (Throwable e) {
         spaceEnvironment.getLog().error(
             String.format("Unable to connect to controller %s (%s)", controller.getUuid(), controller.getName()), e);
       }
@@ -396,7 +398,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
     for (SpaceController controller : getAllEnabledSpaceControllers()) {
       try {
         activeSpaceControllerManager.disconnectSpaceController(controller);
-      } catch (Exception e) {
+      } catch (Throwable e) {
         spaceEnvironment
             .getLog()
             .error(
@@ -414,7 +416,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
     for (SpaceController controller : getAllEnabledSpaceControllers()) {
       try {
         activeSpaceControllerManager.statusSpaceController(controller);
-      } catch (Exception e) {
+      } catch (Throwable e) {
         spaceEnvironment.getLog().error(
             String.format("Unable to get the status from controller %s (%s)", controller.getUuid(),
                 controller.getName()), e);
@@ -429,7 +431,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
     for (SpaceController controller : getAllEnabledSpaceControllers()) {
       try {
         activeSpaceControllerManager.forceStatusSpaceController(controller);
-      } catch (Exception e) {
+      } catch (Throwable e) {
         spaceEnvironment.getLog().error(
             String.format("Unable to force the status from controller %s (%s)", controller.getUuid(),
                 controller.getName()), e);
@@ -446,14 +448,14 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
       if (controller != null) {
         try {
           activeSpaceControllerManager.shutdownSpaceController(controller);
-        } catch (Exception e) {
+        } catch (Throwable e) {
           spaceEnvironment.getLog().error(
               String.format("Unable to shut down controller %s (%s)", controller.getUuid(), controller.getName()), e);
         }
       } else {
         spaceEnvironment.getLog().error(String.format("Unknown controller %s", id));
 
-        return getNoSuchSpaceControllerResult();
+        return getNoSuchSpaceControllerResponse(id);
       }
     }
 
@@ -467,14 +469,14 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
       if (controller != null) {
         try {
           activeSpaceControllerManager.connectSpaceController(controller);
-        } catch (Exception e) {
+        } catch (Throwable e) {
           spaceEnvironment.getLog().error(
               String.format("Unable to shut down controller %s (%s)", controller.getUuid(), controller.getName()), e);
         }
       } else {
         spaceEnvironment.getLog().error(String.format("Unknown controller %s", id));
 
-        return getNoSuchSpaceControllerResult();
+        return getNoSuchSpaceControllerResponse(id);
       }
     }
 
@@ -488,7 +490,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
       if (controller != null) {
         try {
           activeSpaceControllerManager.disconnectSpaceController(controller);
-        } catch (Exception e) {
+        } catch (Throwable e) {
           spaceEnvironment.getLog()
               .error(
                   String.format("Unable to disconnect from controller %s (%s)", controller.getUuid(),
@@ -497,7 +499,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
       } else {
         spaceEnvironment.getLog().error(String.format("Unknown controller %s", id));
 
-        return getNoSuchSpaceControllerResult();
+        return getNoSuchSpaceControllerResponse(id);
       }
     }
 
@@ -509,7 +511,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
     for (SpaceController controller : getAllEnabledSpaceControllers()) {
       try {
         activeSpaceControllerManager.shutdownSpaceController(controller);
-      } catch (Exception e) {
+      } catch (Throwable e) {
         spaceEnvironment.getLog().error(
             String.format("Unable to shut down controller %s (%s)", controller.getUuid(), controller.getName()), e);
       }
@@ -527,7 +529,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
       } else {
         spaceEnvironment.getLog().error(String.format("Attempted status of unknown controller %s", id));
 
-        return getNoSuchSpaceControllerResult();
+        return getNoSuchSpaceControllerResponse(id);
       }
     }
 
@@ -542,7 +544,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchSpaceControllerResult();
+      return getNoSuchSpaceControllerResponse(id);
     }
   }
 
@@ -551,7 +553,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
     for (SpaceController controller : getAllEnabledSpaceControllers()) {
       try {
         activeSpaceControllerManager.cleanSpaceControllerTempData(controller);
-      } catch (Exception e) {
+      } catch (Throwable e) {
         spaceEnvironment.getLog().error(
             String.format("Unable to clean temp data from controller %s (%s)", controller.getUuid(),
                 controller.getName()), e);
@@ -569,7 +571,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchSpaceControllerResult();
+      return getNoSuchSpaceControllerResponse(id);
     }
   }
 
@@ -578,7 +580,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
     for (SpaceController controller : getAllEnabledSpaceControllers()) {
       try {
         activeSpaceControllerManager.cleanSpaceControllerPermanentData(controller);
-      } catch (Exception e) {
+      } catch (Throwable e) {
         spaceEnvironment.getLog().error(
             String.format("Unable to clean permanent data from controller %s (%s)", controller.getUuid(),
                 controller.getName()), e);
@@ -596,7 +598,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchSpaceControllerResult();
+      return getNoSuchSpaceControllerResponse(id);
     }
   }
 
@@ -605,7 +607,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
     for (SpaceController controller : getAllEnabledSpaceControllers()) {
       try {
         activeSpaceControllerManager.cleanSpaceControllerActivitiesTempData(controller);
-      } catch (Exception e) {
+      } catch (Throwable e) {
         spaceEnvironment.getLog().error(
             String.format("Unable to clean all temp data from controller %s (%s)", controller.getUuid(),
                 controller.getName()), e);
@@ -623,7 +625,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchSpaceControllerResult();
+      return getNoSuchSpaceControllerResponse(id);
     }
   }
 
@@ -632,7 +634,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
     for (SpaceController controller : getAllEnabledSpaceControllers()) {
       try {
         activeSpaceControllerManager.cleanSpaceControllerActivitiesPermanentData(controller);
-      } catch (Exception e) {
+      } catch (Throwable e) {
         spaceEnvironment.getLog().error(
             String.format("Unable to clean all permanent data from controller %s (%s)", controller.getUuid(),
                 controller.getName()), e);
@@ -650,7 +652,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchSpaceControllerResult();
+      return getNoSuchSpaceControllerResponse(id);
     }
   }
 
@@ -662,7 +664,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchSpaceControllerResult();
+      return getNoSuchSpaceControllerResponse(id);
     }
   }
 
@@ -671,7 +673,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
     for (SpaceController controller : getAllEnabledSpaceControllers()) {
       try {
         activeSpaceControllerManager.captureSpaceControllerDataBundle(controller);
-      } catch (Exception e) {
+      } catch (Throwable e) {
         spaceEnvironment.getLog()
             .error(
                 String.format("Unable to capture data from controller %s (%s)", controller.getUuid(),
@@ -687,7 +689,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
     for (SpaceController controller : getAllEnabledSpaceControllers()) {
       try {
         activeSpaceControllerManager.restoreSpaceControllerDataBundle(controller);
-      } catch (Exception e) {
+      } catch (Throwable e) {
         spaceEnvironment.getLog()
             .error(
                 String.format("Unable to capture data from controller %s (%s)", controller.getUuid(),
@@ -706,7 +708,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchSpaceControllerResult();
+      return getNoSuchSpaceControllerResponse(id);
     }
   }
 
@@ -715,7 +717,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
     for (SpaceController controller : getAllEnabledSpaceControllers()) {
       try {
         activeSpaceControllerManager.shutdownAllActivities(controller);
-      } catch (Exception e) {
+      } catch (Throwable e) {
         spaceEnvironment.getLog().error(
             String.format("Unable to shut down all live activities from controller %s (%s)", controller.getUuid(),
                 controller.getName()), e);
@@ -733,7 +735,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchSpaceControllerResult();
+      return getNoSuchSpaceControllerResponse(id);
     }
   }
 
@@ -776,7 +778,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchActivityResult();
+      return getNoSuchActivityResponse(id);
     }
   }
 
@@ -788,7 +790,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchLiveActivityResult();
+      return getNoSuchLiveActivityResponse(id);
     }
   }
 
@@ -800,7 +802,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchLiveActivityResult();
+      return getNoSuchLiveActivityResponse(id);
     }
   }
 
@@ -812,7 +814,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchLiveActivityResult();
+      return getNoSuchLiveActivityResponse(id);
     }
   }
 
@@ -824,7 +826,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchLiveActivityResult();
+      return getNoSuchLiveActivityResponse(id);
     }
   }
 
@@ -836,7 +838,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchLiveActivityResult();
+      return getNoSuchLiveActivityResponse(id);
     }
   }
 
@@ -848,7 +850,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchLiveActivityResult();
+      return getNoSuchLiveActivityResponse(id);
     }
   }
 
@@ -860,7 +862,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchLiveActivityResult();
+      return getNoSuchLiveActivityResponse(id);
     }
   }
 
@@ -876,7 +878,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSuccessResponse(statusData);
     } else {
-      return getNoSuchLiveActivityResult();
+      return getNoSuchLiveActivityResponse(id);
     }
   }
 
@@ -888,7 +890,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchLiveActivityResult();
+      return getNoSuchLiveActivityResponse(id);
     }
   }
 
@@ -900,7 +902,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchLiveActivityResult();
+      return getNoSuchLiveActivityResponse(id);
     }
   }
 
@@ -912,7 +914,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchLiveActivityGroupResult();
+      return getNoSuchLiveActivityGroupResponse(id);
     }
   }
 
@@ -924,7 +926,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchLiveActivityGroupResult();
+      return getNoSuchLiveActivityGroupResponse(id);
     }
   }
 
@@ -936,7 +938,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchLiveActivityGroupResult();
+      return getNoSuchLiveActivityGroupResponse(id);
     }
   }
 
@@ -948,7 +950,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchLiveActivityGroupResult();
+      return getNoSuchLiveActivityGroupResponse(id);
     }
   }
 
@@ -960,7 +962,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchLiveActivityGroupResult();
+      return getNoSuchLiveActivityGroupResponse(id);
     }
   }
 
@@ -972,7 +974,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchLiveActivityGroupResult();
+      return getNoSuchLiveActivityGroupResponse(id);
     }
   }
 
@@ -987,7 +989,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchLiveActivityGroupResult();
+      return getNoSuchLiveActivityGroupResponse(id);
     }
   }
 
@@ -1002,7 +1004,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchLiveActivityGroupResult();
+      return getNoSuchLiveActivityGroupResponse(id);
     }
   }
 
@@ -1016,7 +1018,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchSpaceResult();
+      return getNoSuchSpaceResponse(id);
     }
   }
 
@@ -1054,7 +1056,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchSpaceResponse();
+      return getNoSuchSpaceResponse(id);
     }
   }
 
@@ -1066,7 +1068,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchSpaceResponse();
+      return getNoSuchSpaceResponse(id);
     }
 
   }
@@ -1079,7 +1081,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchSpaceResponse();
+      return getNoSuchSpaceResponse(id);
     }
   }
 
@@ -1091,7 +1093,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchSpaceResponse();
+      return getNoSuchSpaceResponse(id);
     }
   }
 
@@ -1103,7 +1105,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchSpaceResponse();
+      return getNoSuchSpaceResponse(id);
     }
   }
 
@@ -1115,7 +1117,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchSpaceResponse();
+      return getNoSuchSpaceResponse(id);
     }
   }
 
@@ -1129,12 +1131,12 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
         return MasterApiMessageSupport.getSuccessResponse(response);
       } else {
-        return getNoSuchSpaceResponse();
+        return getNoSuchSpaceResponse(id);
       }
-    } catch (Exception e) {
+    } catch (Throwable e) {
       spaceEnvironment.getLog().error("Could not modify activity metadata", e);
 
-      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE);
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE, e);
     }
   }
 
@@ -1311,52 +1313,6 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
     Date lastDataBundleStateUpdateDate = controller.getLastDataBundleStateUpdateDate();
     controllerData.put("lastDataBundleStateUpdateDate",
         lastDataBundleStateUpdateDate != null ? lastDataBundleStateUpdateDate.toString() : null);
-  }
-
-  /**
-   * Get the Master API response for there not being a particular activity.
-   *
-   * @return the API response
-   */
-  private Map<String, Object> getNoSuchActivityResult() {
-    return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_DOMAIN_ACTIVITY_UNKNOWN);
-  }
-
-  /**
-   * Get the Master API response for there not being a particular live activity.
-   *
-   * @return the API response
-   */
-  private Map<String, Object> getNoSuchLiveActivityResult() {
-    return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_DOMAIN_LIVEACTIVITY_UNKNOWN);
-  }
-
-  /**
-   * Get the Master API response for no such live activity group.
-   *
-   * @return the API response
-   */
-  private Map<String, Object> getNoSuchLiveActivityGroupResult() {
-    return MasterApiMessageSupport
-        .getFailureResponse(MasterApiMessages.MESSAGE_SPACE_DOMAIN_LIVEACTIVITYGROUP_UNKNOWN);
-  }
-
-  /**
-   * Get a master API response for no such space controller.
-   *
-   * @return the API response
-   */
-  private Map<String, Object> getNoSuchSpaceControllerResult() {
-    return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_DOMAIN_CONTROLLER_UNKNOWN);
-  }
-
-  /**
-   * Get a master API response for no such space.
-   *
-   * @return the API response
-   */
-  private Map<String, Object> getNoSuchSpaceResult() {
-    return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_DOMAIN_SPACE_UNKNOWN);
   }
 
   /**

@@ -37,11 +37,11 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * A simple implementation of the {@link ActivityRepositoryManager}.
+ * The standard implementation of the {@link ActivityRepositoryManager}.
  *
  * @author Keith M. Hughes
  */
-public class SimpleActivityRepositoryManager implements ActivityRepositoryManager {
+public class StandardActivityRepositoryManager implements ActivityRepositoryManager {
 
   /**
    * Repository for activities.
@@ -58,15 +58,13 @@ public class SimpleActivityRepositoryManager implements ActivityRepositoryManage
     String stageHandle = repositoryStorageManager.stageResource(activityStream);
     InputStream activityDescriptionStream = null;
     try {
-      activityDescriptionStream =
-          repositoryStorageManager.getStagedResourceDescription("activity.xml", stageHandle);
+      activityDescriptionStream = repositoryStorageManager.getStagedResourceDescription("activity.xml", stageHandle);
       ActivityDescriptionReader reader = new JdomActivityDescriptionReader();
       ActivityDescription activityDescription = reader.readDescription(activityDescriptionStream);
 
-      repositoryStorageManager
-          .commitResource(ResourceRepositoryStorageManager.RESOURCE_CATEGORY_ACTIVITY,
-              activityDescription.getIdentifyingName(), Version.parseVersion(activityDescription.getVersion()),
-              stageHandle);
+      repositoryStorageManager.commitResource(ResourceRepositoryStorageManager.RESOURCE_CATEGORY_ACTIVITY,
+          activityDescription.getIdentifyingName(), Version.parseVersion(activityDescription.getVersion()),
+          stageHandle);
 
       // TODO(keith): Might want to edit what it gives to the import so
       // this may need to move.
@@ -140,19 +138,22 @@ public class SimpleActivityRepositoryManager implements ActivityRepositoryManage
   }
 
   /**
+   * Set the activity repository to use.
+   *
    * @param activityRepository
-   *          the activityRepository to set
+   *          the activity repository
    */
   public void setActivityRepository(ActivityRepository activityRepository) {
     this.activityRepository = activityRepository;
   }
 
   /**
+   * Set the repository storage manager to use.
+   *
    * @param repositoryStorageManager
-   *          the repositoryStorageManager to set
+   *          the repository storage manager
    */
   public void setRepositoryStorageManager(ResourceRepositoryStorageManager repositoryStorageManager) {
     this.repositoryStorageManager = repositoryStorageManager;
   }
-
 }

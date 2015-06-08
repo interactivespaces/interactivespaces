@@ -16,15 +16,17 @@
 
 package interactivespaces.service.web.server.internal.netty;
 
-import com.google.common.collect.Maps;
-
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.service.web.server.HttpFileUpload;
 
+import com.google.common.collect.Maps;
+
+import org.apache.commons.logging.Log;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.handler.codec.http.HttpChunk;
 import org.jboss.netty.handler.codec.http.HttpRequest;
+import org.jboss.netty.handler.codec.http.HttpResponseStatus;
 import org.jboss.netty.handler.codec.http.multipart.Attribute;
 import org.jboss.netty.handler.codec.http.multipart.FileUpload;
 import org.jboss.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
@@ -35,7 +37,9 @@ import org.jboss.netty.handler.codec.http.multipart.InterfaceHttpData.HttpDataTy
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.HttpCookie;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A Netty-based {@link HttpFileUpload}.
@@ -43,6 +47,11 @@ import java.util.Map;
  * @author Keith M. Hughes
  */
 public class NettyHttpFileUpload implements HttpFileUpload {
+
+  /**
+   * The handler for the POST request. It can be {@code null}.
+   */
+  private NettyHttpPostRequestHandler handler;
 
   /**
    * The parameters that were part of the post.
@@ -57,12 +66,12 @@ public class NettyHttpFileUpload implements HttpFileUpload {
   /**
    * The request that started everything off.
    */
-  private HttpRequest request;
+  private HttpRequest nettyHttpRequest;
 
   /**
-   * web server this is part of.
+   * The web server handler handling the request.
    */
-  private NettyWebServer webServer;
+  private NettyWebServerHandler webServerHandler;
 
   /**
    * FileUpload container for this particular upload.
@@ -70,27 +79,40 @@ public class NettyHttpFileUpload implements HttpFileUpload {
   private FileUpload fileUpload;
 
   /**
+   * The cookies to add.
+   */
+  private Set<HttpCookie> cookies;
+
+  /**
    * Create a new instance.
    *
-   * @param request
-   *          incoming request
+   * @param nettyHttpRequest
+   *          incoming Netty HTTP request
    * @param decoder
    *          decoder to use
-   * @param webServer
-   *          underlying webServer
+   * @param handler
+   *          the HTTP POST handler, can be {@code null}
+   * @param webServerHandler
+   *          underlying web server handler
+   * @param cookies
+   *          any cookies to add to responses
    */
-  public NettyHttpFileUpload(HttpRequest request, HttpPostRequestDecoder decoder,
-      NettyWebServer webServer) {
-    this.request = request;
+  public NettyHttpFileUpload(HttpRequest nettyHttpRequest, HttpPostRequestDecoder decoder,
+      NettyHttpPostRequestHandler handler, NettyWebServerHandler webServerHandler, Set<HttpCookie> cookies) {
+    this.nettyHttpRequest = nettyHttpRequest;
     this.decoder = decoder;
-    this.webServer = webServer;
+    this.handler = handler;
+    this.webServerHandler = webServerHandler;
+    this.cookies = cookies;
   }
 
   /**
-   * @return the originsal request
+   * Get the original Netty HTTP request.
+   *
+   * @return the original Netty HTTP request
    */
-  public HttpRequest getRequest() {
-    return request;
+  public HttpRequest getNettyHttpRequest() {
+    return nettyHttpRequest;
   }
 
   /**
@@ -122,8 +144,7 @@ public class NettyHttpFileUpload implements HttpFileUpload {
         }
       }
     } catch (EndOfDataDecoderException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      getLog().error("Error while adding HTTP chunked POST data", e);
     }
   }
 
@@ -143,7 +164,56 @@ public class NettyHttpFileUpload implements HttpFileUpload {
         processHttpData(data);
       }
     } catch (Exception e) {
-      e.printStackTrace();
+      getLog().error("Error while completing HTTP chunked POST data", e);
+    }
+  }
+
+  /**
+   * The file upload is complete. Handle it as needed.
+   *
+   * @param context
+   *          the context for the channel handler
+   */
+  public void fileUploadComplete(ChannelHandlerContext context) {
+    if (handler != null) {
+      handleFileUploadCompleteThroughHandler(context);
+    } else {
+      handleFileUploadCompleteThroughListener(context);
+    }
+  }
+
+  /**
+   * Handle the file load completion through the handler.
+   *
+   * @param context
+   *          the context for the channel handler
+   */
+  private void handleFileUploadCompleteThroughHandler(ChannelHandlerContext context) {
+    try {
+      handler.handleWebRequest(context, nettyHttpRequest, this, cookies);
+    } catch (Exception e) {
+      getLog().error(String.format("Exception when handling web request %s", nettyHttpRequest.getUri()), e);
+    }
+  }
+
+  /**
+   * Handle the file handle completion through the listener.
+   *
+   * @param context
+   *          the channel context
+   */
+  private void handleFileUploadCompleteThroughListener(ChannelHandlerContext context) {
+    try {
+      webServerHandler.getHttpFileUploadListener().handleHttpFileUpload(this);
+
+      HttpResponseStatus status = HttpResponseStatus.OK;
+      getLog().debug(String.format("HTTP [%s] %s --> (File Upload)", status.getCode(), nettyHttpRequest.getUri()));
+      webServerHandler.sendSuccessHttpResponse(context, nettyHttpRequest);
+    } catch (Throwable e) {
+      getLog().error("Error while calling file upload listener", e);
+      webServerHandler.sendError(context, HttpResponseStatus.INTERNAL_SERVER_ERROR);
+    } finally {
+      clean();
     }
   }
 
@@ -160,29 +230,19 @@ public class NettyHttpFileUpload implements HttpFileUpload {
         parameters.put(attribute.getName(), attribute.getValue());
       } catch (IOException e1) {
         // Error while reading data from File, only print name and error
-        webServer.getLog().error(
-            "Form post BODY Attribute: " + attribute.getHttpDataType().name() + ": "
-                + attribute.getName() + " Error while reading value:", e1);
+        getLog().error(
+            "Form post BODY Attribute: " + attribute.getHttpDataType().name() + ": " + attribute.getName()
+                + " Error while reading value:", e1);
       }
     } else if (data.getHttpDataType() == HttpDataType.FileUpload) {
       fileUpload = (FileUpload) data;
       if (fileUpload.isCompleted()) {
-        webServer.getLog().info(String.format("File %s uploaded", fileUpload.getFilename()));
-        // fileUpload.renameTo(new File("/var/tmp/"
-        // + fileUpload.getFilename()));
-
-        // fileUpload.isInMemory();// tells if the file is in Memory
-        // or on File
-        // fileUpload.renameTo(dest); // enable to move into another
-        // File dest
-        // decoder.removeFileUploadFromClean(fileUpload); //remove
-        // the File of to delete file
+        getLog().info(String.format("File %s uploaded", fileUpload.getFilename()));
       } else {
-        webServer.getLog().error("File to be continued but should not!");
+        getLog().error("File to be continued but should not!");
       }
     } else {
-      webServer.getLog().warn(
-          String.format("Unprocessed form post data type %s", data.getHttpDataType().name()));
+      getLog().warn(String.format("Unprocessed form post data type %s", data.getHttpDataType().name()));
     }
   }
 
@@ -199,8 +259,7 @@ public class NettyHttpFileUpload implements HttpFileUpload {
 
         return true;
       } catch (Exception e) {
-        throw new InteractiveSpacesException(String.format("Unable to save uploaded file to %s",
-            destination), e);
+        throw InteractiveSpacesException.newFormattedException(e, "Unable to save uploaded file to %s", destination);
       }
     } else {
       return false;
@@ -216,7 +275,7 @@ public class NettyHttpFileUpload implements HttpFileUpload {
 
         return true;
       } catch (Exception e) {
-        throw new InteractiveSpacesException("Unable to save uploaded file to output stream", e);
+        throw InteractiveSpacesException.newFormattedException(e, "Unable to save uploaded file to output stream");
       }
     } else {
       return false;
@@ -240,5 +299,14 @@ public class NettyHttpFileUpload implements HttpFileUpload {
   @Override
   public Map<String, String> getParameters() {
     return parameters;
+  }
+
+  /**
+   * Get the log for the uploader.
+   *
+   * @return the log
+   */
+  private Log getLog() {
+    return webServerHandler.getWebServer().getLog();
   }
 }

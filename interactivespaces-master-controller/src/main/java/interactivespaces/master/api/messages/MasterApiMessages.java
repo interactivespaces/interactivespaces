@@ -59,6 +59,11 @@ public class MasterApiMessages {
   public static final String MASTER_API_MESSAGE_ENVELOPE_REASON = "reason";
 
   /**
+   * Field in the Master API response giving the detail for a response.
+   */
+  public static final String MASTER_API_MESSAGE_ENVELOPE_DETAIL = "detail";
+
+  /**
    * The field in a Master API command map giving the name of the command field.
    */
   public static final String MASTER_API_PARAMETER_COMMAND = "command";
@@ -700,9 +705,29 @@ public class MasterApiMessages {
   public static final String MESSAGE_SPACE_CALL_FAILURE = "space.command.failure";
 
   /**
-   * Message key for a call failing.
+   * Message key for a call failing because live activities cannot be created.
+   */
+  public static final String MESSAGE_SPACE_CALL_FAILURE_CANNOT_CREATE_LIVE_ACTIVITY = "space.command.failure.liveactivity.nocreate";
+
+  /**
+   * Message key for a call failing because live activities cannot be created.
+   */
+  public static final String MESSAGE_SPACE_DETAIL_CALL_FAILURE_CANNOT_CREATE_LIVE_ACTIVITY = "Live activities currently cannot be created.";
+
+  /**
+   * Message key for a call failing due to missing arguments.
+   */
+  public static final String MESSAGE_SPACE_CALL_ARGS_MISSING = "space.command.args.missing";
+
+  /**
+   * Message key for a call failing because an argument needed to be a map.
    */
   public static final String MESSAGE_SPACE_CALL_ARGS_NOMAP = "space.command.args.notmap";
+
+  /**
+   * Message key for a call failing.
+   */
+  public static final String MESSAGE_SPACE_DETAIL_CALL_ARGS_NOMAP = "The call was made without a map of arguments";
 
   /**
    * Message key for non-existent activities.

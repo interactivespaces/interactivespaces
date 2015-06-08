@@ -119,6 +119,40 @@ public interface WebServer extends ManagedResource {
       Map<String, String> extraHttpContentHeaders);
 
   /**
+   * Add in a new dynamic POSt request handler to the server.
+   *
+   * <p>
+   * See {@link #addDynamicContentHandler(String, HttpDynamicRequestHandler, Map)}, the content header map value will be
+   * {@code null}.
+   *
+   * @param uriPrefix
+   *          URI prefix for the content
+   * @param usePath
+   *          {@code true} if the path will be used for processing requests
+   * @param handler
+   *          dynamic request handler
+   */
+  void addDynamicPostRequestHandler(String uriPrefix, boolean usePath, HttpDynamicPostRequestHandler handler);
+
+  /**
+   * Add in a new dynamic POST request handler to the server.
+   *
+   * <p>
+   * Content handlers are attempted in the order added. The first prefix which matches will be run.
+   *
+   * @param uriPrefix
+   *          URI prefix for the content
+   * @param usePath
+   *          {@code true} if the path will be used for processing requests
+   * @param handler
+   *          dynamic request handler
+   * @param extraHttpContentHeaders
+   *          extra HTTP content headers to add to all responses to the handler, can be {@code null}
+   */
+  void addDynamicPostRequestHandler(String uriPrefix, boolean usePath, HttpDynamicPostRequestHandler handler,
+      Map<String, String> extraHttpContentHeaders);
+
+  /**
    * Get all static content request handlers.
    *
    * @return all static content request handlers in the order they were added to the server
@@ -126,11 +160,18 @@ public interface WebServer extends ManagedResource {
   List<HttpStaticContentRequestHandler> getStaticContentRequestHandlers();
 
   /**
-   * Get all dynamic request handlers.
+   * Get all dynamic GET request handlers.
    *
    * @return all dynamic request handlers in the order they were added to the server
    */
   List<HttpDynamicRequestHandler> getDynamicRequestHandlers();
+
+  /**
+   * Get all dynamic POST request handlers.
+   *
+   * @return all dynamic request handlers in the order they were added to the server
+   */
+  List<HttpDynamicPostRequestHandler> getDynamicPostRequestHandlers();
 
   /**
    * Set the factory for creating web socket handlers.
@@ -147,7 +188,11 @@ public interface WebServer extends ManagedResource {
    *
    * @param listener
    *          the listener to use
+   *
+   * @deprecated Use {@link #addDynamicPostRequestHandler(String, boolean, HttpDynamicPostRequestHandler)} or
+   *             {@link #addDynamicPostRequestHandler(String, boolean, HttpDynamicPostRequestHandler, Map)}.
    */
+  @Deprecated
   void setHttpFileUploadListener(HttpFileUploadListener listener);
 
   /**

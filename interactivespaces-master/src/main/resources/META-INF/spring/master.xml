@@ -193,7 +193,7 @@
     <property name="spaceEnvironment" ref="interactivespaces.environment" />
   </bean>
 
-  <bean id="interactivespaces.resource.repository.manager" class="interactivespaces.resource.repository.internal.SimpleActivityRepositoryManager">
+  <bean id="interactivespaces.resource.repository.manager" class="interactivespaces.resource.repository.internal.StandardActivityRepositoryManager">
 
     <property name="activityRepository" ref="interactivespaces.repository.activity" />
 

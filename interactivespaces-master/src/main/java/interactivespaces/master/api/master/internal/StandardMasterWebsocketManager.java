@@ -32,16 +32,27 @@ import interactivespaces.master.event.MasterEventListener;
 import interactivespaces.master.event.MasterEventManager;
 import interactivespaces.master.server.services.ActiveLiveActivity;
 import interactivespaces.master.server.services.ExtensionManager;
+import interactivespaces.service.web.HttpResponseCode;
 import interactivespaces.service.web.server.BasicMultipleConnectionWebServerWebSocketHandlerFactory;
+import interactivespaces.service.web.server.HttpDynamicPostRequestHandler;
+import interactivespaces.service.web.server.HttpFileUpload;
+import interactivespaces.service.web.server.HttpRequest;
+import interactivespaces.service.web.server.HttpResponse;
 import interactivespaces.service.web.server.MultipleConnectionWebServerWebSocketHandlerFactory;
 import interactivespaces.service.web.server.MultipleConnectionWebSocketHandler;
 import interactivespaces.service.web.server.WebServer;
 import interactivespaces.system.InteractiveSpacesEnvironment;
+import interactivespaces.util.data.json.JsonMapper;
+import interactivespaces.util.data.json.StandardJsonMapper;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
+import interactivespaces.util.web.CommonMimeTypes;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import java.io.File;
 import java.util.Date;
 import java.util.Map;
 
@@ -55,6 +66,16 @@ import java.util.Map;
  */
 public class StandardMasterWebsocketManager extends BaseMasterApiManager implements MasterWebsocketManager,
     MultipleConnectionWebSocketHandler {
+
+  /**
+   * The file name prefix for an activity upload.
+   */
+  public static final String ACTIVITY_UPLOAD_NAME_PREFIX = "activity-";
+
+  /**
+   * The file name suffix for an activity upload.
+   */
+  public static final String ACTIVITY_UPLOAD_NAME_SUFFIX = ".upload";
 
   /**
    * The space environment.
@@ -100,7 +121,6 @@ public class StandardMasterWebsocketManager extends BaseMasterApiManager impleme
    * The master event listener.
    */
   private MasterEventListener masterEventListener = new BaseMasterEventListener() {
-
     @Override
     public void onLiveActivityStateChange(ActiveLiveActivity liveActivity, ActivityState oldState,
         ActivityState newState) {
@@ -112,6 +132,16 @@ public class StandardMasterWebsocketManager extends BaseMasterApiManager impleme
    * The master event manager.
    */
   private MasterEventManager masterEventManager;
+
+  /**
+   * The file support to use.
+   */
+  private FileSupport fileSupport = FileSupportImpl.INSTANCE;
+
+  /**
+   * The JSON mapper to use.
+   */
+  private JsonMapper jsonMapper = StandardJsonMapper.INSTANCE;
 
   /**
    * Construct a new manager.
@@ -192,7 +222,7 @@ public class StandardMasterWebsocketManager extends BaseMasterApiManager impleme
         return masterApiActivityManager.createLiveActivity(commandArgs);
       }
     });
-   registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
         MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_DEPLOY) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
@@ -755,11 +785,73 @@ public class StandardMasterWebsocketManager extends BaseMasterApiManager impleme
         webSocketHandlerFactory);
 
     masterEventManager.addListener(masterEventListener);
+
+    webServer.addDynamicPostRequestHandler(MASTERAPI_PATH_PREFIX_ACTIVITY_UPLOAD, false,
+        new HttpDynamicPostRequestHandler() {
+          @Override
+          public void handle(HttpRequest request, HttpFileUpload upload, HttpResponse response) {
+            handleMasterApiActivityUpload(request, upload, response);
+          }
+        });
   }
 
   @Override
   public void shutdown() {
     masterEventManager.removeListener(masterEventListener);
+  }
+
+  /**
+   * Handle a live activity upload.
+   *
+   * @param request
+   *          the HTTP request
+   * @param upload
+   *          the file upload
+   * @param response
+   *          the HTTP response to write back
+   */
+  private void handleMasterApiActivityUpload(HttpRequest request, HttpFileUpload upload, HttpResponse response) {
+    File tempFile = null;
+    try {
+      tempFile = fileSupport.createTempFile(ACTIVITY_UPLOAD_NAME_PREFIX, ACTIVITY_UPLOAD_NAME_SUFFIX);
+      upload.moveTo(tempFile);
+
+      Map<String, Object> activityResponse =
+          masterApiActivityManager.saveActivity(null, fileSupport.newFileInputStream(tempFile));
+
+      writeActivityUploadResponse(response, activityResponse);
+    } catch (Throwable e) {
+      Map<String, Object> failureResponse =
+          MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE, e);
+
+      spaceEnvironment.getLog().error(
+          "Could not upload activity via Master API\n" + MasterApiMessageSupport.getResponseDetail(failureResponse));
+
+      writeActivityUploadResponse(response, failureResponse);
+    } finally {
+      if (tempFile != null) {
+        fileSupport.delete(tempFile);
+      }
+    }
+  }
+
+  /**
+   * Write the activity upload response.
+   *
+   * @param response
+   *          the HTTP response
+   * @param activityResponse
+   *          the API response
+   */
+  private void writeActivityUploadResponse(HttpResponse response, Map<String, Object> activityResponse) {
+    try {
+      response.setResponseCode(MasterApiMessageSupport.isSuccessResponse(activityResponse) ? HttpResponseCode.OK
+          : HttpResponseCode.INTERNAL_SERVER_ERROR);
+      response.setContentType(CommonMimeTypes.MIME_TYPE_APPLICATION_JSON);
+      response.getOutputStream().write(jsonMapper.toString(activityResponse).getBytes());
+    } catch (Throwable e) {
+      spaceEnvironment.getLog().error("Could not write response for upload activity via Master API", e);
+    }
   }
 
   /**
@@ -834,7 +926,8 @@ public class StandardMasterWebsocketManager extends BaseMasterApiManager impleme
       spaceEnvironment.getLog().error(
           String.format("Error while performing Master API websocket command %s", command), e);
 
-      Map<String, Object> responseMessage = MasterApiMessageSupport.getFailureResponse(e.getMessage());
+      Map<String, Object> responseMessage =
+          MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE, e);
       potentiallyAddRequestId(responseMessage, requestId);
 
       try {

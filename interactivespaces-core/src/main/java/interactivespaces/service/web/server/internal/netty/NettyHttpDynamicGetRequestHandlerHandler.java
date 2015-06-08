@@ -35,11 +35,11 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A Netty handler for {@link HttpDynamicRequestHandler}.
+ * A Netty handler for {@link NettyHttpGetRequestHandler}.
  *
  * @author Keith M. Hughes
  */
-public class NettyHttpDynamicRequestHandlerHandler implements NettyHttpContentHandler {
+public class NettyHttpDynamicGetRequestHandlerHandler implements NettyHttpGetRequestHandler {
 
   /**
    * The handler which will handle the requests.
@@ -75,7 +75,7 @@ public class NettyHttpDynamicRequestHandlerHandler implements NettyHttpContentHa
    * @param extraHttpContentHeaders
    *          any extra HTTP content headers to be added to the response
    */
-  public NettyHttpDynamicRequestHandlerHandler(NettyWebServerHandler parentHandler, String uriPrefixBase,
+  public NettyHttpDynamicGetRequestHandlerHandler(NettyWebServerHandler parentHandler, String uriPrefixBase,
       boolean usePath, HttpDynamicRequestHandler requestHandler, Map<String, String> extraHttpContentHeaders) {
     this.parentHandler = parentHandler;
 

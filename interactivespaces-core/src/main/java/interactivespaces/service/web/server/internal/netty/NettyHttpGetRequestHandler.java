@@ -24,34 +24,35 @@ import java.net.HttpCookie;
 import java.util.Set;
 
 /**
- * Handle HTTP content from Netty.
+ * Handle HTTP GET requests from Netty.
  *
  * @author Keith M. Hughes
  */
-public interface NettyHttpContentHandler {
+public interface NettyHttpGetRequestHandler {
 
   /**
    * Is the request handled by this handler?
    *
    * @param req
-   *          Request which has come in.
+   *          request which has come in
    *
    * @return {@code true} if the request is handled by this handler
    */
   boolean isHandledBy(HttpRequest req);
 
   /**
-   * Handle the web request
+   * Handle the web request.
    *
    * @param ctx
    *          the channel handler context
-   * @param req
-   *          the request
+   * @param nettyRequest
+   *          the Netty HTTP request
    * @param cookiesToAdd
    *          cookies to be set on the response
+   *
    * @throws IOException
    *           something bad happened
    */
-  void handleWebRequest(ChannelHandlerContext ctx, HttpRequest req, Set<HttpCookie> cookiesToAdd)
+  void handleWebRequest(ChannelHandlerContext ctx, HttpRequest nettyRequest, Set<HttpCookie> cookiesToAdd)
       throws IOException;
 }

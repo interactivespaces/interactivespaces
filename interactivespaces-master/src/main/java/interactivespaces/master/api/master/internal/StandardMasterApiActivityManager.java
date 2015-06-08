@@ -48,7 +48,9 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.common.io.Closeables;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.Date;
@@ -111,9 +113,25 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
   }
 
   @Override
-  public Activity saveActivity(SimpleActivity activity, InputStream activityFile) {
-    Activity finalActivity = activityRepositoryManager.addActivity(activityFile);
-    return finalActivity;
+  public Map<String, Object> saveActivity(SimpleActivity activityData, InputStream activityContentStream) {
+    try {
+      Activity finalActivity = activityRepositoryManager.addActivity(activityContentStream);
+
+      return MasterApiMessageSupport.getSuccessResponse(extractBasicActivityApiData(finalActivity));
+    } catch (Throwable e) {
+      Map<String, Object> response =
+          MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE, e);
+
+      logResponseError("Attempt to import activity data failed", response);
+
+      return response;
+    } finally {
+      try {
+        Closeables.close(activityContentStream, true);
+      } catch (IOException e) {
+        // Won't ever be thrown.
+      }
+    }
   }
 
   @Override
@@ -130,10 +148,13 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
       }
 
       return MasterApiMessageSupport.getSuccessResponse(responseData);
-    } catch (Exception e) {
-      spaceEnvironment.getLog().error("Attempt to get activity data failed", e);
+    } catch (Throwable e) {
+      Map<String, Object> response =
+          MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE, e);
 
-      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE);
+      logResponseError("Attempt to get activity data failed", response);
+
+      return response;
     }
   }
 
@@ -143,7 +164,7 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
     if (activity != null) {
       return MasterApiMessageSupport.getSuccessResponse(extractBasicActivityApiData(activity));
     } else {
-      return noSuchActivityResult();
+      return getNoSuchActivityResponse(id);
     }
   }
 
@@ -160,7 +181,7 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
 
       return MasterApiMessageSupport.getSuccessResponse(fullView);
     } else {
-      return noSuchActivityResult();
+      return getNoSuchActivityResponse(id);
     }
   }
 
@@ -223,14 +244,15 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return noSuchActivityResult();
+      return getNoSuchActivityResponse(id);
     }
   }
 
   @Override
   public Map<String, Object> updateActivityMetadata(String id, Object metadataCommandObj) {
     if (!(metadataCommandObj instanceof Map)) {
-      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_ARGS_NOMAP);
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_ARGS_NOMAP,
+          MasterApiMessages.MESSAGE_SPACE_DETAIL_CALL_ARGS_NOMAP);
     }
 
     @SuppressWarnings("unchecked")
@@ -239,7 +261,7 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
     try {
       Activity activity = activityRepository.getActivityById(id);
       if (activity == null) {
-        return noSuchActivityResult();
+        return getNoSuchActivityResponse(id);
       }
 
       String command = (String) metadataCommand.get(MasterApiMessages.MASTER_API_PARAMETER_COMMAND);
@@ -272,16 +294,20 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
 
         activity.setMetadata(metadata);
       } else {
-        return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_COMMAND_UNKNOWN);
+        return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_COMMAND_UNKNOWN,
+            String.format("Unknown activity metadata update command %s", command));
       }
 
       activityRepository.saveActivity(activity);
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
-    } catch (Exception e) {
-      spaceEnvironment.getLog().error("Could not modify activity metadata", e);
+    } catch (Throwable e) {
+      Map<String, Object> response =
+          MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE, e);
 
-      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE);
+      logResponseError("Could not modify activity metadata", response);
+
+      return response;
     }
   }
 
@@ -303,10 +329,13 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
       }
 
       return MasterApiMessageSupport.getSuccessResponse(responseData);
-    } catch (Exception e) {
-      spaceEnvironment.getLog().error("Attempt to get live activity data failed", e);
+    } catch (Throwable e) {
+      Map<String, Object> response =
+          MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE, e);
 
-      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE);
+      logResponseError("Attempt to get live activity data failed", response);
+
+      return response;
     }
   }
 
@@ -320,7 +349,7 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
 
       return MasterApiMessageSupport.getSuccessResponse(data);
     } else {
-      return noSuchLiveActivityResult();
+      return getNoSuchLiveActivityResponse(id);
     }
   }
 
@@ -342,7 +371,7 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
 
       return MasterApiMessageSupport.getSuccessResponse(responseData);
     } else {
-      return noSuchLiveActivityResult();
+      return getNoSuchLiveActivityResponse(id);
     }
   }
 
@@ -359,40 +388,44 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return noSuchLiveActivityResult();
+      return getNoSuchLiveActivityResponse(id);
     }
   }
 
   @Override
   public Map<String, Object> createLiveActivity(Map<String, Object> args) {
     if (!canCreateLiveActivities()) {
-      return MasterApiMessageSupport.getFailureResponse("Live activities cannot be created.");
+      return MasterApiMessageSupport.getFailureResponse(
+          MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE_CANNOT_CREATE_LIVE_ACTIVITY,
+          MasterApiMessages.MESSAGE_SPACE_DETAIL_CALL_FAILURE_CANNOT_CREATE_LIVE_ACTIVITY);
     }
 
     String activityId = (String) args.get(MasterApiMessages.MASTER_API_PARAMETER_NAME_ACTIVITY_ID);
     if (activityId == null) {
-      return MasterApiMessageSupport.getFailureResponse("Missing activityId");
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_ARGS_MISSING,
+          "Missing argument activityId");
     }
 
     Activity activity = activityRepository.getActivityById(activityId);
     if (activity == null) {
-      return MasterApiMessageSupport.getFailureResponse(String.format("No activity with ID %s", activityId));
+      return getNoSuchActivityResponse(activityId);
     }
 
     String spaceControllerId = (String) args.get(MasterApiMessages.MASTER_API_PARAMETER_NAME_SPACE_CONTROLLER_ID);
     if (spaceControllerId == null) {
-      return MasterApiMessageSupport.getFailureResponse("Missing spaceControllerId");
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_ARGS_MISSING,
+          "Missing argument spaceControllerId");
     }
 
     SpaceController spaceController = spaceControllerRepository.getSpaceControllerById(spaceControllerId);
     if (spaceController == null) {
-      return MasterApiMessageSupport.getFailureResponse(String.format("No space controller with ID %s",
-          spaceControllerId));
+      return getNoSuchSpaceControllerResponse(spaceControllerId);
     }
 
     String name = (String) args.get(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_NAME);
     if (name == null || name.trim().isEmpty()) {
-      return MasterApiMessageSupport.getFailureResponse("Missing name");
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_ARGS_MISSING,
+          "Missing argument " + MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_NAME);
     }
 
     // This field is not required.
@@ -427,7 +460,7 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
 
       return MasterApiMessageSupport.getSuccessResponse(data);
     } else {
-      return noSuchLiveActivityResult();
+      return getNoSuchLiveActivityResponse(id);
     }
   }
 
@@ -441,7 +474,7 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return noSuchLiveActivityResult();
+      return getNoSuchLiveActivityResponse(id);
     }
   }
 
@@ -548,7 +581,8 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
   @Override
   public Map<String, Object> updateLiveActivityMetadata(String id, Object metadataCommandObj) {
     if (!(metadataCommandObj instanceof Map)) {
-      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_ARGS_NOMAP);
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_ARGS_NOMAP,
+          MasterApiMessages.MESSAGE_SPACE_DETAIL_CALL_ARGS_NOMAP);
     }
 
     @SuppressWarnings("unchecked")
@@ -557,7 +591,7 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
     try {
       LiveActivity activity = activityRepository.getLiveActivityById(id);
       if (activity == null) {
-        return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_DOMAIN_LIVEACTIVITY_UNKNOWN);
+        return getNoSuchLiveActivityResponse(id);
       }
 
       String command = (String) metadataCommand.get(MasterApiMessages.MASTER_API_PARAMETER_COMMAND);
@@ -590,16 +624,20 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
 
         activity.setMetadata(metadata);
       } else {
-        return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_COMMAND_UNKNOWN);
+        return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_COMMAND_UNKNOWN,
+            String.format("Unknown live activity metadata update command %s", command));
       }
 
       activityRepository.saveLiveActivity(activity);
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
-    } catch (Exception e) {
-      spaceEnvironment.getLog().error("Could not modify live activity metadata", e);
+    } catch (Throwable e) {
+      Map<String, Object> response =
+          MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE, e);
 
-      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE);
+      logResponseError("Could not modify live activity metadata", response);
+
+      return response;
     }
   }
 
@@ -611,7 +649,7 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return noSuchLiveActivityGroupResult();
+      return getNoSuchLiveActivityGroupResponse(id);
     }
   }
 
@@ -641,7 +679,7 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
 
       return MasterApiMessageSupport.getSuccessResponse(data);
     } else {
-      return noSuchLiveActivityResult();
+      return getNoSuchLiveActivityResponse(id);
     }
   }
 
@@ -655,7 +693,7 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return noSuchLiveActivityResult();
+      return getNoSuchLiveActivityResponse(id);
     }
   }
 
@@ -816,7 +854,7 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
     if (liveActivityGroup != null) {
       return MasterApiMessageSupport.getSuccessResponse(getLiveActivityGroupApiData(liveActivityGroup));
     } else {
-      return noSuchLiveActivityGroupResult();
+      return getNoSuchLiveActivityGroupResponse(id);
     }
   }
 
@@ -841,7 +879,7 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
 
       return MasterApiMessageSupport.getSuccessResponse(responseData);
     } else {
-      return noSuchLiveActivityGroupResult();
+      return getNoSuchLiveActivityGroupResponse(id);
     }
   }
 
@@ -864,10 +902,13 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
       }
 
       return MasterApiMessageSupport.getSuccessResponse(responseData);
-    } catch (Exception e) {
-      spaceEnvironment.getLog().error("Attempt to get live activity group data failed", e);
+    } catch (Throwable e) {
+      Map<String, Object> response =
+          MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE, e);
 
-      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE);
+      logResponseError("Attempt to get live activity group data failed", response);
+
+      return response;
     }
   }
 
@@ -971,10 +1012,13 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
       }
 
       return MasterApiMessageSupport.getSuccessResponse(data);
-    } catch (Exception e) {
-      spaceEnvironment.getLog().error("Attempt to get all space data failed", e);
+    } catch (Throwable e) {
+      Map<String, Object> response =
+          MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE, e);
 
-      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE);
+      logResponseError("Attempt to get all space data failed", response);
+
+      return response;
     }
   }
 
@@ -986,14 +1030,15 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
     } else {
-      return getNoSuchSpaceResponse();
+      return getNoSuchSpaceResponse(id);
     }
   }
 
   @Override
   public Map<String, Object> updateSpaceMetadata(String id, Object metadataCommandObj) {
     if (!(metadataCommandObj instanceof Map)) {
-      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_ARGS_NOMAP);
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_ARGS_NOMAP,
+          MasterApiMessages.MESSAGE_SPACE_DETAIL_CALL_ARGS_NOMAP);
     }
 
     @SuppressWarnings("unchecked")
@@ -1002,7 +1047,7 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
     try {
       Space space = activityRepository.getSpaceById(id);
       if (space == null) {
-        return getNoSuchSpaceResponse();
+        return getNoSuchSpaceResponse(id);
       }
 
       String command = (String) metadataCommand.get(MasterApiMessages.MASTER_API_PARAMETER_COMMAND);
@@ -1035,16 +1080,20 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
 
         space.setMetadata(metadata);
       } else {
-        return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_COMMAND_UNKNOWN);
+        return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_COMMAND_UNKNOWN,
+            String.format("Unknown space metadata update command %s", command));
       }
 
       activityRepository.saveSpace(space);
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
-    } catch (Exception e) {
-      spaceEnvironment.getLog().error("Could not modify space metadata", e);
+    } catch (Throwable e) {
+      Map<String, Object> response =
+          MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE, e);
 
-      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE);
+      logResponseError("Could not modify space metadata", response);
+
+      return response;
     }
   }
 
@@ -1103,7 +1152,7 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
     if (space != null) {
       return MasterApiMessageSupport.getSuccessResponse(getSpaceViewApiResponse(space));
     } else {
-      return getNoSuchSpaceResponse();
+      return getNoSuchSpaceResponse(id);
     }
   }
 
@@ -1130,7 +1179,7 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
 
       return MasterApiMessageSupport.getSuccessResponse(responseData);
     } else {
-      return getNoSuchSpaceResponse();
+      return getNoSuchSpaceResponse(id);
     }
   }
 
@@ -1151,7 +1200,7 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
 
       return MasterApiMessageSupport.getSuccessResponse(responseData);
     } else {
-      return getNoSuchSpaceResponse();
+      return getNoSuchSpaceResponse(id);
     }
   }
 
@@ -1283,7 +1332,8 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
   @Override
   public Map<String, Object> updateLiveActivityGroupMetadata(String id, Object metadataCommandObj) {
     if (!(metadataCommandObj instanceof Map)) {
-      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_ARGS_NOMAP);
+      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_ARGS_NOMAP,
+          MasterApiMessages.MESSAGE_SPACE_DETAIL_CALL_ARGS_NOMAP);
     }
 
     @SuppressWarnings("unchecked")
@@ -1292,8 +1342,7 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
     try {
       LiveActivityGroup group = activityRepository.getLiveActivityGroupById(id);
       if (group == null) {
-        return MasterApiMessageSupport
-            .getFailureResponse(MasterApiMessages.MESSAGE_SPACE_DOMAIN_LIVEACTIVITYGROUP_UNKNOWN);
+        return getNoSuchLiveActivityGroupResponse(id);
       }
 
       String command = (String) metadataCommand.get(MasterApiMessages.MASTER_API_PARAMETER_COMMAND);
@@ -1326,16 +1375,20 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
 
         group.setMetadata(metadata);
       } else {
-        return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_COMMAND_UNKNOWN);
+        return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_COMMAND_UNKNOWN,
+            String.format("Unknown live activity group metadata update command %s", command));
       }
 
       activityRepository.saveLiveActivityGroup(group);
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();
-    } catch (Exception e) {
-      spaceEnvironment.getLog().error("Could not modify live activity group metadata", e);
+    } catch (Throwable e) {
+      Map<String, Object> response =
+          MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE, e);
 
-      return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_CALL_FAILURE);
+      logResponseError("Could not modify live activity group metadata", response);
+
+      return response;
     }
   }
 
@@ -1361,7 +1414,7 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
   }
 
   /**
-   * Handle an install event for a live activity.
+   * Get the Master API response for no such activity.
    *
    * @param liveActivity
    *          the live activity
@@ -1375,15 +1428,6 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
     if (result.getStatus() == ActivityDeployStatus.STATUS_SUCCESS) {
       updateLiveActivityDeploymentTime(liveActivity, timestamp);
     }
-  }
-
-  /**
-   * Get the Master API response for no such activity.
-   *
-   * @return the API response
-   */
-  private Map<String, Object> noSuchActivityResult() {
-    return MasterApiMessageSupport.getFailureResponse(MasterApiMessages.MESSAGE_SPACE_DOMAIN_ACTIVITY_UNKNOWN);
   }
 
   /**
