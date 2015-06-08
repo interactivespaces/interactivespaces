@@ -22,3 +22,5 @@ if [[ -f test/messages.check ]]; then
 fi
 
 isrun $CMD $TEST_ARGS "$@"
+
+echo Test passed successfully.
