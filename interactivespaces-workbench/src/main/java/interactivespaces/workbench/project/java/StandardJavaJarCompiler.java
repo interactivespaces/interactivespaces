@@ -57,7 +57,7 @@ import java.util.zip.ZipOutputStream;
  *
  * @author Keith M. Hughes
  */
-public class JavaxJavaJarCompiler implements JavaJarCompiler {
+public class StandardJavaJarCompiler implements JavaJarCompiler {
 
   /**
    * The name of the manifest file in a Java jar.
@@ -92,7 +92,7 @@ public class JavaxJavaJarCompiler implements JavaJarCompiler {
   /**
    * The java compiler to use for the project.
    */
-  private final ProjectJavaCompiler projectCompiler = new JavaxProjectJavaCompiler();
+  private final ProjectJavaCompiler projectCompiler = new EclipseProjectJavaCompiler();
 
   /**
    * The file support to use.

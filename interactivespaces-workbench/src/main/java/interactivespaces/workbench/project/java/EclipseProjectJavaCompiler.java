@@ -25,6 +25,8 @@ import interactivespaces.workbench.project.ProjectTaskContext;
 
 import com.google.common.collect.Lists;
 
+import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -33,14 +35,13 @@ import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
-import javax.tools.ToolProvider;
 
 /**
- * A project java compiler which uses the javax compiler.
+ * A project java compiler which uses the Eclipse compiler.
  *
  * @author Keith M. Hughes
  */
-public class JavaxProjectJavaCompiler implements ProjectJavaCompiler {
+public class EclipseProjectJavaCompiler implements ProjectJavaCompiler {
 
   /**
    * The file extension for a Java source file.
@@ -68,12 +69,8 @@ public class JavaxProjectJavaCompiler implements ProjectJavaCompiler {
 
     StandardJavaFileManager fileManager = null;
     try {
-      JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-      if (compiler == null) {
-        SimpleInteractiveSpacesException
-            .throwFormattedException("Could not find Java compiler.  Verify java is being run "
-                + "from the JDK and not JRE.");
-      }
+      JavaCompiler compiler = new EclipseCompiler();
+
       fileManager = compiler.getStandardFileManager(null, null, null);
       fileManager.setLocation(StandardLocation.CLASS_PATH, classpath);
       fileManager.setLocation(StandardLocation.CLASS_OUTPUT, Lists.newArrayList(compilationBuildDirectory));

@@ -22,8 +22,8 @@ import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.ProjectTaskContext;
 import interactivespaces.workbench.project.builder.BaseProjectBuilder;
 import interactivespaces.workbench.project.java.JavaJarCompiler;
-import interactivespaces.workbench.project.java.JavaxJavaJarCompiler;
 import interactivespaces.workbench.project.java.ProjectJavaCompiler;
+import interactivespaces.workbench.project.java.StandardJavaJarCompiler;
 import interactivespaces.workbench.project.test.IsolatedClassloaderJavaTestRunner;
 import interactivespaces.workbench.project.test.JavaTestRunner;
 
@@ -44,7 +44,7 @@ public class JavaLibraryProjectBuilder extends BaseProjectBuilder<LibraryProject
   /**
    * The compiler for Java JARs.
    */
-  private final JavaJarCompiler compiler = new JavaxJavaJarCompiler();
+  private final JavaJarCompiler compiler = new StandardJavaJarCompiler();
 
   /**
    * File support to use.

@@ -22,9 +22,9 @@ import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectTaskContext;
+import interactivespaces.workbench.project.java.EclipseProjectJavaCompiler;
 import interactivespaces.workbench.project.java.JavaProjectExtension;
 import interactivespaces.workbench.project.java.JavaProjectType;
-import interactivespaces.workbench.project.java.JavaxProjectJavaCompiler;
 import interactivespaces.workbench.project.java.ProjectJavaCompiler;
 
 import com.google.common.collect.Lists;
@@ -63,7 +63,7 @@ public class IsolatedClassloaderJavaTestRunner implements JavaTestRunner {
   /**
    * The project compiler.
    */
-  private final ProjectJavaCompiler projectCompiler = new JavaxProjectJavaCompiler();
+  private final ProjectJavaCompiler projectCompiler = new EclipseProjectJavaCompiler();
 
   /**
    * File support for class.

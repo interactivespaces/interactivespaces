@@ -26,8 +26,8 @@ import interactivespaces.workbench.project.activity.builder.BaseActivityProjectB
 import interactivespaces.workbench.project.java.ContainerInfo;
 import interactivespaces.workbench.project.java.JavaJarCompiler;
 import interactivespaces.workbench.project.java.JavaProjectExtension;
-import interactivespaces.workbench.project.java.JavaxJavaJarCompiler;
 import interactivespaces.workbench.project.java.ProjectJavaCompiler;
+import interactivespaces.workbench.project.java.StandardJavaJarCompiler;
 import interactivespaces.workbench.project.test.IsolatedClassloaderJavaTestRunner;
 import interactivespaces.workbench.project.test.JavaTestRunner;
 
@@ -63,7 +63,7 @@ public class JavaActivityProjectBuilder extends BaseActivityProjectBuilder {
   /**
    * The compiler for Java JARs.
    */
-  private final JavaJarCompiler compiler = new JavaxJavaJarCompiler();
+  private final JavaJarCompiler compiler = new StandardJavaJarCompiler();
 
   /**
    * File support to use.

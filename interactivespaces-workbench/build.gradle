@@ -27,6 +27,8 @@ dependencies {
     exclude group: 'org.apache.log4j'
   }
   
+  compile files("${project.getProperty('interactivespaces.dependencies.home')}/java/interactivespaces.ecj-4.4.2.jar")
+  
   compile files("${project.getProperty('interactivespaces.dependencies.home')}/gui/org.swinglabs.swingx-1.6.1.jar")
   compile 'biz.aQute:bndlib:1.50.0'
   

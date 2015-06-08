@@ -46,6 +46,7 @@ terms and conditions of this License Agreement.
 The Following open source projects are used with the Eclipse Public License 1.0.
 
 AspectJ
+ECJ (The Eclipse Java compiler)
 
 ------------
 dnsjava is placed under the BSD license.  Several files are also under
