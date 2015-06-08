@@ -34,6 +34,7 @@ import org.apache.commons.logging.Log;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -463,22 +464,25 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
       InputStream inputStream = process.getInputStream();
       String inputString = fileSupport.readAvailableToString(inputStream);
       if (!Strings.isNullOrEmpty(inputString)) {
+        log.info("Native application runner: " + Arrays.toString(commandLine));
         String[] parts = inputString.split("\n");
         for (String line : parts) {
-          log.info(line);
+          log.info("Native application runner: " + line);
         }
       }
 
       InputStream errorStream = process.getErrorStream();
       String errorString = fileSupport.readAvailableToString(errorStream);
       if (!Strings.isNullOrEmpty(errorString)) {
+        log.error("Native application runner: " + Arrays.toString(commandLine));
         String[] parts = errorString.split("\n");
         for (String line : parts) {
-          log.error(line);
+          log.error("Native application runner: " + line);
         }
       }
     } catch (Exception e) {
-      log.error("Error reading native application process streams", e);
+      log.error(
+          String.format("Error reading native application process streams for %s", Arrays.toString(commandLine)), e);
     }
   }
 

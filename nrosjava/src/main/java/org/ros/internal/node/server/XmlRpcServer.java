@@ -41,15 +41,39 @@ import java.util.concurrent.TimeUnit;
  */
 public class XmlRpcServer {
 
-  private static final Log log = RosLogFactory.getLog(XmlRpcServer.class);
+  /**
+   * The logger for the server.
+   */
+  private static final Log LOG = RosLogFactory.getLog(XmlRpcServer.class);
 
+  /**
+   * The RPC web server.
+   */
   private final NettyXmlRpcWebServer server;
+
+  /**
+   * The advertising address for the server.
+   */
   private final AdvertiseAddress advertiseAddress;
+
+  /**
+   * The countdown latch for detecting when the server has fully started up.
+   */
   private final CountDownLatch startLatch;
 
+  /**
+   * Construct a new server.
+   *
+   * @param bindAddress
+   *          the address to bind the server to
+   * @param advertiseAddress
+   *          the address to be used for advertising the server
+   * @param threadPool
+   *          the threadpool for the server
+   */
   public XmlRpcServer(BindAddress bindAddress, AdvertiseAddress advertiseAddress, ScheduledExecutorService threadPool) {
     InetSocketAddress address = bindAddress.toInetSocketAddress();
-    server = new NettyXmlRpcWebServer(address.getPort(), address.getAddress(), threadPool, log);
+    server = new NettyXmlRpcWebServer(address.getPort(), address.getAddress(), threadPool, LOG);
     this.advertiseAddress = advertiseAddress;
     this.advertiseAddress.setPortCallable(new Callable<Integer>() {
       @Override
@@ -65,9 +89,10 @@ public class XmlRpcServer {
    *
    * @param instanceClass
    *          the class of the remoting server
-   *
    * @param instance
    *          an instance of the remoting server class
+   * @param <T>
+   *          the type of the RPC endpoint
    */
   public <T extends org.ros.internal.node.xmlrpc.XmlRpcEndpoint> void start(Class<T> instanceClass, T instance) {
     org.apache.xmlrpc.server.XmlRpcServer xmlRpcServer = server.getXmlRpcServer();
@@ -85,9 +110,8 @@ public class XmlRpcServer {
 
     server.start();
 
-    System.out.println("XmlRPCServer Bound to: " + getUri());
-    if (log.isDebugEnabled()) {
-      log.debug("XmlRPCServer Bound to: " + getUri());
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("XmlRPCServer Bound to: " + getUri());
     }
     startLatch.countDown();
   }
@@ -100,31 +124,66 @@ public class XmlRpcServer {
   }
 
   /**
+   * Get the URI of the server.
+   *
    * @return the {@link URI} of the server
    */
   public URI getUri() {
     return advertiseAddress.toUri("http");
   }
 
+  /**
+   * Get the socket address of the advertising address.
+   *
+   * @return the socket address
+   */
   public InetSocketAddress getAddress() {
     return advertiseAddress.toInetSocketAddress();
   }
 
+  /**
+   * Get the advertising address for the server.
+   *
+   * @return the advertising address
+   */
   public AdvertiseAddress getAdvertiseAddress() {
     return advertiseAddress;
   }
 
+  /**
+   * Wait for the start of the server.
+   *
+   * <p>
+   * There is no time limit on this wait.
+   *
+   * @throws InterruptedException
+   *           the thread got interrupted
+   */
   public void awaitStart() throws InterruptedException {
     startLatch.await();
   }
 
+  /**
+   * Wait for the startup of the server.
+   *
+   * @param timeout
+   *          the amount of time to wait for the server to start
+   * @param unit
+   *          the time units for the wait time
+   *
+   * @return {@code true} if the startup happened within the wait time
+   *
+   * @throws InterruptedException
+   *           the thread got interrupted
+   */
   public boolean awaitStart(long timeout, TimeUnit unit) throws InterruptedException {
     return startLatch.await(timeout, unit);
   }
 
   /**
-   * @return PID of node process if available, throws
-   *         {@link UnsupportedOperationException} otherwise.
+   * get the PID of the RPC server process.
+   *
+   * @return PID of node process if available, throws {@link UnsupportedOperationException} otherwise
    */
   public int getPid() {
     return Process.getPid();
