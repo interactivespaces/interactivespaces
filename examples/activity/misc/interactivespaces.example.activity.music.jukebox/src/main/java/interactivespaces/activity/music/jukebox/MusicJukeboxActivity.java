@@ -29,10 +29,14 @@ import interactivespaces.service.audio.player.jukebox.AudioJukeboxListener;
 import interactivespaces.service.audio.player.jukebox.internal.simple.SimpleAudioJukebox;
 import interactivespaces.util.ros.RosPublishers;
 import interactivespaces.util.ros.RosSubscribers;
+import interactivespaces.util.ros.StandardRosPublishers;
+import interactivespaces.util.ros.StandardRosSubscribers;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import interactivespaces_msgs.MusicJukeboxAnnounce;
 import interactivespaces_msgs.MusicJukeboxControl;
-import com.google.common.collect.Lists;
 import org.ros.message.MessageFactory;
 import org.ros.message.MessageListener;
 import org.ros.node.ConnectedNode;
@@ -144,9 +148,9 @@ public class MusicJukeboxActivity extends BaseRosActivity implements AudioJukebo
     ConnectedNode node = getMainNode();
     rosMessageFactory = node.getTopicMessageFactory();
 
-    jukeboxControlSubscribers = new RosSubscribers<MusicJukeboxControl>(getLog());
+    jukeboxControlSubscribers = new StandardRosSubscribers<MusicJukeboxControl>(getLog());
     jukeboxControlSubscribers.addSubscribers(node, "interactivespaces_msgs/MusicJukeboxControl",
-        configuration.getRequiredPropertyString(CONFIGURATION_MUSIC_JUKEBOX_CONTROL_ROS_TOPIC_NAME),
+        Sets.newHashSet(configuration.getRequiredPropertyString(CONFIGURATION_MUSIC_JUKEBOX_CONTROL_ROS_TOPIC_NAME)),
         new MessageListener<MusicJukeboxControl>() {
           @Override
           public void onNewMessage(MusicJukeboxControl request) {
@@ -154,9 +158,9 @@ public class MusicJukeboxActivity extends BaseRosActivity implements AudioJukebo
           }
         });
 
-    jukeboxAnnouncePublishers = new RosPublishers<MusicJukeboxAnnounce>(getLog());
+    jukeboxAnnouncePublishers = new StandardRosPublishers<MusicJukeboxAnnounce>(getLog());
     jukeboxAnnouncePublishers.addPublishers(node, "interactivespaces_msgs/MusicJukeboxAnnounce",
-        configuration.getRequiredPropertyString(CONFIGURATION_MUSIC_JUKEBOX_ANNOUNCE_ROS_TOPIC_NAME));
+        Sets.newHashSet(configuration.getRequiredPropertyString(CONFIGURATION_MUSIC_JUKEBOX_ANNOUNCE_ROS_TOPIC_NAME)));
   }
 
   /**

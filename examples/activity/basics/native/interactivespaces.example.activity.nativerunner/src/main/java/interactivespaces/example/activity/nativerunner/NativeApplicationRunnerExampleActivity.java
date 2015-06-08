@@ -21,6 +21,7 @@ import interactivespaces.activity.impl.BaseActivity;
 import interactivespaces.util.process.BaseNativeApplicationRunnerListener;
 import interactivespaces.util.process.NativeApplicationRunner;
 import interactivespaces.util.process.NativeApplicationRunnerCollection;
+import interactivespaces.util.process.StandardNativeApplicationRunnerCollection;
 import interactivespaces.util.process.restart.RestartStrategy;
 
 /**
@@ -48,7 +49,7 @@ public class NativeApplicationRunnerExampleActivity extends BaseActivity {
 
   @Override
   public void onActivitySetup() {
-    nativeAppRunnerCollection = new NativeApplicationRunnerCollection(getSpaceEnvironment(), getLog());
+    nativeAppRunnerCollection = new StandardNativeApplicationRunnerCollection(getSpaceEnvironment(), getLog());
 
     addManagedResource(nativeAppRunnerCollection);
   }
