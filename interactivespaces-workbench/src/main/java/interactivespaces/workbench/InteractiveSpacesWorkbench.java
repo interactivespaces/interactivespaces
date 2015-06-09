@@ -388,6 +388,16 @@ public class InteractiveSpacesWorkbench {
     creationSpecification.setBaseDirectory(baseDirectory);
 
     try {
+      while (!commands.isEmpty()) {
+        String templateParameter = removeArgument(commands, "template parameter");
+        String[] parts = templateParameter.split("=", 2);
+        if (parts.length != 2) {
+          SimpleInteractiveSpacesException
+              .throwFormattedException("Template argument 's' does not match pattern 'a=b'", templateParameter);
+        }
+        creationSpecification.addTemplateDataEntry(parts[0], parts[1]);
+      }
+
       projectCreator.create(creationSpecification);
       getLog().info("Successfully created project in " + baseDirectoryPath);
     } catch (Exception e) {

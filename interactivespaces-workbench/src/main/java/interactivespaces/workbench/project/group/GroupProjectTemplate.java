@@ -71,6 +71,7 @@ public class GroupProjectTemplate extends BaseProjectTemplate {
     creationSpecification.setSpecificationBase(groupCreationSpec.getSpecificationBase());
     creationSpecification.addTemplateDataEntry("baseDirectory", groupCreationSpec.getBaseDirectory());
     creationSpecification.addTemplateDataEntry("group", groupCreationSpec.getGroupProjectTemplateSpecification());
+    creationSpecification.addTemplateDataEntry("creationSpec", groupCreationSpec.getTemplateData());
     return creationSpecification;
   }
 }
