@@ -39,7 +39,7 @@ public class BaseProjectTemplate implements ProjectTemplate {
   /**
    * Output file for temporarily writing variables.
    */
-  public static final String TEMPLATE_VARIABLES_DUMP = "template_variables.tmp";
+  public static final String TEMPLATE_VARIABLES_DUMP_FORMAT = "template_variables_%s.tmp";
 
   /**
    * Template variable name to use for holding the base directory.
@@ -70,7 +70,13 @@ public class BaseProjectTemplate implements ProjectTemplate {
       onTemplateWrite(context);
       processTemplateConstituents(context);
     } catch (Exception e) {
-      File outputFile = fileSupport.newFile(context.getBaseDirectory(), TEMPLATE_VARIABLES_DUMP);
+      String description = context.getDescription();
+      int lastPath = description.lastIndexOf(File.separatorChar);
+      if (lastPath >= 0) {
+        description = description.substring(lastPath + 1);
+      }
+      File outputFile = fileSupport.newFile(context.getBaseDirectory(),
+          String.format(TEMPLATE_VARIABLES_DUMP_FORMAT, description));
       dumpVariables(outputFile, context.getTemplateData());
       throw new SimpleInteractiveSpacesException("Template variables can be found in " + outputFile.getAbsolutePath(),
           e);
