@@ -293,7 +293,7 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
 
       if (log.isInfoEnabled()) {
         String appLine = Joiner.on(' ').join(commandLine);
-        log.info(String.format("Native application starting up %s", appLine));
+        log.info(String.format("Native application runner: %s", appLine));
       }
 
       process = attemptRun(true);
@@ -464,7 +464,6 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
       InputStream inputStream = process.getInputStream();
       String inputString = fileSupport.readAvailableToString(inputStream);
       if (!Strings.isNullOrEmpty(inputString)) {
-        log.info("Native application runner: " + Arrays.toString(commandLine));
         String[] parts = inputString.split("\n");
         for (String line : parts) {
           log.info("Native application runner: " + line);
@@ -474,7 +473,6 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
       InputStream errorStream = process.getErrorStream();
       String errorString = fileSupport.readAvailableToString(errorStream);
       if (!Strings.isNullOrEmpty(errorString)) {
-        log.error("Native application runner: " + Arrays.toString(commandLine));
         String[] parts = errorString.split("\n");
         for (String line : parts) {
           log.error("Native application runner: " + line);
@@ -504,7 +502,7 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
 
       return true;
     } else {
-      log.warn("Native application stopped running, not attempting restart");
+      log.info("Native application stopped running, not attempting restart");
     }
 
     return false;

@@ -45,21 +45,26 @@ public abstract class UnixNativeApplicationRunner extends BaseNativeApplicationR
   @Override
   public boolean handleProcessExit(int exitValue, String[] commands) {
     String returnValue = null;
+    boolean normalExit = false;
     try {
       UnixReturnValue unixReturnValue = UnixReturnValue.get(exitValue);
       if (unixReturnValue != null) {
         returnValue = unixReturnValue.toString();
 
         if (unixReturnValue == UnixReturnValue.EXIT_NORMALLY) {
-          return true;
+          normalExit = true;
         }
       } else {
         returnValue = Integer.toString(exitValue);
       }
-
-      return false;
     } finally {
-      getLog().info(String.format("Return value from process is %s for %s", returnValue, commands[0]));
+      String message = String.format("Return value from process is %s for %s", returnValue, commands[0]);
+      if (normalExit) {
+        getLog().info(message);
+      } else {
+        getLog().warn(message);
+      }
     }
+    return normalExit;
   }
 }

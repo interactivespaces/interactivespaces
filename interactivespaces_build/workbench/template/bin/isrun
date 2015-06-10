@@ -80,12 +80,12 @@ INTERACTIVESPACES_MAIN_ARGS+=" -Dinteractivespaces.standalone.router.type=${INTE
 INTERACTIVESPACES_MAIN_ARGS+=" -Dspace.activity.webapp.debug=true"
 INTERACTIVESPACES_MAIN_ARGS+=" $@"
 
-echo $INTERACTIVESPACES_MAIN_ARGS
+echo Args: "${INTERACTIVESPACES_MAIN_ARGS}"
 
 # Change the tab title.
 PS1=
-printf "\033]0;IS: $ACTIVITY_NAME\007"
+printf "\033]0;IS: ${ACTIVITY_NAME}\007"
 
-CONTROLLER_EXE=$CDIR/bin/isstartup
-  
-$CONTROLLER_EXE | ${WDIR}/bin/islog
+CONTROLLER_EXE="${CDIR}/bin/isstartup"
+
+"${CONTROLLER_EXE}" standalone | "${WDIR}/bin/islog"

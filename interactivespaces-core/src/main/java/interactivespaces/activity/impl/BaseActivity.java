@@ -17,6 +17,7 @@
 package interactivespaces.activity.impl;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.SupportedActivity;
 import interactivespaces.activity.annotation.ConfigurationPropertyAnnotationProcessor;
@@ -221,8 +222,6 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
   public void startup() {
     long beginStartTime = getSpaceEnvironment().getTimeProvider().getCurrentTime();
 
-    logConfiguration(ACTIVITY_STARTUP_CONFIG_LOG);
-
     setActivityStatus(ActivityState.STARTUP_ATTEMPT, null);
 
     componentContext = new ActivityComponentContext(this, getActivityRuntime().getActivityComponentFactory());
@@ -233,7 +232,11 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
 
     componentContext.beginStartupPhase();
     try {
+      getConfiguration().setValue(Activity.CONFIGURATION_PROPERTY_ACTIVITY_UUID, getUuid().replace("-", "_"));
+
       callOnActivityPreSetup();
+
+      logConfiguration(ACTIVITY_STARTUP_CONFIG_LOG);
 
       configurationAnnotationProcessor =
           new StandardConfigurationPropertyAnnotationProcessor(getConfiguration(), getLog());
