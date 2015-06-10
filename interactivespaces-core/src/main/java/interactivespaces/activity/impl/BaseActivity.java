@@ -272,6 +272,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
         logException("Exception while running Post Startup", e);
       }
     } catch (Throwable e) {
+      componentContext.shutdownAndClearRunningComponents();
       componentContext.endStartupPhase(false);
       logException("Could not startup activity", e);
 
