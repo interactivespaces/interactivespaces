@@ -37,7 +37,7 @@ allprojects {
     //
     // Final versions should set the qualifier to null.
     interactiveSpacesVersion = '1.8.0'
-    interactiveSpacesVersionQualifier = 'SNAPSHOT'
+    interactiveSpacesVersionQualifier = 'BETA'
 
     // These specify the layout of IS containers.
     
