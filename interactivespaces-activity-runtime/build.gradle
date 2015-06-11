@@ -24,6 +24,12 @@ dependencies {
   testCompile 'org.apache.felix:org.apache.felix.framework:5.0.0'
 }
 
+test {
+  testLogging {
+    exceptionFormat = 'full'
+  }
+}
+
 jar {
   manifest {
     version = osgiVersion

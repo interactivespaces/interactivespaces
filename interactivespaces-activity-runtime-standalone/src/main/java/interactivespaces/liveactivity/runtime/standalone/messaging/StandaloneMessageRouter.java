@@ -226,7 +226,7 @@ public class StandaloneMessageRouter extends BaseRosMessageRouterActivityCompone
 
   @Override
   public boolean isComponentRunning() {
-    return router.isRunning();
+    return router != null && router.isRunning();
   }
 
   /**

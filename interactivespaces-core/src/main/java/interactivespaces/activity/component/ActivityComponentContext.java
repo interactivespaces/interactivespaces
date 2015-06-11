@@ -478,13 +478,13 @@ public class ActivityComponentContext {
     boolean properlyShutDown = true;
 
     for (ActivityComponent component : configuredComponents) {
-      if (component.isComponentRunning()) {
-        try {
+      try {
+        if (component.isComponentRunning()) {
           component.shutdownComponent();
-        } catch (Exception e) {
-          properlyShutDown = false;
-          handleComponentError(component, "Error during activity component shutdown", e);
         }
+      } catch (Exception e) {
+        properlyShutDown = false;
+        handleComponentError(component, "Error during activity component shutdown", e);
       }
     }
 

@@ -49,6 +49,12 @@ dependencies {
   testCompile 'org.mockito:mockito-all:1.9.5'
 }
 
+test {
+  testLogging {
+    exceptionFormat = 'full'
+  }
+}
+
 jar {
   manifest {
     version = osgiVersion

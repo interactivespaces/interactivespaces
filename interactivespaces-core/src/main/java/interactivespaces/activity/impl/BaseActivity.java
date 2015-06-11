@@ -545,7 +545,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
     }
 
     try {
-      if (!componentContext.shutdownAndClear()) {
+      if (!componentContext.shutdownAndClearRunningComponents()) {
         cleanShutdown = false;
       }
     } catch (Throwable e) {
