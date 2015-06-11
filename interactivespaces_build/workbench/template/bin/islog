@@ -57,17 +57,21 @@ def process(logfile):
       sourceStart = line.rfind(' ', 0, sourceEnd) + 1
       source = line[sourceStart : sourceEnd]
       if source != current_source:
-        current_source = source
+        prev_source, current_source = current_source, source
         print
         print source_color + '[ ' + source + ' ]' + default
 
       # Cut out the level, timestamp and thread name.
       suffix = '] - '
       line = line[line.find(suffix, sourceEnd) + len(suffix) :];
+      skip = False
       for i in ignore:
         if line.startswith(i):
-          line = black + line
+          skip = True
           break
+      if skip:
+        current_source = prev_source
+        continue
       line = level[0] + ': ' + line
     print lineHeader + line.rstrip() + default
 
