@@ -79,6 +79,11 @@ public class Log4jColoredConsoleAppender extends ConsoleAppender {
   private static final int FOREGROUND_WHITE = 37;
 
   /**
+   * ANSI code for using the default console colors.
+   */
+  private static final String CONSOLE_DEFAULT = "";
+
+  /**
    * ANSI prefix for escape codes.
    */
   private static final String PREFIX = "\u001b[";
@@ -116,7 +121,7 @@ public class Log4jColoredConsoleAppender extends ConsoleAppender {
   /**
    * ANSI code sequence for INFO log messages.
    */
-  private static final String INFO_COLOUR  = PREFIX + NORMAL + SEPARATOR + FOREGROUND_WHITE + SUFFIX;
+  private static final String INFO_COLOUR  = CONSOLE_DEFAULT;
 
   /**
    * ANSI code sequence for DEBUG log messages.
