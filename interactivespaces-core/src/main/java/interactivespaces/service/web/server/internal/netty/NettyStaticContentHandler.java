@@ -318,7 +318,7 @@ public class NettyStaticContentHandler implements NettyHttpContentHandler, HttpS
       writeFuture.addListener(ChannelFutureListener.CLOSE);
     }
 
-    parentHandler.getWebServer().getLog().debug(String.format("[%s] HTTP %s --> %s",
+    parentHandler.getWebServer().getLog().trace(String.format("[%s] HTTP %s --> %s",
             status.getCode(), originalUrl, file.getPath()));
   }
 
