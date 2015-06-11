@@ -23,6 +23,7 @@ while [ -h "$SOURCE" ]; do
 done
 
 EXEDIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+ISLOG="${EXEDIR}/islog"
 
 export INTERACTIVESPACES_HOME=${INTERACTIVESPACES_HOME:-$EXEDIR/../..}
 
@@ -67,9 +68,9 @@ fi
 if [ ! "$SUPPRESS_WORKBENCH" ]; then
   PROJNAME=$(isproject extract $PROJFILE '/is:project/is:name/text()')
   echo Building interactive spaces project $PROJNAME
-  WBEXE=bin/isworkbench
+  WBEXE="${EXEDIR}/isworkbench"
   # Re-run workbench to do the build.
-  (cd $WBDIR; $WBEXE "$INTERACTIVESPACES_ARGS" "$ROOTDIR" build)
+  (cd $WBDIR; $WBEXE "$INTERACTIVESPACES_ARGS" "$ROOTDIR" build) | "${ISLOG}"
 fi
 
 # If it exists, source any post-run files. Also process embedded scripts, unless suppressed.
@@ -89,7 +90,7 @@ fi
 if [[ "$WBEXE" && "$INTERACTIVESPACES_BUILD_DEPLOY_TARGET" ]]; then
   echo Exporting build artifacts...
   DEPLOYARGS=-Dexport.activity.dir=$INTERACTIVESPACES_EXPORT_ACTIVITY_DIR/
-  (cd $WBDIR; $WBEXE "$INTERACTIVESPACES_ARGS" $ROOTDIR $DEPLOYARGS deploy $INTERACTIVESPACES_BUILD_DEPLOY_TARGET)
+  (cd $WBDIR; $WBEXE "$INTERACTIVESPACES_ARGS" $ROOTDIR $DEPLOYARGS deploy $INTERACTIVESPACES_BUILD_DEPLOY_TARGET) | "${ISLOG}"
   rm -f $INTERACTIVESPACES_EXPORT_ACTIVITY_DIR/resource.map
 fi
 
