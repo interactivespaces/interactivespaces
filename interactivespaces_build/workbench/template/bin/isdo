@@ -42,6 +42,8 @@ except:
 
 ACTIVITY_UPDATE_DELAY = 3 # Seconds
 
+INTERACTIVE_SPACES_NAMESPACES = {'is': 'http://interactive-spaces.org/project.xsd'}
+
 
 def print_help():
   """Print help information and exits."""
@@ -969,7 +971,8 @@ class Runner(object):
           if config.debug:
             print('Loading ' + path)
 
-          activity_name = ElementTree.parse(path).find('./identifyingName').text.strip()
+          tree = ElementTree.parse(path)
+          activity_name = (tree.find('./identifyingName') or tree.find('./is:identifyingName', INTERACTIVE_SPACES_NAMESPACES)).text.strip()
           config.project_folders[root] = activity_name
           config.known_activities[activity_name] = set()
 
