@@ -472,6 +472,11 @@ public class StandardProjectTaskManager implements ProjectTaskManager {
   public class ProjectIdeTask extends ProjectWorkbenchTask {
 
     /**
+     * The ide parameter for eclipse projects.
+     */
+    private static final String IDE_ECLIPSE = "eclipse";
+
+    /**
      * The IDE to create projects for.
      */
     private String ide;
@@ -503,6 +508,10 @@ public class StandardProjectTaskManager implements ProjectTaskManager {
 
       EclipseIdeProjectCreatorSpecification spec;
       ProjectType type = getProjectTaskContext().getProjectType();
+      if (!ide.equals(IDE_ECLIPSE)) {
+        throw SimpleInteractiveSpacesException.newFormattedException(
+            "Attempt to create a project of non-supported type: '%s'. Only '%s' is supported.", ide, IDE_ECLIPSE);
+      }
       if (type != null) {
         spec = type.getEclipseIdeProjectCreatorSpecification();
       } else {
