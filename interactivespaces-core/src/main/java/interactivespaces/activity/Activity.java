@@ -42,6 +42,11 @@ public interface Activity extends ActivityControl {
   String CONFIGURATION_PROPERTY_LOG_LEVEL = "space.activity.log.level";
 
   /**
+   * The configuration property with gives the activity UUID.
+   */
+  String CONFIGURATION_PROPERTY_ACTIVITY_UUID = "space.activity.uuid";
+
+  /**
    * Get the Interactive Spaces environment the activity is running under.
    *
    * @return space environment for this activity

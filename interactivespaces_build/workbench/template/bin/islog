@@ -1,37 +1,28 @@
 #!/usr/bin/env python
+
 import fileinput
 from sys import argv
 from sys import stdin
 
+# Initial ESC sequence to indicate a color setting.
 ESC = '\x1B['
 
-# foreground colors
-black   = ESC + '30m'
-red     = ESC + '31m'
-green   = ESC + '32m'
-yellow  = ESC + '33m'
-blue    = ESC + '34m'
-magenta = ESC + '35m'
-cyan    = ESC + '36m'
-white   = ESC + '37m'
-
-bold = ESC + '1m'
-
-# reset
+# Default line color to reset at the end.
 default = ESC + 'm'
 
-
+# Various log output levels to test for.
 levels = {
-  'TRACE': black,  
-  'DEBUG': magenta,
-  'INFO ': yellow,
-  'WARN ': white + bold,
-  'ERROR': red + bold
+  'TRACE',
+  'DEBUG',
+  'INFO ',
+  'WARN ',
+  'ERROR',
 }
 
-# black bg, cyan fg, bold
+# Setting to indicate a log source: black bg, cyan fg, bold.
 source_color = ESC + '40;36;1m'
 
+# Common NOP messages to ignore.
 ignore = [
   'Publisher registered:',
   'Subscriber registered:',
@@ -44,30 +35,45 @@ ignore = [
 
 def process(logfile):
   current_level = 'INFO '
-  current_source = ''  
+  current_source = ''
   while True:
     line = logfile.readline()
     if not line: break
+
+    # Scan to identify any initial esc. sequense that should be saved.
+    startIndex = 0
+    while line[startIndex:].startswith(ESC):
+      startIndex += len(ESC)
+      while line[startIndex] != 'm':
+        startIndex += 1
+      startIndex += 1
+    lineHeader = line[0 : startIndex]
+    line = line[startIndex : ]
+
     level = line [:5] if len(line) > 5 else None
     if level in levels:
       current_level = level
-      sourceEnd = line.find(' [') 
-      sourceStart = line.rfind(' ', 0, sourceEnd) + 1 
+      sourceEnd = line.find(' [')
+      sourceStart = line.rfind(' ', 0, sourceEnd) + 1
       source = line[sourceStart : sourceEnd]
       if source != current_source:
-        current_source = source
+        prev_source, current_source = current_source, source
         print
         print source_color + '[ ' + source + ' ]' + default
 
-      # cut out the level, timestamp and thread name
+      # Cut out the level, timestamp and thread name.
       suffix = '] - '
       line = line[line.find(suffix, sourceEnd) + len(suffix) :];
-      line = '\xE2\x98\x83 ' + line
+      skip = False
       for i in ignore:
         if line.startswith(i):
-          line = black + line
+          skip = True
           break
-    print levels[current_level] + line.rstrip() + default
+      if skip:
+        current_source = prev_source
+        continue
+      line = level[0] + ': ' + line
+    print lineHeader + line.rstrip() + default
 
 try:
   if len(argv) == 1:

@@ -112,6 +112,7 @@ public class BaseActivityTest {
     activity.setConfiguration(configuration);
     activity.setExecutionContext(executionContext);
     activity.setLog(log);
+    activity.setUuid("123456789-10-11-12");
 
     activityInOrder = Mockito.inOrder(activity);
   }

@@ -17,6 +17,7 @@
 package interactivespaces.activity.impl;
 
 import interactivespaces.InteractiveSpacesException;
+import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.SupportedActivity;
 import interactivespaces.activity.annotation.ConfigurationPropertyAnnotationProcessor;
@@ -221,8 +222,6 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
   public void startup() {
     long beginStartTime = getSpaceEnvironment().getTimeProvider().getCurrentTime();
 
-    logConfiguration(ACTIVITY_STARTUP_CONFIG_LOG);
-
     setActivityStatus(ActivityState.STARTUP_ATTEMPT, null);
 
     componentContext = new ActivityComponentContext(this, getActivityRuntime().getActivityComponentFactory());
@@ -233,7 +232,11 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
 
     componentContext.beginStartupPhase();
     try {
+      getConfiguration().setValue(Activity.CONFIGURATION_PROPERTY_ACTIVITY_UUID, getUuid().replace("-", "_"));
+
       callOnActivityPreSetup();
+
+      logConfiguration(ACTIVITY_STARTUP_CONFIG_LOG);
 
       configurationAnnotationProcessor =
           new StandardConfigurationPropertyAnnotationProcessor(getConfiguration(), getLog());
@@ -272,6 +275,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
         logException("Exception while running Post Startup", e);
       }
     } catch (Throwable e) {
+      componentContext.shutdownAndClearRunningComponents();
       componentContext.endStartupPhase(false);
       logException("Could not startup activity", e);
 
@@ -541,7 +545,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
     }
 
     try {
-      if (!componentContext.shutdownAndClear()) {
+      if (!componentContext.shutdownAndClearRunningComponents()) {
         cleanShutdown = false;
       }
     } catch (Throwable e) {

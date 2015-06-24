@@ -1,9 +1,5 @@
 #!/bin/bash -e
 
-# Change the tab title.
-PS1=
-printf "\033]0;IS: [@INTERACTIVESPACES_CONTAINER_TYPE@]\007"
-
 # Figure out, regardless of any symlinks, aliases, etc, where this script
 # is located.
 SOURCE="${BASH_SOURCE[0]}"
@@ -11,11 +7,17 @@ while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
 DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
 # Figure out run mode.
-if [ "$1" == "foreground" -o "$1" == "background" ]; then
+if [ "$1" == "foreground" -o "$1" == "background" -o "$1" == "standalone" ]; then
   RUN_MODE=$1
   shift
 else
   RUN_MODE=foreground
+fi
+
+# Change the tab title.
+if [[ "${RUN_MODE}" != "standalone" ]]; then
+  PS1=
+  printf "\033]0;IS: [@INTERACTIVESPACES_CONTAINER_TYPE@]\007"
 fi
 
 # Append any additional command-line arguments to pass through to the IS runtime.
@@ -56,10 +58,10 @@ fi
 EXTRAARGS="-Djava.net.preferIPv4Stack=true ${EXTRAARGS}"
 
 # Start up Interactive Spaces
-if [ $RUN_MODE == "foreground" ]; then
-  java ${EXTRAARGS} -server -cp ${CLASSPATH} interactivespaces.launcher.InteractiveSpacesLauncher ${INTERACTIVESPACES_MAIN_ARGS}
+if [[ "${RUN_MODE}" == "foreground" || "${RUN_MODE}" == "standalone" ]]; then
+  java ${EXTRAARGS} -server -cp "${CLASSPATH}" interactivespaces.launcher.InteractiveSpacesLauncher ${INTERACTIVESPACES_MAIN_ARGS}
 fi
 
-if [ $RUN_MODE == "background" ]; then
-  nohup java ${EXTRAARGS} -server -cp ${CLASSPATH} interactivespaces.launcher.InteractiveSpacesLauncher --noshell ${INTERACTIVESPACES_MAIN_ARGS} &>/dev/null &
+if [[ "${RUN_MODE}" == "background" ]]; then
+  nohup java ${EXTRAARGS} -server -cp "${CLASSPATH}" interactivespaces.launcher.InteractiveSpacesLauncher --noshell ${INTERACTIVESPACES_MAIN_ARGS} &>/dev/null &
 fi
