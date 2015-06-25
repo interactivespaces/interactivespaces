@@ -87,6 +87,24 @@ public class InteractiveSpacesException extends RuntimeException {
   }
 
   /**
+   * Create a new formatted exception.
+   *
+   * @param cause
+   *          the cause of the exception
+   * @param message
+   *          the message
+   * @param args
+   *          the args
+   *
+   * @throws InteractiveSpacesException
+   *           the exception just created
+   */
+  public static void throwFormattedException(Throwable cause, String message, Object... args)
+      throws InteractiveSpacesException {
+    throw newFormattedException(cause, message, args);
+  }
+
+  /**
    * Create an exception using the given message.
    *
    * @param message

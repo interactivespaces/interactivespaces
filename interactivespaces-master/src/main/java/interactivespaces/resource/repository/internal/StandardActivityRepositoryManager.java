@@ -27,7 +27,8 @@ import interactivespaces.master.server.services.ActivityRepository;
 import interactivespaces.resource.Version;
 import interactivespaces.resource.repository.ActivityRepositoryManager;
 import interactivespaces.resource.repository.ResourceRepositoryStorageManager;
-import interactivespaces.util.data.resource.MessageDigestResourceSignature;
+import interactivespaces.util.data.resource.MessageDigestResourceSignatureCalculator;
+import interactivespaces.util.data.resource.ResourceSignatureCalculator;
 
 import com.google.common.collect.Lists;
 import com.google.common.io.Closeables;
@@ -52,6 +53,11 @@ public class StandardActivityRepositoryManager implements ActivityRepositoryMana
    * Storage manager for the repository.
    */
   private ResourceRepositoryStorageManager repositoryStorageManager;
+
+  /**
+   * The calculator for resource signatures.
+   */
+  private ResourceSignatureCalculator resourceSignatureCalculator = new MessageDigestResourceSignatureCalculator();
 
   @Override
   public Activity addActivity(InputStream activityStream) {
@@ -103,7 +109,7 @@ public class StandardActivityRepositoryManager implements ActivityRepositoryMana
       inputStream =
           repositoryStorageManager.getResourceStream(ResourceRepositoryStorageManager.RESOURCE_CATEGORY_ACTIVITY,
               activity.getIdentifyingName(), Version.parseVersion(activity.getVersion()));
-      String bundleSignature = new MessageDigestResourceSignature().getBundleSignature(inputStream);
+      String bundleSignature = resourceSignatureCalculator.getResourceSignature(inputStream);
       activity.setBundleContentHash(bundleSignature);
       inputStream.close();
     } catch (Exception e) {

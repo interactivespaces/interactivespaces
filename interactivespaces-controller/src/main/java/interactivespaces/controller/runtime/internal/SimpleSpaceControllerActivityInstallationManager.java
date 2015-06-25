@@ -31,8 +31,7 @@ import interactivespaces_msgs.LiveActivityDeleteStatus;
 import java.util.Date;
 
 /**
- * The controller side of the installation manager for Interactive Spaces live
- * activities.
+ * The controller side of the installation manager for Interactive Spaces live activities.
  *
  * @author Keith M. Hughes
  */
@@ -122,11 +121,13 @@ public class SimpleSpaceControllerActivityInstallationManager implements SpaceCo
       timeDeployed = installedDate.getTime();
     }
 
-    return new LiveActivityDeploymentResponse(request.getTransactionId(), request.getUuid(), status, timeDeployed);
+    return new LiveActivityDeploymentResponse(request.getTransactionId(), request.getUuid(), status, null,
+        timeDeployed);
   }
 
   @Override
-  public SpaceControllerLiveActivityDeleteResponse handleDeleteRequest(SpaceControllerLiveActivityDeleteRequest request) {
+  public SpaceControllerLiveActivityDeleteResponse
+      handleDeleteRequest(SpaceControllerLiveActivityDeleteRequest request) {
     RemoveActivityResult result = RemoveActivityResult.FAILURE;
 
     try {
@@ -148,8 +149,8 @@ public class SimpleSpaceControllerActivityInstallationManager implements SpaceCo
    *
    * @return the response to be sent back
    */
-  public SpaceControllerLiveActivityDeleteResponse createDeleteResponse(SpaceControllerLiveActivityDeleteRequest request,
-      RemoveActivityResult result) {
+  public SpaceControllerLiveActivityDeleteResponse createDeleteResponse(
+      SpaceControllerLiveActivityDeleteRequest request, RemoveActivityResult result) {
     int status;
     switch (result) {
       case SUCCESS:

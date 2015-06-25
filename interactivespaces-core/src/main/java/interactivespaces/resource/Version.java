@@ -39,13 +39,33 @@ public class Version implements Comparable<Version> {
   /**
    * The regular expression for recognizing a version qualifier.
    */
-  public static final String QUALIFIER_REGEX = "[a-zA-Z0-9][a-zA-Z0-9_]*";
+  public static final String QUALIFIER_REGEX = "[a-zA-Z0-9_\\-]+";
 
   /**
    * Pattern for the version.
    */
   public static final Pattern VERSION_PATTERN = Pattern.compile("^([0-9]+)(\\.[0-9]+)?(\\.[0-9]+)?(\\."
       + QUALIFIER_REGEX + ")?$");
+
+  /**
+   * The regex group that gives the major portion of the version.
+   */
+  public static final int REGEX_GROUP_NUMBER_MAJOR = 1;
+
+  /**
+   * The regex group that gives the minor portion of the version.
+   */
+  public static final int REGEX_GROUP_NUMBER_MINOR = 2;
+
+  /**
+   * The regex group that gives the micro portion of the version.
+   */
+  public static final int REGEX_GROUP_NUMBER_MICRO = 3;
+
+  /**
+   * The regex group that gives the qualifier portion of the version.
+   */
+  public static final int REGEX_GROUP_NUMBER_QUALIFIER = 4;
 
   /**
    * Pattern for just the qualifier.
@@ -58,7 +78,7 @@ public class Version implements Comparable<Version> {
   public static final String VERSION_FORMAT_DESCRIPTION = "A version must be of the form major.minor.micro\n"
       + "where each section is a series of digits.\n"
       + "It can also be of the form major.minor.micro.qualifier where qualifier starts with\n"
-      + "a letter or digit, and is followed by letters, digits,\n" + "or underscores.";
+      + "a letter or digit, and is followed by letters, digits, -,\n" + "or underscores.";
 
   /**
    * Is the candidate have legal syntax for a version?
@@ -103,16 +123,16 @@ public class Version implements Comparable<Version> {
       version = version.trim();
       Matcher matcher = VERSION_PATTERN.matcher(version);
       if (matcher.matches()) {
-        String major = matcher.group(1);
-        String minor = matcher.group(2);
-        String incremental = matcher.group(3);
+        String major = matcher.group(REGEX_GROUP_NUMBER_MAJOR);
+        String minor = matcher.group(REGEX_GROUP_NUMBER_MINOR);
+        String micro = matcher.group(REGEX_GROUP_NUMBER_MICRO);
 
-        String qualifier = matcher.group(4);
+        String qualifier = matcher.group(REGEX_GROUP_NUMBER_QUALIFIER);
         if (qualifier != null) {
           qualifier = qualifier.substring(1);
         }
         return new Version(Integer.parseInt(major), (minor != null ? Integer.parseInt(minor.substring(1)) : 0),
-            (incremental != null ? Integer.parseInt(incremental.substring(1)) : 0), qualifier);
+            (micro != null ? Integer.parseInt(micro.substring(1)) : 0), qualifier);
       } else {
         throw new SimpleInteractiveSpacesException(String.format("Illegal version %s", version));
       }

@@ -95,8 +95,9 @@ public class StandardLiveActivityRunnerFactory implements LiveActivityRunnerFact
   @Override
   public void startup() {
     activityWrapperFactoryRetries =
-        spaceEnvironment.getSystemConfiguration().getPropertyInteger(
-            CONFIGURATION_NAME_ACTIVITY_RUNTIME_WRAPPER_FACTORY_RETRY_NUMBER, ACTIVITY_WRAPPER_FACTORY_RETRIES_DEFAULT);
+        spaceEnvironment.getSystemConfiguration()
+            .getPropertyInteger(CONFIGURATION_NAME_ACTIVITY_RUNTIME_WRAPPER_FACTORY_RETRY_NUMBER,
+                ACTIVITY_WRAPPER_FACTORY_RETRIES_DEFAULT);
     activityWrapperFactoryRetryDelay =
         spaceEnvironment.getSystemConfiguration().getPropertyInteger(
             CONFIGURATION_NAME_ACTIVITY_RUNTIME_WRAPPER_FACTORY_RETRY_DELAY,
@@ -109,7 +110,7 @@ public class StandardLiveActivityRunnerFactory implements LiveActivityRunnerFact
   }
 
   @Override
-  public BasicLiveActivityRunner newLiveActivityRunner(String activityType, InstalledLiveActivity liveActivity,
+  public StandardLiveActivityRunner newLiveActivityRunner(String activityType, InstalledLiveActivity liveActivity,
       InternalLiveActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration,
       LiveActivityRunnerListener liveActivityRunnerListener, LiveActivityRuntime liveActivityRuntime) {
 
@@ -127,15 +128,15 @@ public class StandardLiveActivityRunnerFactory implements LiveActivityRunnerFact
       ActivityWrapper wrapper =
           wrapperFactory.newActivityWrapper(liveActivity, activityFilesystem, configuration, liveActivityRuntime);
 
-      BasicLiveActivityRunner activeLiveActivity =
-          new BasicLiveActivityRunner(liveActivity, wrapper, activityFilesystem, configuration,
+      StandardLiveActivityRunner activeLiveActivity =
+          new StandardLiveActivityRunner(liveActivity, wrapper, activityFilesystem, configuration,
               liveActivityRunnerListener, liveActivityRuntime);
 
       return activeLiveActivity;
     } else {
       String message =
-          String
-              .format("Unsupported activity type %s for activity %s", activityType.toString(), liveActivity.getUuid());
+          String.format("Unsupported activity type %s for activity %s", activityType.toString(),
+              liveActivity.getUuid());
       liveActivityRuntime.getSpaceEnvironment().getLog().warn(message);
 
       throw new SimpleInteractiveSpacesException(message);
@@ -194,7 +195,7 @@ public class StandardLiveActivityRunnerFactory implements LiveActivityRunnerFact
   }
 
   @Override
-  public BasicLiveActivityRunner newLiveActivityRunner(InstalledLiveActivity liveActivity,
+  public StandardLiveActivityRunner newLiveActivityRunner(InstalledLiveActivity liveActivity,
       InternalLiveActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration,
       LiveActivityRunnerListener liveActivityRunnerListener, LiveActivityRuntime liveActivityRuntime) {
     String type = getConfiguredType(configuration);
@@ -217,13 +218,9 @@ public class StandardLiveActivityRunnerFactory implements LiveActivityRunnerFact
           String.format("Registered activity wrapper factory version %s for activity type %s", version,
               factory.getActivityType()));
     } else {
-      spaceEnvironment
-          .getLog()
-          .warn(
-              String
-                  .format(
-                      "The %s version %s activity wrapper factory was already registered, the previous version has been replaced.",
-                      factory.getActivityType(), version));
+      spaceEnvironment.getLog().warn(
+          String.format("The %s version %s activity wrapper factory was already registered, "
+              + "the previous version has been replaced.", factory.getActivityType(), version));
     }
   }
 

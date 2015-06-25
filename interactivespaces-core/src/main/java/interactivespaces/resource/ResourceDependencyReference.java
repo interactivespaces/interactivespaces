@@ -62,7 +62,7 @@ public class ResourceDependencyReference implements ResourceDependency {
     int result = 1;
     result = prime * result + name.hashCode();
     result = prime * result + versionRange.hashCode();
-    return result;
+     return result;
   }
 
   @Override
@@ -76,10 +76,12 @@ public class ResourceDependencyReference implements ResourceDependency {
     if (getClass() != obj.getClass()) {
       return false;
     }
+
     ResourceDependencyReference other = (ResourceDependencyReference) obj;
     if (!name.equals(other.name)) {
       return false;
     }
+
     return versionRange.equals(other.versionRange);
   }
 }

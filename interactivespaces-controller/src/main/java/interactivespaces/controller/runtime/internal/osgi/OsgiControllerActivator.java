@@ -165,7 +165,7 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
     addManagedResource(alertStatusManager);
 
     LiveActivityRuntimeComponentFactory liveActivityRuntimeComponentFactory =
-        new StandardLiveActivityRuntimeComponentFactory(spaceEnvironment, getBundleContext());
+        new StandardLiveActivityRuntimeComponentFactory(spaceEnvironment, containerResourceManager);
 
     RemoteLiveActivityRuntimeMonitorService runtimeDebugService =
         new StandardRemoteLiveActivityRuntimeMonitorService();

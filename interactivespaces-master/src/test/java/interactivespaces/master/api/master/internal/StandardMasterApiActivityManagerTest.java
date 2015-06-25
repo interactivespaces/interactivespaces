@@ -78,7 +78,8 @@ public class StandardMasterApiActivityManagerTest {
   @Test
   public void testActivityInstallSuccess() {
     String uuid = "foo";
-    LiveActivityDeploymentResponse result = new LiveActivityDeploymentResponse("trans", uuid, ActivityDeployStatus.STATUS_SUCCESS, 1111);
+    LiveActivityDeploymentResponse result =
+        new LiveActivityDeploymentResponse("trans", uuid, ActivityDeployStatus.STATUS_SUCCESS, null, 1111);
     long timestamp = 1234567;
 
     LiveActivity liveActivity = Mockito.mock(LiveActivity.class);

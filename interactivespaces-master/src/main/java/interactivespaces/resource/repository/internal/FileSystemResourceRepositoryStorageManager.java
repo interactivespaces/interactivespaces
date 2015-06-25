@@ -38,6 +38,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -345,7 +346,7 @@ public class FileSystemResourceRepositoryStorageManager implements ResourceRepos
   }
 
   @Override
-  public NamedVersionedResourceCollection<NamedVersionedResourceWithData<String>> getAllResources(String category) {
+  public NamedVersionedResourceCollection<NamedVersionedResourceWithData<URI>> getAllResources(String category) {
     return resourceAnalyzer.getResourceCollection(getBaseLocation(category));
   }
 

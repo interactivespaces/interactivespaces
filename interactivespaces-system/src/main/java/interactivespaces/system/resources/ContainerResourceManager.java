@@ -16,8 +16,12 @@
 
 package interactivespaces.system.resources;
 
-import java.io.File;
+import interactivespaces.InteractiveSpacesException;
+import interactivespaces.resource.io.ResourceSource;
 
+import org.osgi.framework.Bundle;
+
+import java.io.File;
 
 /**
  * A manager for controlling container resources.
@@ -30,9 +34,8 @@ public interface ContainerResourceManager {
    * Get all current resources in the container.
    *
    * <p>
-   * Because of the dynamic nature of an Interactive Spaces container, do not
-   * keep copies of this object around because the resources available can
-   * change over time.
+   * Because of the dynamic nature of an Interactive Spaces container, do not keep copies of this object around because
+   * the resources available can change over time.
    *
    * @return all resources
    */
@@ -43,8 +46,31 @@ public interface ContainerResourceManager {
    *
    * @param resource
    *          the full information about the new resource
-   * @param resourceFile
-   *          file containing the resource
+   * @param source
+   *          the source of the resource
    */
-  void addResource(ContainerResource resource, File resourceFile);
+  void addResource(ContainerResource resource, ResourceSource source);
+
+  /**
+   * Load a bundle into the container and start it.
+   *
+   * @param bundleFile
+   *          the bundle file
+   * @param type
+   *          the type for the bundle
+   *
+   * @return the bundle
+   *
+   * @throws InteractiveSpacesException
+   *        the bundle didn't exist or couldn't start
+   */
+  Bundle loadAndStartBundle(File bundleFile, ContainerResourceType type) throws InteractiveSpacesException;
+
+  /**
+   * Uninstall a bundle.
+   *
+   * @param bundle
+   *        the bundle must be one that was installed
+   */
+  void uninstallBundle(Bundle bundle);
 }

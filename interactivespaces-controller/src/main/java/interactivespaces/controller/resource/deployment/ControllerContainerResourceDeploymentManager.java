@@ -16,7 +16,7 @@
 
 package interactivespaces.controller.resource.deployment;
 
-import interactivespaces.InteractiveSpacesException;
+import interactivespaces.InteractiveSpacesExceptionUtils;
 import interactivespaces.container.resource.deployment.ContainerResourceDeploymentCommitRequest;
 import interactivespaces.container.resource.deployment.ContainerResourceDeploymentCommitResponse;
 import interactivespaces.container.resource.deployment.ContainerResourceDeploymentCommitResponse.ContainerResourceDeploymentCommitStatus;
@@ -25,17 +25,20 @@ import interactivespaces.container.resource.deployment.ContainerResourceDeployme
 import interactivespaces.container.resource.deployment.ContainerResourceDeploymentQueryResponse;
 import interactivespaces.container.resource.deployment.ContainerResourceDeploymentQueryResponse.QueryResponseStatus;
 import interactivespaces.resource.ResourceDependency;
+import interactivespaces.resource.io.HttpCopierResourceSource;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.system.resources.ContainerResource;
 import interactivespaces.system.resources.ContainerResourceCollection;
 import interactivespaces.system.resources.ContainerResourceManager;
+import interactivespaces.system.resources.ContainerResourceType;
 import interactivespaces.util.web.HttpClientHttpContentCopier;
 import interactivespaces.util.web.HttpContentCopier;
 
-import java.io.File;
 import java.util.List;
 
 /**
+ * The controller manager for resource deployment.
+ *
  * @author Keith M. Hughes
  */
 public class ControllerContainerResourceDeploymentManager implements ContainerResourceDeploymentManager {
@@ -84,8 +87,8 @@ public class ControllerContainerResourceDeploymentManager implements ContainerRe
   }
 
   @Override
-  public ContainerResourceDeploymentQueryResponse
-      queryResources(ContainerResourceDeploymentQueryRequest deploymentQuery) {
+  public ContainerResourceDeploymentQueryResponse queryResources(
+      ContainerResourceDeploymentQueryRequest deploymentQuery) {
     ContainerResourceCollection currentResources = containerResourceManager.getResources();
     if (currentlySatisfiesQuery(deploymentQuery, currentResources)) {
       return new ContainerResourceDeploymentQueryResponse(deploymentQuery.getTransactionId(),
@@ -97,15 +100,14 @@ public class ControllerContainerResourceDeploymentManager implements ContainerRe
 
       List<ContainerResource> allContainerResources = currentResources.getAllResources();
       // TODO(keith): place all resources into the response for dependency
-      // calculations on the maaster.
+      // calculations on the master.
 
       return response;
     }
   }
 
   /**
-   * Query the container to see if a series of deployment requests are already
-   * satisfied.
+   * Query the container to see if a series of deployment requests are already satisfied.
    *
    * @param deploymentQuery
    *          the query
@@ -129,25 +131,24 @@ public class ControllerContainerResourceDeploymentManager implements ContainerRe
   @Override
   public ContainerResourceDeploymentCommitResponse commitResources(ContainerResourceDeploymentCommitRequest request) {
     boolean success = true;
+    String detail = null;
     for (ContainerResourceDeploymentItem item : request.getItems()) {
-      File resourceFile = null;
       try {
-        resourceFile = File.createTempFile("interactivespaces-", ".resource");
-        contentCopier.copy(item.getResourceSourceUri(), resourceFile);
-        containerResourceManager.addResource(
-            new ContainerResource(item.getName(), item.getVersion(), item.getLocation()), resourceFile);
-      } catch (Exception e) {
+        containerResourceManager.addResource(new ContainerResource(item.getName(), item.getVersion(),
+            ContainerResourceType.LIBRARY, item.getLocation(), item.getSignature()),
+            new HttpCopierResourceSource(item.getResourceSourceUri(), contentCopier));
+      } catch (Throwable e) {
         success = false;
-        throw new InteractiveSpacesException(
-            String.format("Could not install resource %s", item.getResourceSourceUri()), e);
-      } finally {
-        if (resourceFile != null && resourceFile.exists()) {
-          resourceFile.delete();
-        }
+        detail = InteractiveSpacesExceptionUtils.getExceptionDetail(e);
+        spaceEnvironment.getLog().error(
+            String.format("Could not install deployment resource %s\n%s", item.getResourceSourceUri(), detail));
+
+        break;
       }
     }
 
     return new ContainerResourceDeploymentCommitResponse(request.getTransactionId(),
-        success ? ContainerResourceDeploymentCommitStatus.SUCCESS : ContainerResourceDeploymentCommitStatus.FAILURE);
+        success ? ContainerResourceDeploymentCommitStatus.SUCCESS : ContainerResourceDeploymentCommitStatus.FAILURE,
+        detail);
   }
 }

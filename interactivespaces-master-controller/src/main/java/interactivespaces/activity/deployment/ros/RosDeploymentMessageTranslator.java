@@ -55,6 +55,18 @@ import java.util.List;
 public class RosDeploymentMessageTranslator {
 
   /**
+   * The value that the detail should have in the ROS message for container resource deployment commit responses if
+   * there is no detail.
+   */
+  public static final String CONTAINER_RESOURCE_DEPLOYMENT_COMMIT_RESPONSE_DETAIL_NONE = "";
+
+  /**
+   * The value that the detail should have in the ROS message for container live activity deployment responses if there
+   * is no detail.
+   */
+  public static final String CONTAINER_LIVE_ACTIVITY_DEPLOYMENT_RESPONSE_DETAIL_NONE = "";
+
+  /**
    * Serialize an activity deployment request into a ROS message.
    *
    * @param request
@@ -79,15 +91,15 @@ public class RosDeploymentMessageTranslator {
    *
    * @return the deserialized message
    */
-  public static LiveActivityDeploymentRequest deserializeActivityDeploymentRequest(LiveActivityDeployRequest rosMessage) {
+  public static LiveActivityDeploymentRequest
+      deserializeActivityDeploymentRequest(LiveActivityDeployRequest rosMessage) {
     return new LiveActivityDeploymentRequest(rosMessage.getTransactionId(), rosMessage.getUuid(),
         rosMessage.getIdentifyingName(), Version.parseVersion(rosMessage.getVersion()),
         rosMessage.getActivitySourceUri());
   }
 
   /**
-   * Serialize the activity deployment status into the corresponding ROS
-   * message.
+   * Serialize the activity deployment status into the corresponding ROS message.
    *
    * @param deployStatus
    *          the deployment status
@@ -99,6 +111,12 @@ public class RosDeploymentMessageTranslator {
     rosMessage.setTransactionId(deployStatus.getTransactionId());
     rosMessage.setUuid(deployStatus.getUuid());
     rosMessage.setTimeDeployed(deployStatus.getTimeDeployed());
+
+    String detail = deployStatus.getStatusDetail();
+    if (detail == null) {
+      detail = CONTAINER_LIVE_ACTIVITY_DEPLOYMENT_RESPONSE_DETAIL_NONE;
+    }
+    rosMessage.setStatusDetail(detail);
 
     switch (deployStatus.getStatus()) {
       case STATUS_SUCCESS:
@@ -119,8 +137,7 @@ public class RosDeploymentMessageTranslator {
   }
 
   /**
-   * Serialize the activity deployment status into the corresponding ROS
-   * message.
+   * Serialize the activity deployment status into the corresponding ROS message.
    *
    * @param rosMessage
    *          the ROS message
@@ -146,7 +163,12 @@ public class RosDeploymentMessageTranslator {
             rosMessage.getStatus()));
     }
 
-    return new LiveActivityDeploymentResponse(rosMessage.getTransactionId(), rosMessage.getUuid(), status,
+    String detail = rosMessage.getStatusDetail();
+    if (CONTAINER_LIVE_ACTIVITY_DEPLOYMENT_RESPONSE_DETAIL_NONE.equals(detail)) {
+      detail = null;
+    }
+
+    return new LiveActivityDeploymentResponse(rosMessage.getTransactionId(), rosMessage.getUuid(), status, detail,
         rosMessage.getTimeDeployed());
   }
 
@@ -279,6 +301,7 @@ public class RosDeploymentMessageTranslator {
       LocatableResourceDescription rosResource = rosItem.getResource();
       rosResource.setName(item.getName());
       rosResource.setVersion(item.getVersion().toString());
+      rosResource.setSignature(item.getSignature());
       rosResource.setLocationUri(item.getResourceSourceUri());
 
       // TODO(keith): Translate this properly from the request.
@@ -303,13 +326,13 @@ public class RosDeploymentMessageTranslator {
         new ContainerResourceDeploymentCommitRequest(rosMessage.getTransactionId());
     rosMessage.setTransactionId(request.getTransactionId());
 
-    List<ContainerResourceDeploymentItem> items = Lists.newArrayList();
     for (interactivespaces_msgs.ContainerResourceDeploymentItem rosItem : rosMessage.getItems()) {
       LocatableResourceDescription resource = rosItem.getResource();
-      System.out.println(resource.getLocationUri());
       // TODO(keith): Translate resource locations from the query.
-      request.addItem(new ContainerResourceDeploymentItem(resource.getName(), Version.parseVersion(resource
-          .getVersion()), ContainerResourceLocation.USER_BOOTSTRAP, resource.getLocationUri()));
+      request
+          .addItem(new ContainerResourceDeploymentItem(resource.getName(),
+              Version.parseVersion(resource.getVersion()), ContainerResourceLocation.USER_BOOTSTRAP, resource
+                  .getSignature(), resource.getLocationUri()));
     }
 
     return request;
@@ -341,6 +364,13 @@ public class RosDeploymentMessageTranslator {
     }
 
     rosMessage.setStatus(status);
+
+    String detail = response.getDetail();
+    if (detail == null) {
+      detail = CONTAINER_RESOURCE_DEPLOYMENT_COMMIT_RESPONSE_DETAIL_NONE;
+    }
+
+    rosMessage.setDetail(detail);
   }
 
   /**
@@ -366,8 +396,13 @@ public class RosDeploymentMessageTranslator {
             rosMessage.getStatus(), rosMessage.getClass().getName()));
     }
 
+    String detail = rosMessage.getDetail();
+    if (CONTAINER_RESOURCE_DEPLOYMENT_COMMIT_RESPONSE_DETAIL_NONE.equals(detail)) {
+      detail = null;
+    }
+
     ContainerResourceDeploymentCommitResponse response =
-        new ContainerResourceDeploymentCommitResponse(rosMessage.getTransactionId(), status);
+        new ContainerResourceDeploymentCommitResponse(rosMessage.getTransactionId(), status, detail);
 
     return response;
   }

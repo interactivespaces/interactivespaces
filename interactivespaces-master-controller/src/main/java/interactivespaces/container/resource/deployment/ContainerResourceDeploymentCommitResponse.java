@@ -34,16 +34,25 @@ public class ContainerResourceDeploymentCommitResponse {
   private final ContainerResourceDeploymentCommitStatus status;
 
   /**
+   * The detail on the response. Can be {@code null}.
+   */
+  private final String detail;
+
+  /**
    * Construct a new response.
    *
    * @param transactionId
    *          transaction ID for the commit
    * @param status
    *          status of the response
+   * @param detail
+   *          detail of the status, can be {@code null}
    */
-  public ContainerResourceDeploymentCommitResponse(String transactionId, ContainerResourceDeploymentCommitStatus status) {
+  public ContainerResourceDeploymentCommitResponse(String transactionId,
+      ContainerResourceDeploymentCommitStatus status, String detail) {
     this.transactionId = transactionId;
     this.status = status;
+    this.detail = detail;
   }
 
   /**
@@ -62,6 +71,15 @@ public class ContainerResourceDeploymentCommitResponse {
    */
   public ContainerResourceDeploymentCommitStatus getStatus() {
     return status;
+  }
+
+  /**
+   * Get the detail of the status, if any.
+   *
+   * @return the detail, can be {@code null}
+   */
+  public String getDetail() {
+    return detail;
   }
 
   /**

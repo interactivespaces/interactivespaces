@@ -31,6 +31,7 @@ import interactivespaces.activity.component.web.WebBrowserActivityComponent;
 import interactivespaces.activity.component.web.WebServerActivityComponent;
 import interactivespaces.liveactivity.runtime.activity.wrapper.internal.bridge.topic.TopicBridgeActivityWrapperFactory;
 import interactivespaces.liveactivity.runtime.activity.wrapper.internal.interactivespaces.InteractiveSpacesNativeActivityWrapperFactory;
+import interactivespaces.liveactivity.runtime.activity.wrapper.internal.interactivespaces.StandardLiveActivityBundleLoader;
 import interactivespaces.liveactivity.runtime.activity.wrapper.internal.osnative.NativeActivityWrapperFactory;
 import interactivespaces.liveactivity.runtime.activity.wrapper.internal.web.WebActivityWrapperFactory;
 import interactivespaces.service.ServiceRegistry;
@@ -39,8 +40,7 @@ import interactivespaces.service.web.client.internal.netty.NettyWebSocketClientS
 import interactivespaces.service.web.server.WebServerService;
 import interactivespaces.service.web.server.internal.netty.NettyWebServerService;
 import interactivespaces.system.InteractiveSpacesEnvironment;
-
-import org.osgi.framework.BundleContext;
+import interactivespaces.system.resources.ContainerResourceManager;
 
 /**
  * A factory for creating various components for a live activity runtime.
@@ -58,9 +58,9 @@ public class StandardLiveActivityRuntimeComponentFactory implements LiveActivity
   private InteractiveSpacesEnvironment spaceEnvironment;
 
   /**
-   * The bundle context.
+   * The container resource manager.
    */
-  private BundleContext bundleContext;
+  private ContainerResourceManager containerResourceManager;
 
   /**
    * The IS service for web servers.
@@ -77,13 +77,13 @@ public class StandardLiveActivityRuntimeComponentFactory implements LiveActivity
    *
    * @param spaceEnvironment
    *          the space environment to use
-   * @param bundleContext
-   *          the bundle context to use
+   * @param containerResourceManager
+   *          the container resource manager to use
    */
   public StandardLiveActivityRuntimeComponentFactory(InteractiveSpacesEnvironment spaceEnvironment,
-      BundleContext bundleContext) {
+      ContainerResourceManager containerResourceManager) {
     this.spaceEnvironment = spaceEnvironment;
-    this.bundleContext = bundleContext;
+    this.containerResourceManager = containerResourceManager;
   }
 
   /**
@@ -98,7 +98,7 @@ public class StandardLiveActivityRuntimeComponentFactory implements LiveActivity
     liveActivityRunnerFactory.registerActivityWrapperFactory(new WebActivityWrapperFactory());
     liveActivityRunnerFactory.registerActivityWrapperFactory(new TopicBridgeActivityWrapperFactory());
     liveActivityRunnerFactory.registerActivityWrapperFactory(new InteractiveSpacesNativeActivityWrapperFactory(
-        bundleContext));
+        new StandardLiveActivityBundleLoader(containerResourceManager)));
 
     return liveActivityRunnerFactory;
   }

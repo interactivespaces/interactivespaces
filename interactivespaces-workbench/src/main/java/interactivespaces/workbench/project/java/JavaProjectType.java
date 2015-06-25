@@ -34,6 +34,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import java.io.File;
+import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -191,7 +192,7 @@ public abstract class JavaProjectType implements ProjectType {
       ProjectTaskContext projectTaskContext, WorkbenchTaskContext wokbenchTaskContext) {
     Set<File> filesToAdd = Sets.newHashSet();
 
-    NamedVersionedResourceCollection<NamedVersionedResourceWithData<String>> startupResources =
+    NamedVersionedResourceCollection<NamedVersionedResourceWithData<URI>> startupResources =
         new OsgiResourceAnalyzer(wokbenchTaskContext.getWorkbench().getLog()).getResourceCollection(fileSupport
             .newFile(wokbenchTaskContext.getControllerDirectory(), ContainerFilesystemLayout.FOLDER_USER_BOOTSTRAP));
     for (ProjectDependency dependency : projectTaskContext.getProject().getDependencies()) {
@@ -200,7 +201,7 @@ public abstract class JavaProjectType implements ProjectType {
         continue;
       }
 
-      NamedVersionedResourceWithData<String> dependencyProvider =
+      NamedVersionedResourceWithData<URI> dependencyProvider =
           startupResources.getResource(dependency.getIdentifyingName(), dependency.getVersion());
       if (dependencyProvider != null) {
         File dependencyFile = fileSupport.newFile(dependencyProvider.getData());

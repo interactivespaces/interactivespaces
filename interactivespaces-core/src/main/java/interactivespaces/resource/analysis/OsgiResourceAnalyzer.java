@@ -19,12 +19,15 @@ package interactivespaces.resource.analysis;
 import interactivespaces.resource.NamedVersionedResourceCollection;
 import interactivespaces.resource.NamedVersionedResourceWithData;
 import interactivespaces.resource.Version;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 
 import org.apache.commons.logging.Log;
 
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.net.URI;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
@@ -52,6 +55,11 @@ public class OsgiResourceAnalyzer implements ResourceAnalyzer {
   private final Log log;
 
   /**
+   * The file support to use.
+   */
+  private FileSupport fileSupport = FileSupportImpl.INSTANCE;
+
+  /**
    * Construct an analyzer.
    *
    * @param log
@@ -62,11 +70,11 @@ public class OsgiResourceAnalyzer implements ResourceAnalyzer {
   }
 
   @Override
-  public NamedVersionedResourceCollection<NamedVersionedResourceWithData<String>> getResourceCollection(File baseDir) {
-    NamedVersionedResourceCollection<NamedVersionedResourceWithData<String>> resources =
+  public NamedVersionedResourceCollection<NamedVersionedResourceWithData<URI>> getResourceCollection(File baseDir) {
+    NamedVersionedResourceCollection<NamedVersionedResourceWithData<URI>> resources =
         NamedVersionedResourceCollection.newNamedVersionedResourceCollection();
 
-    File[] files = baseDir.listFiles(new FileFilter() {
+    File[] files = fileSupport.listFiles(baseDir, new FileFilter() {
       @Override
       public boolean accept(File pathname) {
         return pathname.getName().endsWith(".jar");
@@ -83,12 +91,14 @@ public class OsgiResourceAnalyzer implements ResourceAnalyzer {
           String name = attributes.getValue(OSGI_HEADER_SYMBOLIC_NAME);
           String version = attributes.getValue(OSGI_HEADER_VERSION);
           if (name != null && version != null) {
-          NamedVersionedResourceWithData<String> resource =
-              new NamedVersionedResourceWithData<String>(name, Version.parseVersion(version), file.getAbsolutePath());
+            NamedVersionedResourceWithData<URI> resource =
+                new NamedVersionedResourceWithData<URI>(name, Version.parseVersion(version), file.getAbsoluteFile()
+                    .toURI());
 
-          resources.addResource(resource.getName(), resource.getVersion(), resource);
+            resources.addResource(resource.getName(), resource.getVersion(), resource);
           } else {
-            log.warn(String.format("Resource %s is not a proper OSGi bundle (missing symbolic name and/or version) and is being ignored.", file.getAbsolutePath()));
+            log.warn(String.format("Resource %s is not a proper OSGi bundle "
+                + "(missing symbolic name and/or version) and is being ignored.", file.getAbsolutePath()));
           }
         } catch (IOException e) {
           log.error(String.format("Could not open resource file jar manifest for %s", file.getAbsolutePath()), e);

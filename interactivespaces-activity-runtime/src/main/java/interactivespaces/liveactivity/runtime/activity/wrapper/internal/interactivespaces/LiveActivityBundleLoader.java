@@ -16,7 +16,7 @@
 
 package interactivespaces.liveactivity.runtime.activity.wrapper.internal.interactivespaces;
 
-import interactivespaces.resource.Version;
+import org.osgi.framework.Bundle;
 
 import java.io.File;
 
@@ -24,28 +24,28 @@ import java.io.File;
  * Loads classes from bundles.
  *
  * <p>
- * This class makes sure that bundles are loaded and unloaded while trying to
- * make sure the proper class is obtained. This means bundles can be shared as
- * long as they are the same bundle.
+ * This class makes sure that bundles are loaded and unloaded while trying to make sure the proper class is obtained.
+ * This means bundles can be shared as long as they are the same bundle.
  *
  * @author Keith M. Hughes
  */
 public interface LiveActivityBundleLoader {
 
   /**
-   * Get a class from the bundle.
+   * Get the OSGi bundle for a live activity..
    *
    * @param bundleFile
    *          the bundle file
-   * @param bundleName
-   *          the symbolic name of the bundle
-   * @param bundleVersion
-   *          the version of the bundle
-   * @param className
-   *          name of the class to return from the bundle
    *
-   * @return the class from the bundle
+   * @return the OSGi bundle
    */
-  Class<?>
-      getBundleClass(File bundleFile, String bundleName, Version bundleVersion, String className);
+  Bundle loadLiveActivityBundle(File bundleFile);
+
+  /**
+   * Dismiss an activity bundle.
+   *
+   * @param activityBundle
+   *          the activity bundle
+   */
+  void dismissLiveActivityBundle(Bundle activityBundle);
 }

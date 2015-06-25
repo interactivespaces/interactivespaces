@@ -28,10 +28,11 @@ import interactivespaces.time.SettableTimeProvider;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 /**
- * Tests for the {@link BasicLiveActivityRunner}.
+ * Tests for the {@link StandardLiveActivityRunner}.
  *
  * <p>
  * It is only necessary to check failure of startup here as operations other than the actual activity itself can fail,
@@ -39,8 +40,8 @@ import org.mockito.Mockito;
  *
  * @author Keith M. Hughes
  */
-public class BasicLiveActivityRunnerTest {
-  private BasicLiveActivityRunner runner;
+public class StandardLiveActivityRunnerTest {
+  private StandardLiveActivityRunner runner;
   private InstalledLiveActivity installedActivity;
   private ActivityWrapper activityWrapper;
   private InternalLiveActivityFilesystem activityFilesystem;
@@ -70,7 +71,7 @@ public class BasicLiveActivityRunnerTest {
     Mockito.when(liveActivityRuntime.getSpaceEnvironment()).thenReturn(spaceEnvironment);
 
     runner =
-        new BasicLiveActivityRunner(installedActivity, activityWrapper, activityFilesystem, configuration,
+        new StandardLiveActivityRunner(installedActivity, activityWrapper, activityFilesystem, configuration,
             liveActivityRunnerListener, liveActivityRuntime);
   }
 
@@ -107,6 +108,29 @@ public class BasicLiveActivityRunnerTest {
     Mockito.verify(instance).shutdown();
     Mockito.verify(instance).checkActivityState();
     Mockito.verify(instance).getActivityStatus();
+    Mockito.verify(activityWrapper).done();
+  }
+
+  /**
+   * Test a failed shutdown.
+   */
+  @Test
+  public void testShutdownFail() {
+    Throwable exception = new RuntimeException();
+    Mockito.doThrow(exception).when(instance).shutdown();
+
+    runner.setInstance(instance);
+    runner.shutdown();
+
+    Mockito.verify(instance, Mockito.times(0)).checkActivityState();
+    Mockito.verify(instance, Mockito.times(0)).getActivityStatus();
+    Mockito.verify(activityWrapper).done();
+
+    ArgumentCaptor<ActivityStatus> activityStatus = ArgumentCaptor.forClass(ActivityStatus.class);
+    Mockito.verify(instance).setActivityStatus(activityStatus.capture());
+
+    Assert.assertEquals(exception, activityStatus.getValue().getException());
+    Assert.assertEquals(ActivityState.SHUTDOWN_FAILURE, activityStatus.getValue().getState());
   }
 
   /**
@@ -121,6 +145,24 @@ public class BasicLiveActivityRunnerTest {
   }
 
   /**
+   * Test a failed activate.
+   */
+  @Test
+  public void testActivateFail() {
+    Throwable exception = new RuntimeException();
+    Mockito.doThrow(exception).when(instance).activate();
+
+    runner.setInstance(instance);
+    runner.activate();
+
+    ArgumentCaptor<ActivityStatus> activityStatus = ArgumentCaptor.forClass(ActivityStatus.class);
+    Mockito.verify(instance).setActivityStatus(activityStatus.capture());
+
+    Assert.assertEquals(exception, activityStatus.getValue().getException());
+    Assert.assertEquals(ActivityState.ACTIVATE_FAILURE, activityStatus.getValue().getState());
+  }
+
+  /**
    * Test a successful deactivate.
    */
   @Test
@@ -129,6 +171,24 @@ public class BasicLiveActivityRunnerTest {
     runner.deactivate();
 
     Mockito.verify(instance).deactivate();
+  }
+
+  /**
+   * Test a failed deactivate.
+   */
+  @Test
+  public void testDeactivateFail() {
+    Throwable exception = new RuntimeException();
+    Mockito.doThrow(exception).when(instance).deactivate();
+
+    runner.setInstance(instance);
+    runner.deactivate();
+
+    ArgumentCaptor<ActivityStatus> activityStatus = ArgumentCaptor.forClass(ActivityStatus.class);
+    Mockito.verify(instance).setActivityStatus(activityStatus.capture());
+
+    Assert.assertEquals(exception, activityStatus.getValue().getException());
+    Assert.assertEquals(ActivityState.DEACTIVATE_FAILURE, activityStatus.getValue().getState());
   }
 
   /**

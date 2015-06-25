@@ -19,6 +19,7 @@ package interactivespaces.container.resource.deployment;
 import interactivespaces.resource.Version;
 import interactivespaces.system.resources.ContainerResource;
 import interactivespaces.system.resources.ContainerResourceLocation;
+import interactivespaces.system.resources.ContainerResourceType;
 
 /**
  * An item to be part of a resource deployment.
@@ -26,6 +27,11 @@ import interactivespaces.system.resources.ContainerResourceLocation;
  * @author Keith M. Hughes
  */
 public class ContainerResourceDeploymentItem extends ContainerResource {
+
+  /**
+   * The value to be used if no resource signature could be calculated.
+   */
+  public static final String RESOURCE_SIGNATURE_NONE = "";
 
   /**
    * URI for locating the resource.
@@ -41,12 +47,14 @@ public class ContainerResourceDeploymentItem extends ContainerResource {
    *          version of the resource
    * @param location
    *          location of the resource
+   * @param signature
+   *          the signature of the resource
    * @param resourceSourceUri
    *          URI for getting the resource
    */
   public ContainerResourceDeploymentItem(String name, Version version, ContainerResourceLocation location,
-      String resourceSourceUri) {
-    super(name, version, location);
+      String signature, String resourceSourceUri) {
+    super(name, version, ContainerResourceType.LIBRARY, location, signature);
 
     this.resourceSourceUri = resourceSourceUri;
   }

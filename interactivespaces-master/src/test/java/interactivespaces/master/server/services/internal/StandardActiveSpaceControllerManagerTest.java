@@ -100,7 +100,7 @@ public class StandardActiveSpaceControllerManagerTest extends BaseSpaceTest {
   public void testActivityDeploySuccess() {
     String activityUuid = "activity";
     LiveActivityDeploymentResponse result =
-        new LiveActivityDeploymentResponse(null, activityUuid, ActivityDeployStatus.STATUS_SUCCESS, timestamp);
+        new LiveActivityDeploymentResponse(null, activityUuid, ActivityDeployStatus.STATUS_SUCCESS, null, timestamp);
 
     String spaceUuid = "space";
     SpaceController controller = new SimpleSpaceController();
@@ -134,7 +134,8 @@ public class StandardActiveSpaceControllerManagerTest extends BaseSpaceTest {
   public void testActivityDeployFailure() {
     String activityUuid = "activity";
     LiveActivityDeploymentResponse result =
-        new LiveActivityDeploymentResponse(null, activityUuid, ActivityDeployStatus.STATUS_FAILURE_COPY, timestamp);
+        new LiveActivityDeploymentResponse(null, activityUuid, ActivityDeployStatus.STATUS_FAILURE_COPY, "bad",
+            timestamp);
 
     String spaceUuid = "space";
     SpaceController controller = new SimpleSpaceController();

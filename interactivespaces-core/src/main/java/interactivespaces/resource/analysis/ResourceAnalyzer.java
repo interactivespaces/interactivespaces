@@ -20,6 +20,7 @@ import interactivespaces.resource.NamedVersionedResourceCollection;
 import interactivespaces.resource.NamedVersionedResourceWithData;
 
 import java.io.File;
+import java.net.URI;
 
 /**
  * An analyzer for collections of resources.
@@ -37,5 +38,5 @@ public interface ResourceAnalyzer {
    *
    * @return the resource collection
    */
-  NamedVersionedResourceCollection<NamedVersionedResourceWithData<String>> getResourceCollection(File baseDir);
+  NamedVersionedResourceCollection<NamedVersionedResourceWithData<URI>> getResourceCollection(File baseDir);
 }

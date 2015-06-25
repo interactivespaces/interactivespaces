@@ -917,10 +917,12 @@ public class StandardActiveSpaceControllerManager implements InternalActiveSpace
         spaceEnvironment.getLog().info(
             String.format("Live activity deployed successfully: %s", active.getDisplayName()));
       } else {
-        active.setDeployState(ActivityState.DEPLOY_FAILURE, result.getStatus().toString());
+        String deployStatusDetail =
+            String.format("%s: %s", result.getStatus().getDescription(), result.getStatusDetail());
+        active.setDeployState(ActivityState.DEPLOY_FAILURE, deployStatusDetail);
 
-        spaceEnvironment.getLog().info(
-            String.format("Live activity deployment failed %s: %s", result.getStatus(), active.getDisplayName()));
+        spaceEnvironment.getLog().error(
+            String.format("Live activity %s deployment failed: %s", active.getDisplayName(), deployStatusDetail));
       }
 
       masterEventManager.signalLiveActivityDeploy(active, result, spaceEnvironment.getTimeProvider().getCurrentTime());

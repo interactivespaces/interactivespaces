@@ -14,15 +14,29 @@
  * the License.
  */
 
+package interactivespaces;
+
+
 /**
- * Activity wrappers are used by the Interactive Spaces runtime to hide details of what the activity looks like or how
- * it is created. A given wrapper reference should only be used to create one instance at a time.
- *
- * <p>
- * Activities are instantiated with the {@link ActivityWrapper.newInstance()} method. When done with the instance,
- * {@link ActivityWrapper.done()} should be called.
+ * A collection of utilities for working with exceptions.
  *
  * @author Keith M. Hughes
  */
-package interactivespaces.liveactivity.runtime.activity.wrapper;
+public class InteractiveSpacesExceptionUtils {
 
+  /**
+   * Get exception detail in a uniform way.
+   *
+   * @param throwable
+   *          the exception
+   *
+   * @return the exception detail
+   */
+  public static String getExceptionDetail(Throwable throwable) {
+    if (throwable instanceof SimpleInteractiveSpacesException) {
+      return ((SimpleInteractiveSpacesException) throwable).getCompoundMessage();
+    } else {
+      return InteractiveSpacesException.getStackTrace(throwable);
+    }
+  }
+}

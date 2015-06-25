@@ -27,3 +27,6 @@ int32 STATUS_FAILURE = 0
 
 # This is the response to a commit which suceeded.
 int32 STATUS_SUCCESS = 1
+
+# The detail for the status
+string detail

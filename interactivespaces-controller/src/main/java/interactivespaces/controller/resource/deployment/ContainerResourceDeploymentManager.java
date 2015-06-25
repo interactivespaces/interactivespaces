@@ -30,8 +30,7 @@ import interactivespaces.util.resource.ManagedResource;
 public interface ContainerResourceDeploymentManager extends ManagedResource {
 
   /**
-   * Query the container to see if a series of deployment requests are already
-   * satisfied.
+   * Query the container to see if a series of deployment requests are already satisfied.
    *
    * @param deploymentQuery
    *          the query

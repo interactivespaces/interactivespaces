@@ -35,7 +35,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * @author Keith M. Hughes
  */
-public class BasicLiveActivityRunner implements LiveActivityRunner {
+public class StandardLiveActivityRunner implements LiveActivityRunner {
 
   /**
    * The amount of time to wait for the instance lock in milliseconds.
@@ -116,7 +116,7 @@ public class BasicLiveActivityRunner implements LiveActivityRunner {
    * @param liveActivityRuntime
    *          the live activity runtime this runner is running under
    */
-  public BasicLiveActivityRunner(InstalledLiveActivity installedActivity, ActivityWrapper activityWrapper,
+  public StandardLiveActivityRunner(InstalledLiveActivity installedActivity, ActivityWrapper activityWrapper,
       InternalLiveActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration,
       LiveActivityRunnerListener liveActivityRunnerListener, LiveActivityRuntime liveActivityRuntime) {
     this.uuid = installedActivity.getUuid();
@@ -213,6 +213,8 @@ public class BasicLiveActivityRunner implements LiveActivityRunner {
           } catch (Throwable e) {
             setActivityStatusUnprotected(new ActivityStatus(ActivityState.SHUTDOWN_FAILURE, null, e));
           }
+
+          activityWrapper.done();
         } else {
           liveActivityRuntime.getSpaceEnvironment().getLog()
               .warn(String.format("Attempt to shut down activity %s that wasn't running", uuid));
@@ -406,7 +408,7 @@ public class BasicLiveActivityRunner implements LiveActivityRunner {
 
         throw new SimpleInteractiveSpacesException(String.format(
             "Nested calls to instanceLock protected methods in %s for activity %s",
-            BasicLiveActivityRunner.class.getName(), uuid));
+            StandardLiveActivityRunner.class.getName(), uuid));
       }
 
       instanceLockState = newInstanceLockState;

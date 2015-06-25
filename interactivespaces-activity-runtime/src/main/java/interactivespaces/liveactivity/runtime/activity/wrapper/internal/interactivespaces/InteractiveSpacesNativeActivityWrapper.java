@@ -22,8 +22,11 @@ import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.activity.configuration.ActivityConfiguration;
 import interactivespaces.configuration.Configuration;
+import interactivespaces.liveactivity.runtime.activity.wrapper.ActivityWrapper;
 import interactivespaces.liveactivity.runtime.activity.wrapper.BaseActivityWrapper;
 import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
+
+import org.osgi.framework.Bundle;
 
 import java.io.File;
 
@@ -60,9 +63,9 @@ public class InteractiveSpacesNativeActivityWrapper extends BaseActivityWrapper 
   private LiveActivityBundleLoader bundleLoader;
 
   /**
-   * The context we use for loading in a bundle.
+   * The bundle for the activity.
    */
-  private NativeInteractiveSpacesLiveActivityOsgiBundle bundle;
+  private Bundle activityBundle;
 
   /**
    * Construct a new wrapper.
@@ -86,20 +89,30 @@ public class InteractiveSpacesNativeActivityWrapper extends BaseActivityWrapper 
 
   @Override
   public synchronized Activity newInstance() {
-    File executable = getActivityExecutable(activityFilesystem, configuration);
+    File executableFile = getActivityExecutable(activityFilesystem, configuration);
+    activityBundle = bundleLoader.loadLiveActivityBundle(executableFile);
 
     String className = configuration.getRequiredPropertyString(CONFIGURATION_APPLICATION_JAVA_CLASS);
-    Class<?> activityClass =
-        bundleLoader
-            .getBundleClass(executable, liveActivity.getIdentifyingName(), liveActivity.getVersion(), className);
 
     try {
+      Class<?> activityClass = activityBundle.loadClass(className);
+
       return (Activity) activityClass.newInstance();
+    } catch (ClassNotFoundException e) {
+      throw SimpleInteractiveSpacesException.newFormattedException("Could not find the activity Java class %s",
+          className);
     } catch (IllegalAccessException e) {
-      throw new SimpleInteractiveSpacesException(
-          String.format("Activity class %s must have a public no-argument constructor", className), e);
+      throw new SimpleInteractiveSpacesException(String.format(
+          "Activity class %s must have a public no-argument constructor", className), e);
     } catch (Exception e) {
       throw new InteractiveSpacesException(String.format("Could not create activity class %s", className), e);
+    }
+  }
+
+  @Override
+  public synchronized void done() {
+    if (activityBundle != null) {
+      bundleLoader.dismissLiveActivityBundle(activityBundle);
     }
   }
 

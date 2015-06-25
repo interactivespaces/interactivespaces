@@ -21,7 +21,6 @@ import interactivespaces.activity.deployment.LiveActivityDeploymentRequest;
 import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
 import interactivespaces.container.resource.deployment.ContainerResourceDeploymentCommitRequest;
 import interactivespaces.container.resource.deployment.ContainerResourceDeploymentCommitResponse;
-import interactivespaces.container.resource.deployment.ContainerResourceDeploymentCommitResponse.ContainerResourceDeploymentCommitStatus;
 import interactivespaces.container.resource.deployment.ContainerResourceDeploymentQueryRequest;
 import interactivespaces.container.resource.deployment.ContainerResourceDeploymentQueryResponse;
 import interactivespaces.controller.SpaceController;
@@ -492,15 +491,7 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
   @Override
   public ContainerResourceDeploymentCommitResponse handleContainerResourceDeploymentCommitRequest(
       ContainerResourceDeploymentCommitRequest request) {
-    if (liveActivityRuntime.hasLiveActivitiesRunning()) {
-      // TODO(keith): Add in reason for failure so can be displayed on master side.
-      getSpaceEnvironment().getLog().warn("Could not deploy resources to controller, live activities are running.");
-
-      return new ContainerResourceDeploymentCommitResponse(request.getTransactionId(),
-          ContainerResourceDeploymentCommitStatus.FAILURE);
-    } else {
       return containerResourceDeploymentManager.commitResources(request);
-    }
   }
 
   @Override

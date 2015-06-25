@@ -29,7 +29,7 @@ import interactivespaces.master.server.services.ActiveLiveActivity;
 import interactivespaces.master.server.services.ContainerResourceDeploymentManager;
 import interactivespaces.master.server.services.RemoteSpaceControllerClient;
 import interactivespaces.master.server.services.internal.RemoteSpaceControllerClientListenerCollection;
-import interactivespaces.resource.NamedVersionedResource;
+import interactivespaces.resource.NamedVersionedResourceWithData;
 import interactivespaces.resource.ResourceDependencyReference;
 import interactivespaces.resource.Version;
 import interactivespaces.resource.VersionRange;
@@ -43,6 +43,7 @@ import com.google.common.collect.Maps;
 
 import interactivespaces_msgs.LiveActivityDeleteRequest;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -144,12 +145,12 @@ public class StandardRemoteActivityDeploymentManager implements RemoteActivityDe
       if (request.getStatus() == MasterActivityDeploymentRequestStatus.DEPLOYING_ACTIVITY) {
         finalizeActivityDeployment(request, response);
       } else {
-        spaceEnvironment.getLog().info(
-            String.format("The activity deployment status with transaction ID %s was in inconsistent state %s",
-                response.getTransactionId(), response.getStatus()));
+        spaceEnvironment.getLog().warn(
+            String.format("The activity deployment status with transaction ID %s was in inconsistent state %s: %s",
+                response.getTransactionId(), response.getStatus(), response.getStatusDetail()));
       }
     } else {
-      spaceEnvironment.getLog().info(
+      spaceEnvironment.getLog().warn(
           String.format("Got activity deployment status with unknown transaction ID %s", response.getTransactionId()));
     }
   }
@@ -204,13 +205,11 @@ public class StandardRemoteActivityDeploymentManager implements RemoteActivityDe
 
           break;
         default:
-          spaceEnvironment
-              .getLog()
+          spaceEnvironment.getLog()
               .warn(
-                  String
-                      .format(
-                          "Got resource deployment query response for live activity deployment with transaction ID %s has inconsistent status %s",
-                          response.getTransactionId(), response.getStatus()));
+                  String.format("Got resource deployment query response for live activity deployment with "
+                      + "transaction ID %s has inconsistent status %s", response.getTransactionId(),
+                      response.getStatus()));
       }
 
       return true;
@@ -237,18 +236,16 @@ public class StandardRemoteActivityDeploymentManager implements RemoteActivityDe
         case FAILURE:
           finalizeActivityDeployment(request,
               new LiveActivityDeploymentResponse(request.getTransactionId(), request.getUuid(),
-                  ActivityDeployStatus.STATUS_FAILURE_DEPENDENCIES_NOT_COMMITTED, spaceEnvironment.getTimeProvider()
-                      .getCurrentTime()));
+                  ActivityDeployStatus.STATUS_FAILURE_DEPENDENCIES_NOT_COMMITTED, response.getDetail(),
+                  spaceEnvironment.getTimeProvider().getCurrentTime()));
 
           break;
         default:
-          spaceEnvironment
-              .getLog()
+          spaceEnvironment.getLog()
               .warn(
-                  String
-                      .format(
-                          "Got resource deployment commit response for live activity deployment with transaction ID %s has inconsistent status %s",
-                          response.getTransactionId(), response.getStatus()));
+                  String.format("Got resource deployment commit response for live activity deployment with "
+                      + "transaction ID %s has inconsistent status %s", response.getTransactionId(),
+                      response.getStatus()));
       }
 
       return true;
@@ -281,7 +278,7 @@ public class StandardRemoteActivityDeploymentManager implements RemoteActivityDe
     ContainerResourceDeploymentQueryRequest query = request.getResourceDeploymentQuery();
     if (query != null) {
       if (shouldSendDependencies(request)) {
-        Set<NamedVersionedResource> dependencyResults =
+        Set<NamedVersionedResourceWithData<URI>> dependencyResults =
             containerResourceDeploymentManager.satisfyDependencies(query.getQueries());
 
         updateDeploymentStatus(request, MasterActivityDeploymentRequestStatus.SATISFYING_DEPENDENCIES);

@@ -18,7 +18,7 @@ package interactivespaces.system.resources;
 
 import interactivespaces.resource.NamedVersionedResourceCollection;
 
-import java.util.Set;
+import java.util.Collection;
 
 /**
  * A collection of container resources.
@@ -33,7 +33,7 @@ public class ContainerResourceCollection extends NamedVersionedResourceCollectio
    * @param resources
    *          the resources to be in the collection
    */
-  public ContainerResourceCollection(Set<ContainerResource> resources) {
+  public ContainerResourceCollection(Collection<ContainerResource> resources) {
     for (ContainerResource resource : resources) {
       this.addResource(resource.getName(), resource.getVersion(), resource);
     }

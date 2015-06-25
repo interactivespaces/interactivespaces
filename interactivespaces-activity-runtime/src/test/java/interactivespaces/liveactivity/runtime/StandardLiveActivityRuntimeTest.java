@@ -217,7 +217,7 @@ public class StandardLiveActivityRuntimeTest {
     when(liveActivityConfigurationManager.newLiveActivityConfiguration(liveActivity, activityFilesystem)).thenReturn(
         configuration);
 
-    BasicLiveActivityRunner expectedActive = mock(BasicLiveActivityRunner.class);
+    StandardLiveActivityRunner expectedActive = mock(StandardLiveActivityRunner.class);
     when(
         liveActivityRunnerFactory.newLiveActivityRunner(liveActivity, activityFilesystem, configuration,
             liveActivityRuntime, liveActivityRuntime)).thenReturn(expectedActive);
@@ -246,8 +246,8 @@ public class StandardLiveActivityRuntimeTest {
 
     InstalledLiveActivity installedActivity = mock(InstalledLiveActivity.class);
     when(installedActivity.getUuid()).thenReturn(uuid);
-    BasicLiveActivityRunner active =
-        new BasicLiveActivityRunner(installedActivity, null, null, null, liveActivityRuntime, liveActivityRuntime);
+    StandardLiveActivityRunner active =
+        new StandardLiveActivityRunner(installedActivity, null, null, null, liveActivityRuntime, liveActivityRuntime);
     liveActivityRuntime.addLiveActivityRunner(uuid, active);
     active.setCachedActivityStatus(new ActivityStatus(ActivityState.READY, ""));
 
@@ -265,8 +265,8 @@ public class StandardLiveActivityRuntimeTest {
 
     InstalledLiveActivity installedActivity = mock(InstalledLiveActivity.class);
     when(installedActivity.getUuid()).thenReturn(uuid);
-    BasicLiveActivityRunner active =
-        new BasicLiveActivityRunner(installedActivity, null, null, null, liveActivityRuntime, liveActivityRuntime);
+    StandardLiveActivityRunner active =
+        new StandardLiveActivityRunner(installedActivity, null, null, null, liveActivityRuntime, liveActivityRuntime);
     liveActivityRuntime.addLiveActivityRunner(uuid, active);
     active.setCachedActivityStatus(new ActivityStatus(ActivityState.RUNNING, ""));
 
@@ -284,8 +284,8 @@ public class StandardLiveActivityRuntimeTest {
 
     InstalledLiveActivity installedActivity = mock(InstalledLiveActivity.class);
     when(installedActivity.getUuid()).thenReturn(uuid);
-    BasicLiveActivityRunner active =
-        new BasicLiveActivityRunner(installedActivity, null, null, null, liveActivityRuntime, liveActivityRuntime);
+    StandardLiveActivityRunner active =
+        new StandardLiveActivityRunner(installedActivity, null, null, null, liveActivityRuntime, liveActivityRuntime);
     liveActivityRuntime.addLiveActivityRunner(uuid, active);
     active.setCachedActivityStatus(new ActivityStatus(ActivityState.READY, ""));
 
@@ -303,8 +303,8 @@ public class StandardLiveActivityRuntimeTest {
 
     InstalledLiveActivity installedActivity = mock(InstalledLiveActivity.class);
     when(installedActivity.getUuid()).thenReturn(uuid);
-    BasicLiveActivityRunner active =
-        new BasicLiveActivityRunner(installedActivity, null, null, null, liveActivityRuntime, liveActivityRuntime);
+    StandardLiveActivityRunner active =
+        new StandardLiveActivityRunner(installedActivity, null, null, null, liveActivityRuntime, liveActivityRuntime);
     liveActivityRuntime.addLiveActivityRunner(uuid, active);
     active.setCachedActivityStatus(new ActivityStatus(ActivityState.RUNNING, ""));
 

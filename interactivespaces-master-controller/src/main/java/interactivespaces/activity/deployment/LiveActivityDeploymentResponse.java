@@ -26,7 +26,7 @@ public class LiveActivityDeploymentResponse {
   /**
    * Transaction ID for the deployment.
    */
-  private String transactionId;
+  private final String transactionId;
 
   /**
    * UUID of the live activity that was deployed.
@@ -37,6 +37,11 @@ public class LiveActivityDeploymentResponse {
    * Status of the deployment.
    */
   private final ActivityDeployStatus status;
+
+  /**
+   * Status detail of the deployment.
+   */
+  private final String statusDetail;
 
   /**
    * Time that the activity was deployed.
@@ -52,14 +57,17 @@ public class LiveActivityDeploymentResponse {
    *          UUID of the live activity
    * @param status
    *          status of the deployment
+   * @param statusDetail
+   *          detail of the status
    * @param timeDeployed
    *          time the activity was deployed
    */
   public LiveActivityDeploymentResponse(String transactionId, String uuid, ActivityDeployStatus status,
-      long timeDeployed) {
+      String statusDetail, long timeDeployed) {
     this.transactionId = transactionId;
     this.uuid = uuid;
     this.status = status;
+    this.statusDetail = statusDetail;
     this.timeDeployed = timeDeployed;
   }
 
@@ -70,16 +78,6 @@ public class LiveActivityDeploymentResponse {
    */
   public String getTransactionId() {
     return transactionId;
-  }
-
-  /**
-   * Set the transaction ID for the deployment.
-   *
-   * @param transactionId
-   *          the transaction ID for the deployment
-   */
-  public void setTransactionId(String transactionId) {
-    this.transactionId = transactionId;
   }
 
   /**
@@ -101,9 +99,18 @@ public class LiveActivityDeploymentResponse {
   }
 
   /**
+   * Get the detail of the deployment status.
+   *
+   * @return the detail, can be {@code null}
+   */
+  public String getStatusDetail() {
+    return statusDetail;
+  }
+
+  /**
    * Get the time of the deployment, according to the remote system.
    *
-   * @return the time of the deployement
+   * @return the time of the deployment
    */
   public long getTimeDeployed() {
     return timeDeployed;
@@ -118,22 +125,22 @@ public class LiveActivityDeploymentResponse {
     /**
      * Deployment was a success.
      */
-    STATUS_SUCCESS(true),
+    STATUS_SUCCESS(true, "Live activity deployment was successful"),
 
     /**
      * Failed to copy the activity from the repository.
      */
-    STATUS_FAILURE_COPY(false),
+    STATUS_FAILURE_COPY(false, "The live activity failed to copy to the remote destination"),
 
     /**
      * Could not unpack the live activity.
      */
-    STATUS_FAILURE_UNPACK(false),
+    STATUS_FAILURE_UNPACK(false, "The live activity could not be unpacked at the remote destination"),
 
     /**
      * The dependencies could not be committed for the deployment.
      */
-    STATUS_FAILURE_DEPENDENCIES_NOT_COMMITTED(false);
+    STATUS_FAILURE_DEPENDENCIES_NOT_COMMITTED(false, "Dependencies for the live activity could not be installed");
 
     /**
      * {@code true} if this is a success message.
@@ -141,13 +148,21 @@ public class LiveActivityDeploymentResponse {
     private final boolean success;
 
     /**
+     * A more detailed description of the status.
+     */
+    private final String description;
+
+    /**
      * Construct a status.
      *
      * @param success
      *          {@code true} if this is a success state
+     * @param description
+     *          description of the status
      */
-    private ActivityDeployStatus(boolean success) {
+    private ActivityDeployStatus(boolean success, String description) {
       this.success = success;
+      this.description = description;
     }
 
     /**
@@ -157,6 +172,15 @@ public class LiveActivityDeploymentResponse {
      */
     public boolean isSuccess() {
       return success;
+    }
+
+    /**
+     * Get the description of the status.
+     *
+     * @return the description of the status
+     */
+    public String getDescription() {
+      return description;
     }
   }
 }

@@ -47,6 +47,7 @@ import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.framework.wiring.FrameworkWiring;
 import org.ros.address.InetAddressFactory;
 import org.ros.concurrent.DefaultScheduledExecutorService;
 import org.ros.log.RosLogFactory;
@@ -188,8 +189,10 @@ public class GeneralInteractiveSpacesSupportActivator implements BundleActivator
       registerOsgiServices();
 
       spaceEnvironment.getLog().info(
-          String.format("Base system startup. Interactive Spaces Version %s", spaceEnvironment.getSystemConfiguration()
-              .getPropertyString(InteractiveSpacesEnvironment.CONFIGURATION_INTERACTIVESPACES_VERSION)));
+          String.format(
+              "Base system startup. Interactive Spaces Version %s",
+              spaceEnvironment.getSystemConfiguration().getPropertyString(
+                  InteractiveSpacesEnvironment.CONFIGURATION_INTERACTIVESPACES_VERSION)));
     } catch (Exception e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -201,8 +204,8 @@ public class GeneralInteractiveSpacesSupportActivator implements BundleActivator
    */
   private void createAdditionalResources() {
     containerResourceManager =
-        new OsgiContainerResourceManager(bundleContext, filesystem, configurationProvider.getConfigFolder(),
-            spaceEnvironment.getLog());
+        new OsgiContainerResourceManager(bundleContext, bundleContext.getBundle(0).adapt(FrameworkWiring.class),
+            filesystem, configurationProvider.getConfigFolder(), spaceEnvironment.getLog());
     containerResourceManager.startup();
     managedResources.addResource(containerResourceManager);
   }
@@ -418,8 +421,9 @@ public class GeneralInteractiveSpacesSupportActivator implements BundleActivator
     rosEnvironment.setProperty(RosEnvironment.CONFIGURATION_ROS_NODE_NAME, RosEnvironment.ROS_NAME_SEPARATOR
         + containerProperties.get(InteractiveSpacesEnvironment.CONFIGURATION_HOSTID));
     rosEnvironment.setProperty(RosEnvironment.CONFIGURATION_ROS_NETWORK_TYPE, spaceEnvironment.getNetworkType());
-    rosEnvironment.setProperty(RosEnvironment.CONFIGURATION_ROS_CONTAINER_TYPE, spaceEnvironment
-        .getSystemConfiguration().getRequiredPropertyString(InteractiveSpacesEnvironment.CONFIGURATION_CONTAINER_TYPE));
+    rosEnvironment
+        .setProperty(RosEnvironment.CONFIGURATION_ROS_CONTAINER_TYPE, spaceEnvironment.getSystemConfiguration()
+            .getRequiredPropertyString(InteractiveSpacesEnvironment.CONFIGURATION_CONTAINER_TYPE));
     rosEnvironment.setProperty(RosEnvironment.CONFIGURATION_ROS_HOST, spaceEnvironment.getSystemConfiguration()
         .getRequiredPropertyString(InteractiveSpacesEnvironment.CONFIGURATION_HOSTNAME));
 
@@ -460,7 +464,6 @@ public class GeneralInteractiveSpacesSupportActivator implements BundleActivator
     String hostAddress =
         convertHostnameToAddress(containerProperties.get(InteractiveSpacesEnvironment.CONFIGURATION_HOSTNAME));
     systemConfiguration.setValue(InteractiveSpacesEnvironment.CONFIGURATION_HOST_ADDRESS, hostAddress);
-
 
     spaceEnvironment.setSystemConfiguration(systemConfiguration);
   }

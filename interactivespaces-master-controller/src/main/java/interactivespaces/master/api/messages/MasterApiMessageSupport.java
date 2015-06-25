@@ -16,8 +16,7 @@
 
 package interactivespaces.master.api.messages;
 
-import interactivespaces.InteractiveSpacesException;
-import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.InteractiveSpacesExceptionUtils;
 
 import com.google.common.collect.Maps;
 
@@ -89,11 +88,7 @@ public class MasterApiMessageSupport {
    * @return the Master API response object
    */
   public static Map<String, Object> getFailureResponse(String reason, Throwable throwable) {
-    String detail =
-        (throwable instanceof SimpleInteractiveSpacesException) ? ((SimpleInteractiveSpacesException) throwable)
-            .getCompoundMessage() : InteractiveSpacesException.getStackTrace(throwable);
-
-    return getFailureResponse(reason, detail);
+    return getFailureResponse(reason, InteractiveSpacesExceptionUtils.getExceptionDetail(throwable));
   }
 
   /**

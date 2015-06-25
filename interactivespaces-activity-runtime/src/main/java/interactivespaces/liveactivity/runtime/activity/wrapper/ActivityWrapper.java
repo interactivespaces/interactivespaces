@@ -20,7 +20,7 @@ import interactivespaces.activity.Activity;
 import interactivespaces.activity.execution.ActivityExecutionContext;
 
 /**
- * A runner for activities.
+ * A wrapper for activity instantiation and dismissal.
  *
  * @author Keith M. Hughes
  */
@@ -35,6 +35,11 @@ public interface ActivityWrapper {
    * @return the new activity instance
    */
   Activity newInstance();
+
+  /**
+   * Perform any operations on the wrapper for completing use of the wrapper.
+   */
+  void done();
 
   /**
    * Create a new execution context for the activity.

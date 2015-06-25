@@ -26,10 +26,10 @@ import interactivespaces.activity.execution.BaseActivityExecutionContext;
  */
 public abstract class BaseActivityWrapper implements ActivityWrapper {
 
-  // @Override
-  // public void destroy() {
-  // // Nothing to do
-  // }
+  @Override
+  public void done() {
+    // Default is do nothing.
+  }
 
   @Override
   public ActivityExecutionContext newExecutionContext() {

@@ -22,7 +22,6 @@ import interactivespaces.container.resource.deployment.ContainerResourceDeployme
 import interactivespaces.master.server.services.ActiveSpaceController;
 import interactivespaces.master.server.services.ContainerResourceDeploymentManager;
 import interactivespaces.master.server.services.RemoteSpaceControllerClient;
-import interactivespaces.resource.NamedVersionedResource;
 import interactivespaces.resource.NamedVersionedResourceCollection;
 import interactivespaces.resource.NamedVersionedResourceWithData;
 import interactivespaces.resource.ResourceDependency;
@@ -30,11 +29,14 @@ import interactivespaces.resource.repository.ResourceRepositoryServer;
 import interactivespaces.resource.repository.ResourceRepositoryStorageManager;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.system.resources.ContainerResourceLocation;
+import interactivespaces.util.data.resource.MessageDigestResourceSignatureCalculator;
+import interactivespaces.util.data.resource.ResourceSignatureCalculator;
 import interactivespaces.util.uuid.JavaUuidGenerator;
 import interactivespaces.util.uuid.UuidGenerator;
 
 import com.google.common.collect.Sets;
 
+import java.net.URI;
 import java.util.Set;
 
 /**
@@ -69,6 +71,11 @@ public class BasicContainerResourceDeploymentManager implements ContainerResourc
    */
   private InteractiveSpacesEnvironment spaceEnvironment;
 
+  /**
+   * The resource signature calculator.
+   */
+  private ResourceSignatureCalculator resourceSignatureCalculator = new MessageDigestResourceSignatureCalculator();
+
   @Override
   public void startup() {
     // Nothing to do
@@ -80,22 +87,24 @@ public class BasicContainerResourceDeploymentManager implements ContainerResourc
   }
 
   @Override
-  public Set<NamedVersionedResource> satisfyDependencies(Set<ResourceDependency> dependencies) {
-    Set<NamedVersionedResource> results = Sets.newHashSet();
+  public Set<NamedVersionedResourceWithData<URI>> satisfyDependencies(Set<ResourceDependency> dependencies) {
+    Set<NamedVersionedResourceWithData<URI>> results = Sets.newHashSet();
 
-    NamedVersionedResourceCollection<NamedVersionedResourceWithData<String>> allResources =
+    NamedVersionedResourceCollection<NamedVersionedResourceWithData<URI>> allResources =
         resourceRepositoryStorageManager
             .getAllResources(ResourceRepositoryStorageManager.RESOURCE_CATEGORY_CONTAINER_BUNDLE);
     for (ResourceDependency dependency : dependencies) {
-      NamedVersionedResource resource = allResources.getResource(dependency.getName(), dependency.getVersionRange());
+      NamedVersionedResourceWithData<URI> resource =
+          allResources.getResource(dependency.getName(), dependency.getVersionRange());
       if (resource != null) {
         results.add(resource);
       } else {
-        String location = resourceRepositoryStorageManager.getBaseLocation(
-            ResourceRepositoryStorageManager.RESOURCE_CATEGORY_CONTAINER_BUNDLE).getAbsolutePath();
-        throw new SimpleInteractiveSpacesException(
-            String.format("Could not find a resource for the dependency %s %s from the master repository %s",
-            dependency.getName(), dependency.getVersionRange(), location));
+        String location =
+            resourceRepositoryStorageManager.getBaseLocation(
+                ResourceRepositoryStorageManager.RESOURCE_CATEGORY_CONTAINER_BUNDLE).getAbsolutePath();
+        throw new SimpleInteractiveSpacesException(String.format(
+            "Could not find a resource for the dependency %s %s from the master repository %s", dependency.getName(),
+            dependency.getVersionRange(), location));
       }
     }
 
@@ -103,7 +112,7 @@ public class BasicContainerResourceDeploymentManager implements ContainerResourc
   }
 
   @Override
-  public void commitResources(ActiveSpaceController controller, Set<NamedVersionedResource> resources) {
+  public void commitResources(ActiveSpaceController controller, Set<NamedVersionedResourceWithData<URI>> resources) {
     String transactionId = transactionIdGenerator.newUuid();
 
     // TODO(keith): put in some sort of internal data structure to track all
@@ -114,12 +123,17 @@ public class BasicContainerResourceDeploymentManager implements ContainerResourc
 
   @Override
   public void commitResources(String transactionId, ActiveSpaceController controller,
-      Set<NamedVersionedResource> resources) {
+      Set<NamedVersionedResourceWithData<URI>> resources) {
     ContainerResourceDeploymentCommitRequest commitRequest =
         new ContainerResourceDeploymentCommitRequest(transactionId);
-    for (NamedVersionedResource resource : resources) {
+    for (NamedVersionedResourceWithData<URI> resource : resources) {
+      String resourceSignature = resourceSignatureCalculator.getResourceSignature(resource.getData());
+      if (resourceSignature == null) {
+        resourceSignature = ContainerResourceDeploymentItem.RESOURCE_SIGNATURE_NONE;
+      }
+
       commitRequest.addItem(new ContainerResourceDeploymentItem(resource.getName(), resource.getVersion(),
-          ContainerResourceLocation.USER_BOOTSTRAP, repositoryServer.getResourceUri(
+          ContainerResourceLocation.USER_BOOTSTRAP, resourceSignature, repositoryServer.getResourceUri(
               ResourceRepositoryStorageManager.RESOURCE_CATEGORY_CONTAINER_BUNDLE, resource.getName(),
               resource.getVersion())));
     }

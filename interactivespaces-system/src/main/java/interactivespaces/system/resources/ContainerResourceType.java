@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Google Inc.
+ * Copyright (C) 2015 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,24 +14,22 @@
  * the License.
  */
 
-package interactivespaces.util.data.resource;
-
-import java.io.File;
+package interactivespaces.system.resources;
 
 /**
- * Calculate signatures for resources.
+ * The types of resources available in the container.
  *
  * @author Keith M. Hughes
  */
-public interface ResourceSignature {
+public enum ContainerResourceType {
 
   /**
-   * Get the signature for a bundle.
-   *
-   * @param bundleFile
-   *          the bundle file
-   *
-   * @return the signature for the bundle
+   * The resource is a library, presumably in the bootstrap or startup folders.
    */
-  String getBundleSignature(File bundleFile);
+  LIBRARY,
+
+  /**
+   * The resource is an activity.
+   */
+  ACTIVITY
 }

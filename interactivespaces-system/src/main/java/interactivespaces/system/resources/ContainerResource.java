@@ -27,9 +27,19 @@ import interactivespaces.resource.Version;
 public class ContainerResource extends NamedVersionedResource {
 
   /**
+   * The type of the resource.
+   */
+  private final ContainerResourceType type;
+
+  /**
    * Location of the resource in a container.
    */
   private final ContainerResourceLocation location;
+
+  /**
+   * The signature of the resource.
+   */
+  private String signature;
 
   /**
    * Construct a new container resource.
@@ -38,13 +48,29 @@ public class ContainerResource extends NamedVersionedResource {
    *          name of the resource
    * @param version
    *          version of the resource
+   * @param type
+   *          the type of the resource
    * @param location
    *          location of the resource
+   * @param signatureInitial
+   *          the initial signature of the resource
    */
-  public ContainerResource(String name, Version version, ContainerResourceLocation location) {
+  public ContainerResource(String name, Version version, ContainerResourceType type,
+      ContainerResourceLocation location, String signatureInitial) {
     super(name, version);
 
+    this.type = type;
     this.location = location;
+    this.signature = signatureInitial;
+  }
+
+  /**
+   * Get the type of the container resource.
+   *
+   * @return the type of the container resource
+   */
+  public ContainerResourceType getType() {
+    return type;
   }
 
   /**
@@ -54,6 +80,25 @@ public class ContainerResource extends NamedVersionedResource {
    */
   public ContainerResourceLocation getLocation() {
     return location;
+  }
+
+  /**
+   * Get the signature of the resource.
+   *
+   * @return the signature of the resource
+   */
+  public String getSignature() {
+    return signature;
+  }
+
+  /**
+   * Update the signature for the resource.
+   *
+   * @param signature
+   *          the signature
+   */
+  public void setSignature(String signature) {
+    this.signature = signature;
   }
 
   @Override

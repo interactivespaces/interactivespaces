@@ -16,10 +16,11 @@
 
 package interactivespaces.master.server.services;
 
-import interactivespaces.resource.NamedVersionedResource;
+import interactivespaces.resource.NamedVersionedResourceWithData;
 import interactivespaces.resource.ResourceDependency;
 import interactivespaces.util.resource.ManagedResource;
 
+import java.net.URI;
 import java.util.Set;
 
 /**
@@ -30,15 +31,14 @@ import java.util.Set;
 public interface ContainerResourceDeploymentManager extends ManagedResource {
 
   /**
-   * Take a collection of dependency requirements and calculate the set of
-   * resources which best meets the requirements.
+   * Take a collection of dependency requirements and calculate the set of resources which best meets the requirements.
    *
    * @param dependencies
    *          the dependencies
    *
    * @return the items which meet the requirements
    */
-  Set<NamedVersionedResource> satisfyDependencies(Set<ResourceDependency> dependencies);
+  Set<NamedVersionedResourceWithData<URI>> satisfyDependencies(Set<ResourceDependency> dependencies);
 
   /**
    * Commit a set of resources to a space controller.
@@ -48,7 +48,7 @@ public interface ContainerResourceDeploymentManager extends ManagedResource {
    * @param resources
    *          the resources to commit
    */
-  void commitResources(ActiveSpaceController controller, Set<NamedVersionedResource> resources);
+  void commitResources(ActiveSpaceController controller, Set<NamedVersionedResourceWithData<URI>> resources);
 
   /**
    * Commit a set of resources to a space controller for an ongoing transaction.
@@ -60,5 +60,6 @@ public interface ContainerResourceDeploymentManager extends ManagedResource {
    * @param resources
    *          the resources to commit
    */
-  void commitResources(String transactionId, ActiveSpaceController controller, Set<NamedVersionedResource> resources);
+  void commitResources(String transactionId, ActiveSpaceController controller,
+      Set<NamedVersionedResourceWithData<URI>> resources);
 }

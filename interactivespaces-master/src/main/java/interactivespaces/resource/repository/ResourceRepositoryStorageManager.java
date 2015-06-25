@@ -25,6 +25,7 @@ import interactivespaces.util.resource.ManagedResource;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 
 /**
  * A storage manager for the Interactive Spaces activity repository.
@@ -82,8 +83,7 @@ public interface ResourceRepositoryStorageManager extends ManagedResource {
    * @param resourceStream
    *          a stream of the incoming resource
    *
-   * @return an opaque handle on the resource, do not make any assumptions on
-   *         this handle, it can change
+   * @return an opaque handle on the resource, do not make any assumptions on this handle, it can change
    */
   String stageResource(InputStream resourceStream);
 
@@ -91,8 +91,7 @@ public interface ResourceRepositoryStorageManager extends ManagedResource {
    * Remove a staged activity from the manager.
    *
    * @param stageHandle
-   *          The handle which was returned by
-   *          {@link #stageResource(InputStream)}
+   *          The handle which was returned by {@link #stageResource(InputStream)}
    */
   void removeStagedReource(String stageHandle);
 
@@ -102,15 +101,12 @@ public interface ResourceRepositoryStorageManager extends ManagedResource {
    * @param descriptorFileName
    *          name of the descriptor file
    * @param stageHandle
-   *          the handle which was returned by
-   *          {@link #stageResource(InputStream)}
+   *          the handle which was returned by {@link #stageResource(InputStream)}
    *
-   * @return the input stream for the description file for the requested staged
-   *         activity
+   * @return the input stream for the description file for the requested staged activity
    *
    * @throws InteractiveSpacesException
-   *           if the stage handle is invalid or the activity contains no
-   *           description file
+   *           if the stage handle is invalid or the activity contains no description file
    */
   InputStream getStagedResourceDescription(String descriptorFileName, String stageHandle)
       throws InteractiveSpacesException;
@@ -155,8 +151,7 @@ public interface ResourceRepositoryStorageManager extends ManagedResource {
    * @param version
    *          the version of the resource
    *
-   * @return the input stream for the resource, or {@code null} if no such
-   *         resource
+   * @return the input stream for the resource, or {@code null} if no such resource
    */
   InputStream getResourceStream(String category, String name, Version version);
 
@@ -180,9 +175,9 @@ public interface ResourceRepositoryStorageManager extends ManagedResource {
    * @param category
    *          the category
    *
-   * @return all resources in the given category
+   * @return all resources in the given category with a URI for the resource
    */
-  NamedVersionedResourceCollection<NamedVersionedResourceWithData<String>> getAllResources(String category);
+  NamedVersionedResourceCollection<NamedVersionedResourceWithData<URI>> getAllResources(String category);
 
   /**
    * Get the base location for files from a give category.

@@ -24,7 +24,7 @@ import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
 import interactivespaces.util.resource.ManagedResource;
 
 /**
- * A factory for {@link BasicLiveActivityRunner} instances.
+ * A factory for {@link StandardLiveActivityRunner} instances.
  *
  * @author Keith M. Hughes
  */
@@ -86,7 +86,7 @@ public interface LiveActivityRunnerFactory extends ManagedResource {
    *
    * @return a runner for the activity
    */
-  BasicLiveActivityRunner newLiveActivityRunner(InstalledLiveActivity installedLiveActivity,
+  StandardLiveActivityRunner newLiveActivityRunner(InstalledLiveActivity installedLiveActivity,
       InternalLiveActivityFilesystem activityFilesystem, LiveActivityConfiguration configuration,
       LiveActivityRunnerListener liveActivityRunnerListener, LiveActivityRuntime liveActivityRuntime);
 

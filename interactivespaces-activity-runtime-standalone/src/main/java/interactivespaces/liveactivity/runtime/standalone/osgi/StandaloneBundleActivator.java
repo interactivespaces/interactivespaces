@@ -24,6 +24,7 @@ import interactivespaces.liveactivity.runtime.standalone.development.Development
 import interactivespaces.osgi.service.InteractiveSpacesServiceOsgiBundleActivator;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.system.InteractiveSpacesSystemControl;
+import interactivespaces.system.resources.ContainerResourceManager;
 
 import org.apache.commons.logging.Log;
 
@@ -39,6 +40,11 @@ public class StandaloneBundleActivator extends InteractiveSpacesServiceOsgiBundl
    * OSGi service tracker for the interactive spaces control.
    */
   private MyServiceTracker<InteractiveSpacesSystemControl> interactiveSpacesSystemControlTracker;
+
+  /**
+   * OSGi service tracker for the interactive spaces control.
+   */
+  private MyServiceTracker<ContainerResourceManager> containerResourceManagerTracker;
 
   /**
    * Space environment from launcher.
@@ -57,6 +63,7 @@ public class StandaloneBundleActivator extends InteractiveSpacesServiceOsgiBundl
   @Override
   protected void onStart() {
     interactiveSpacesSystemControlTracker = newMyServiceTracker(InteractiveSpacesSystemControl.class.getName());
+    containerResourceManagerTracker = newMyServiceTracker(ContainerResourceManager.class.getName());
   }
 
   @Override
@@ -75,7 +82,8 @@ public class StandaloneBundleActivator extends InteractiveSpacesServiceOsgiBundl
     }
 
     StandardLiveActivityRuntimeComponentFactory runtimeComponentFactory =
-        new StandardLiveActivityRuntimeComponentFactory(spaceEnvironment, getBundleContext());
+        new StandardLiveActivityRuntimeComponentFactory(spaceEnvironment,
+            containerResourceManagerTracker.getMyService());
 
     DevelopmentStandaloneLiveActivityRuntime runtime =
         new DevelopmentStandaloneLiveActivityRuntime(runtimeComponentFactory, spaceEnvironment,
