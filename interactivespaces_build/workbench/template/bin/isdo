@@ -319,7 +319,7 @@ def parse_command_line(arguments):
 
   config.known_activities = {a: set() for a in config.activities}
   config.known_live_activities = {i: [] for i in config.live_activities}
-  config.project_folders = []
+  config.project_folders = {}
   config.states = None
 
   return config
@@ -973,8 +973,12 @@ class Runner(object):
             print('Loading ' + path)
 
           tree = ElementTree.parse(path)
-          activity_name = (tree.find('./identifyingName') or tree.find('./is:identifyingName', INTERACTIVE_SPACES_NAMESPACES)).text.strip()
-          config.project_folders[root] = activity_name
+          activity_node = tree.find('./identifyingName')
+          if activity_node is not None:
+            activity_name = activity_node.text.strip()
+          else:
+            activity_name = tree.find('./is:identifyingName', INTERACTIVE_SPACES_NAMESPACES).text.strip()
+          config.project_folders[os.path.abspath(root)] = activity_name
           config.known_activities[activity_name] = set()
 
 

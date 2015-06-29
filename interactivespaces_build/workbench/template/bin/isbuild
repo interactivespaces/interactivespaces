@@ -28,8 +28,8 @@ ISLOG="${EXEDIR}/islog"
 export INTERACTIVESPACES_HOME=${INTERACTIVESPACES_HOME:-$EXEDIR/../..}
 
 WBDIR=$INTERACTIVESPACES_HOME/workbench
-ROOTDIR=$PWD/$PROOT
-cd "$ROOTDIR"
+cd "$PROOT"
+ROOTDIR=$PWD
 
 if [ $CMD == debug ]; then
   # Requires proper setup in ~/.interactivespaces.rc
