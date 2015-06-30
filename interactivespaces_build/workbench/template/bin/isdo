@@ -315,10 +315,10 @@ def parse_command_line(arguments):
     else:
       config.folders.append(argument)
 
-  config.selected_live_activities = set()
+  config.selected_live_activities = {}
+  config.selected_activities = {}
+  config.selected_controllers = {}
 
-  config.known_activities = {a: set() for a in config.activities}
-  config.known_live_activities = {i: [] for i in config.live_activities}
   config.project_folders = {}
   config.states = None
 
@@ -382,7 +382,7 @@ class Command(object):
 
     # Validate commands that require activities have them.
 
-    num_activities = len(self.config.activities or self.config.known_activities)
+    num_activities = len(self.config.activities or self.config.selected_activities)
 
     if self.requires_activity() and num_activities != 1:
       self.write('Fatal: Exactly one activity must be specified for command %s, found %d' % (self.__class__.__name__, num_activities))
@@ -546,15 +546,15 @@ class CreateCommand(Command):
     return True
 
   def execute(self, server_connection):
-    for activity in self.config.selected_activities:
-      print activity
-      server_connection.send('/liveactivity/create', { 'name': self.name,
-                                                       'activityId': activity,
-                                                       'controllerId': 'oops' })
+    activityId = iter(self.config.selected_activities).next()
+    controllerId = self.config.known_controllers[iter(self.config.selected_controllers).next()]['id']
 
-    print server_connection.send('/liveactivity/create', { 'name': self.name,
-                                                           'activityId': '1',
-                                                           'spaceControllerId': '101' })
+    result = server_connection.send('/liveactivity/create', { 'name': self.name,
+                                                              'activityId': str(activityId),
+                                                              'spaceControllerId': str(controllerId) })
+
+    self.config.known_live_activities[result['data']['uuid']] = result['data']
+    self.config.selected_live_activities[result['data']['uuid']] = result['data']
 
 
 class UpgradeCommand(Command):
@@ -693,15 +693,24 @@ class ListCommand(Command):
   """Writes out deployment and state information about activities and live activities."""
 
   def execute(self, server_connection):
-    for folder, activity in sorted(self.config.project_folders.iteritems()):
-      if activity in self.config.selected_activities:
-        self.write_folder(folder, [activity])
+    remaining_activities = set([a['id'] for a in self.config.selected_activities.itervalues()])
+    remaining_live_activities = set([a['uuid'] for a in self.config.selected_live_activities.itervalues()])
 
-    known_activities = self.config.project_folders.values()
-    unknown_activities = {a for a in self.config.selected_activities if a not in known_activities}
+    for folder, activity_name in sorted(self.config.project_folders.iteritems()):
+      activity = next((a for a in self.config.known_activities.itervalues() if a['identifyingName'] == activity_name),
+                      {'id': '???', 'name': activity_name})
+      self.write_folder(folder, [activity], remaining_activities, remaining_live_activities)
 
-    if unknown_activities:
-      self.write_folder('[Unknown Project Folder]', unknown_activities)
+    if remaining_activities:
+      self.write_folder('[Unknown Project Folder]',
+                        [a for a in self.config.known_activities.itervalues() if a['id'] in remaining_activities],
+                        remaining_activities, remaining_live_activities)
+
+    if remaining_live_activities:
+      self.write("[Unknown Activity]")
+      for live_activity in self.config.live_activities.itervalues():
+        if live_activity['uuid'] in remaining_live_activities:
+          self.write_live_activity(live_activity, remaining_live_activities, indent=2)
 
     self.write("-" * 50)
     self.write("%d Paths, %d Activities, %d Live Activities" % (len(self.config.project_folders),
@@ -709,22 +718,21 @@ class ListCommand(Command):
                                                                 len(self.config.selected_live_activities)))
 
 
-  def write_folder(self, folder, activities):
+  def write_folder(self, folder, activities, remaining_activities, remaining_live_activities):
     self.write(folder)
     for activity in sorted(activities):
-      inferred_activity = self.config.known_activities.get(activity)
-      if inferred_activity is not None:
-        self.write_activity(activity, inferred_activity)
+      self.write_activity(activity, remaining_activities, remaining_live_activities)
 
+  def write_activity(self, activity, remaining_activities, remaining_live_activities):
+    remaining_activities.discard(activity['id'])
+    self.write('  [%s] %s' % (activity['id'], activity['name']))
+    for live_activity in self.config.known_live_activities.itervalues():
+      if live_activity['activity']['id'] == activity['id']:
+        self.write_live_activity(live_activity, remaining_live_activities)
 
-  def write_activity(self, activity, live_activities):
-    self.write('  ' + activity)
-    for live_activity in live_activities:
-      if live_activity in self.config.selected_live_activities:
-        self.write_live_activity(live_activity)
-
-  def write_live_activity(self, live_activity, indent=4):
-    self.write((' ' * indent) + live_activity)
+  def write_live_activity(self, live_activity, remaining_live_activities, indent=4):
+    remaining_live_activities.discard(live_activity['uuid'])
+    self.write("%s[%s] %s" % ((' ' * indent), live_activity['uuid'], live_activity['name']))
 
 
 class MasterConnection(object):
@@ -888,7 +896,8 @@ class Runner(object):
       if command:
         if command.requires_server() and not server_connection:
           server_connection = MasterConnection(config)
-          self._find_live_activities(config, server_connection)
+          self._load_server_data(config, server_connection)
+          self._find_selections(config)
 
         count += 1
         config.commands[command_name].set_config(config, server_connection)
@@ -914,42 +923,61 @@ class Runner(object):
         command.execute(server_connection)
 
 
-  def _find_live_activities(self, config, server_connection):
-    live_activities_supplied = False
-    server_activities = server_connection.send('/liveactivity/all')
-    config.known_live_activities = {a['uuid']: a for a in server_activities['data']}
+  def _load_server_data(self, config, server_connection):
+    config.known_controllers     = {a['uuid']: a for a in server_connection.send('/spacecontroller/all')['data']}
+    config.known_activities      = {a['id']:   a for a in server_connection.send('/activity/all')['data']}
+    config.known_live_activities = {a['uuid']: a for a in server_connection.send('/liveactivity/all')['data']}
 
-    config.selected_live_activities.update([a['uuid'] for a in server_activities['data'] if \
+
+  def _find_selections(self, config):
+    config.selected_live_activities = {}
+    config.selected_activities = {}
+    config.selected_controllers = {}
+
+    # Explicit Controllers
+    config.selected_controllers.update({a['uuid']: a for a in config.known_controllers.itervalues() if \
+        a['uuid'] in config.controllers or \
+        a['id'] in config.controllers or \
+        a['name'] in config.controllers or \
+        a['hostId'] in config.controllers})
+
+    # Explicit Activities
+    config.selected_activities.update({a['id']: a for a in config.known_activities.itervalues() if \
+        a['id'] in config.activities or \
+        a['identifyingName'] in config.activities})
+
+    # Explicit Live Activities
+    config.selected_live_activities.update({a['uuid']: a for a in config.known_live_activities.itervalues() if \
         a['uuid'] in config.live_activities or \
         a['id'] in config.live_activities or \
-        a['name'] in config.live_activities])
+        a['name'] in config.live_activities or \
+        config.all})
 
-    if config.all:
-      live_activities_supplied = True
-      config.selected_live_activities.update(config.known_live_activities.iterkeys())
+    # Implicit Activities <-- Project Folders
+    if not config.selected_activities:
+      config.selected_activities.update({a['id']: a for a in config.known_activities.itervalues() if \
+          a['identifyingName'] in config.project_folders.itervalues()})
 
-    if config.debug:
-      print('Found %d live activities, %d selected' % (len(config.known_live_activities), len(config.selected_live_activities)))
+    # Implicit Live Activities
+    if not config.selected_live_activities:
+      for activity in config.selected_activities.itervalues():
+        config.selected_live_activities.update({live_activity['uuid']: live_activity \
+            for live_activity in config.known_live_activities.itervalues() if live_activity['activity']['id'] == activity['id']})
+      for controller in config.selected_controllers.itervalues():
+        config.selected_live_activities.update({live_activity['uuid']: live_activity \
+            for live_activity in config.known_live_activities.itervalues() if live_activity['controller']['uuid'] == controller['uuid']})
 
-    for live_activity_id, live_activity in config.known_live_activities.iteritems():
-      activity_name = live_activity['activity']['identifyingName']
+    # Implicit Activities <-- Live Activities
+    if not config.selected_activities:
+      for live_activity in config.selected_live_activities:
+        activity = config.known_activities[config.known_live_activities[live_activity]['activity']['id']]
+        config.selected_activities[activity['id']] = activity
 
-      if activity_name not in config.known_activities:
-        config.known_activities[activity_name] = set()
-      config.known_activities[activity_name].add(live_activity_id)
-
-    if not (live_activities_supplied or config.selected_live_activities) and config.project_folders:
-      if config.debug:
-        print('Adding live activities inferred by projects')
-
-      for activity in config.project_folders.values():
-        if activity in config.known_activities:
-          config.selected_live_activities.update(config.known_activities[activity])
-
-    config.selected_activities = set()
-    for live_activity_id, live_activity in config.known_live_activities.iteritems():
-      if live_activity_id in config.selected_live_activities:
-        config.selected_activities.add(live_activity['activity']['identifyingName'])
+    # Implicit Controllers <-- Activities
+    if not config.controllers:
+      for live_activity in config.selected_live_activities:
+        controller = config.known_controllers[config.known_live_activities[live_activity]['controller']['uuid']]
+        config.selected_controllers[controller['uuid']] = controller
 
 
   def _find_projects(self, config):
@@ -979,7 +1007,6 @@ class Runner(object):
           else:
             activity_name = tree.find('./is:identifyingName', INTERACTIVE_SPACES_NAMESPACES).text.strip()
           config.project_folders[os.path.abspath(root)] = activity_name
-          config.known_activities[activity_name] = set()
 
 
 if __name__ == '__main__':
