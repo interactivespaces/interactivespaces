@@ -464,6 +464,7 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
       InputStream inputStream = process.getInputStream();
       String inputString = fileSupport.readAvailableToString(inputStream);
       if (!Strings.isNullOrEmpty(inputString)) {
+        log.info("Native application runner: " + Arrays.toString(commandLine));
         String[] parts = inputString.split("\n");
         for (String line : parts) {
           log.info("Native application runner: " + line);
@@ -473,6 +474,7 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
       InputStream errorStream = process.getErrorStream();
       String errorString = fileSupport.readAvailableToString(errorStream);
       if (!Strings.isNullOrEmpty(errorString)) {
+        log.error("Native application runner: " + Arrays.toString(commandLine));
         String[] parts = errorString.split("\n");
         for (String line : parts) {
           log.error("Native application runner: " + line);
