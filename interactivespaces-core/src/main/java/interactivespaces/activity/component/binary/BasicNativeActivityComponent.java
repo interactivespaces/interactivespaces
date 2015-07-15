@@ -16,7 +16,6 @@
 
 package interactivespaces.activity.component.binary;
 
-import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivityFilesystem;
@@ -24,6 +23,8 @@ import interactivespaces.activity.binary.NativeActivityRunner;
 import interactivespaces.activity.component.BaseActivityComponent;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.system.core.configuration.CoreConfiguration;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.util.process.NativeApplicationRunner;
 import interactivespaces.util.process.NativeApplicationRunnerListener;
 import interactivespaces.util.process.restart.RestartStrategy;
@@ -31,7 +32,6 @@ import interactivespaces.util.process.restart.RestartStrategy;
 import com.google.common.collect.Lists;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -39,7 +39,8 @@ import java.util.List;
  *
  * @author Keith M. Hughes
  */
-public class BasicNativeActivityComponent extends BaseActivityComponent implements NativeActivityComponent {
+public class BasicNativeActivityComponent extends BaseActivityComponent
+    implements NativeActivityComponent {
 
   /**
    * Control of the native activity.
@@ -70,6 +71,11 @@ public class BasicNativeActivityComponent extends BaseActivityComponent implemen
    * The listeners to add to the runner when it is created.
    */
   private List<NativeApplicationRunnerListener> listeners = Lists.newArrayList();
+
+  /**
+   * The file support instance to use for dealing with files.
+   */
+  private FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
   /**
    * Create the component which uses the properties {@link #CONFIGURATION_ACTIVITY_EXECUTABLE} and
@@ -127,28 +133,21 @@ public class BasicNativeActivityComponent extends BaseActivityComponent implemen
 
     String activityPath = configuration.getRequiredPropertyString(executablePathProperty + "." + os);
 
-    File activityFile = new File(activityPath);
-    if (activityFile.isAbsolute()) {
-
-      if (!isAppAlowed(activityPath)) {
-        throw new SimpleInteractiveSpacesException(String.format("Not allowed to run %s", activityPath));
-      }
-    } else {
-      ActivityFilesystem activityFilesystem = activity.getActivityFilesystem();
-      activityFile = new File(activityFilesystem.getInstallDirectory(), activityPath);
-      if (isLocalToActivityInstallDirectory(activityFilesystem, activityFile)) {
-        if (activityFile.exists()) {
-          if (!activityFile.canExecute()) {
-            activityFile.setExecutable(true);
-          }
-        } else {
-          throw new SimpleInteractiveSpacesException(String.format("The native executable %s does not exist",
-              activityPath));
+    ActivityFilesystem activityFilesystem = activity.getActivityFilesystem();
+    File activityFile = fileSupport.resolveFile(activityFilesystem.getInstallDirectory(), activityPath);
+    if (fileSupport.isParent(activityFilesystem.getInstallDirectory(), activityFile)) {
+      if (fileSupport.exists(activityFile)) {
+        if (!activityFile.canExecute()) {
+          activityFile.setExecutable(true);
         }
       } else {
-        throw new InteractiveSpacesException(String.format("The native executable %s is not local to the activity",
+        throw new SimpleInteractiveSpacesException(String.format("The native executable %s does not exist",
             activityPath));
       }
+    } else if (!isAppAlowed(activityPath)) {
+          throw new SimpleInteractiveSpacesException(
+              String.format(
+                  "The native executable is not local to the activity and is not allowed to run %s.", activityPath));
     }
 
     nativeActivity = activity.getActivityRuntime().getNativeActivityRunnerFactory()
@@ -206,28 +205,6 @@ public class BasicNativeActivityComponent extends BaseActivityComponent implemen
   @Override
   public void addNativeApplicationRunnerListener(NativeApplicationRunnerListener listener) {
     listeners.add(listener);
-  }
-
-  /**
-   * Is the application file local to the application directory?
-   *
-   * @param activityFilesystem
-   *          file system for the activity
-   * @param applicationFile
-   *          the application file being checked
-   *
-   * @return {@code true} if the file is local to the application install directory
-   */
-  private boolean isLocalToActivityInstallDirectory(ActivityFilesystem activityFilesystem, File applicationFile) {
-
-    try {
-      String applicationInstallationDirectory =
-          activityFilesystem.getInstallDirectory().getCanonicalPath() + File.separatorChar;
-      return applicationFile.getCanonicalPath().startsWith(applicationInstallationDirectory);
-    } catch (IOException e) {
-      throw new InteractiveSpacesException(String.format("Could not canonical path for %s",
-          applicationFile.getAbsolutePath()), e);
-    }
   }
 
   /**
