@@ -76,6 +76,21 @@ public class Version implements Comparable<Version> {
    * Parse a version string.
    *
    * @param version
+   *          the version as a string, can be {@code null}
+   *
+   * @return the version represented by the string, or {@code null} if version was {@code null}
+   *
+   * @throws SimpleInteractiveSpacesException
+   *           improperly formatted version
+   */
+  public static Version parseVersionIncludeNull(String version) throws SimpleInteractiveSpacesException {
+    return version != null ? parseVersion(version) : null;
+  }
+
+  /**
+   * Parse a version string.
+   *
+   * @param version
    *          the version as a string
    *
    * @return the version represented by the string
@@ -250,8 +265,7 @@ public class Version implements Comparable<Version> {
   }
 
   /**
-   * Get a new version with an incremented minor. The minor and micro are then
-   * {@code 0}. The qualifier is left alone.
+   * Get a new version with an incremented minor. The minor and micro are then {@code 0}. The qualifier is left alone.
    *
    * @return a newly constructed version
    */
@@ -260,8 +274,7 @@ public class Version implements Comparable<Version> {
   }
 
   /**
-   * Get a new version with an incremented minor. The micro is then {@code 0}.
-   * The qualifier is left alone.
+   * Get a new version with an incremented minor. The micro is then {@code 0}. The qualifier is left alone.
    *
    * @return a newly constructed version
    */

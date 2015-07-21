@@ -147,6 +147,18 @@ public class VersionTest {
   }
 
   /**
+   * Test converting version ranges to strings.
+   */
+  @Test
+  public void testVersionRangeToString() {
+    Assert.assertEquals("1.8.3", new VersionRange(new Version(1, 8, 3)).toString());
+    Assert.assertEquals("[1.8.3, 1.8.4]",
+        new VersionRange(new Version(1, 8, 3), new Version(1, 8, 4), true).toString());
+    Assert.assertEquals("[1.8.3, 1.8.4)",
+        new VersionRange(new Version(1, 8, 3), new Version(1, 8, 4), false).toString());
+  }
+
+  /**
    * Test a variety of version parses
    */
   @Test

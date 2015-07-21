@@ -48,15 +48,14 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A basic remote activity installer.
+ * The standard remote activity installer.
  *
  * <p>
- * This manager handles the master end of installing activities to a remote
- * endpoint.
+ * This manager handles the master end of installing activities to a remote endpoint.
  *
  * @author Keith M. Hughes
  */
-public class BasicRemoteActivityDeploymentManager implements RemoteActivityDeploymentManager {
+public class StandardRemoteActivityDeploymentManager implements RemoteActivityDeploymentManager {
 
   /**
    * The client for making calls to a remote space controller.
@@ -124,10 +123,9 @@ public class BasicRemoteActivityDeploymentManager implements RemoteActivityDeplo
     if (dependencies != null && !dependencies.isEmpty()) {
       ContainerResourceDeploymentQueryRequest query = new ContainerResourceDeploymentQueryRequest(transactionId);
       for (ActivityDependency dependency : dependencies) {
-        query
-            .addQuery(new ResourceDependencyReference(dependency.getIdentifyingName(), new VersionRange(Version
-                .parseVersion(dependency.getMinimumVersion()), Version.parseVersion(dependency.getMaximumVersion()),
-                false)));
+        query.addQuery(new ResourceDependencyReference(dependency.getIdentifyingName(), new VersionRange(Version
+            .parseVersionIncludeNull(dependency.getMinimumVersion()), Version.parseVersionIncludeNull(dependency
+            .getMaximumVersion()), false)));
       }
       request.setResourceDeploymentQuery(query);
     }

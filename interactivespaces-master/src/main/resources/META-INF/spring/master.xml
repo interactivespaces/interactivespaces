@@ -210,7 +210,7 @@
   </bean>
 
   <bean id="interactivespaces.activity.deployer.remote"
-    class="interactivespaces.controller.client.master.internal.BasicRemoteActivityDeploymentManager"
+    class="interactivespaces.controller.client.master.internal.StandardRemoteActivityDeploymentManager"
     destroy-method="shutdown" init-method="startup"
   >
     <property name="remoteSpaceControllerClient" ref="interactivespaces.controller.remote.client" />
