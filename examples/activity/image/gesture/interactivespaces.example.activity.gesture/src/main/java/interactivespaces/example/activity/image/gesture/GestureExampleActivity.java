@@ -16,8 +16,6 @@
 
 package interactivespaces.example.activity.image.gesture;
 
-import java.util.Map;
-
 import interactivespaces.activity.impl.BaseActivity;
 import interactivespaces.service.image.gesture.Gesture;
 import interactivespaces.service.image.gesture.Gesture.GestureState;
@@ -29,10 +27,11 @@ import interactivespaces.service.image.gesture.GesturePointable;
 import interactivespaces.service.image.gesture.GesturePointableListener;
 import interactivespaces.service.image.gesture.GestureService;
 
+import java.util.Map;
+
 /**
- * An activity that uses the gesture service to detect gestures, the user's hand
- * being palm up, and the number of fingers pointing upward, and logging the
- * events.
+ * An activity that uses the gesture service to detect gestures, the user's hand being palm up, and the number of
+ * fingers pointing upward, and logging the events.
  *
  * @author Keith M. Hughes
  */
@@ -44,14 +43,12 @@ public class GestureExampleActivity extends BaseActivity {
   private static final double PALM_UP_THRESHOLD = 0.5;
 
   /**
-   * The Y axis direction threshold for considering the pointable to be facing
-   * up.
+   * The Y axis direction threshold for considering the pointable to be facing up.
    */
   private static final double POINTABLE_UP_THRESHOLD = 0.8;
 
   /**
-   * The number of pointables passing the test criteria required for a pointable
-   * event.
+   * The number of pointables passing the test criteria required for a pointable event.
    */
   private static final int POINTABLE_EVENT_COUNT_THRESHOLD = 2;
 
@@ -86,7 +83,7 @@ public class GestureExampleActivity extends BaseActivity {
 
   /**
    * Handle any gestures that are recognized.
-   * 
+   *
    * @param gestures
    *          the map of gesture ID to gestures
    */
@@ -102,7 +99,7 @@ public class GestureExampleActivity extends BaseActivity {
 
   /**
    * Handle any hand data that is recognized.
-   * 
+   *
    * @param hands
    *          the map of hand ID to hand data
    */
@@ -118,10 +115,10 @@ public class GestureExampleActivity extends BaseActivity {
 
   /**
    * Is the palm of the hand up or down?
-   * 
+   *
    * @param hand
    *          the hand being checked
-   * 
+   *
    * @return {@code true} if the hand is considered to be up
    */
   private boolean isPalmUp(GestureHand hand) {
@@ -130,7 +127,7 @@ public class GestureExampleActivity extends BaseActivity {
 
   /**
    * Handle any pointable data that is recognized.
-   * 
+   *
    * @param pointables
    *          the map of pointable ID to pointable data
    */
@@ -146,10 +143,10 @@ public class GestureExampleActivity extends BaseActivity {
 
   /**
    * Get the number of pointables that have the tip pointing up.
-   * 
+   *
    * @param pointables
    *          the pointable map
-   * 
+   *
    * @return the number of pointables detected to be up
    */
   private int countNumberUpPointables(Map<String, GesturePointable> pointables) {
@@ -164,10 +161,10 @@ public class GestureExampleActivity extends BaseActivity {
 
   /**
    * Is the pointable tip pointing up?
-   * 
+   *
    * @param pointable
    *          the pointable to check
-   * 
+   *
    * @return {@code true} if the pointable is up
    */
   private boolean isPointableUp(GesturePointable pointable) {

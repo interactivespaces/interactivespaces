@@ -2,7 +2,8 @@
 <project type="activity" builder="java">
   <name>Gesture Example</name>
   <description>
-    An activity that uses a connected gesture detection device to register gestural events.
+    An activity that uses a connected gesture detection device to register gestural
+    events.
   </description>
 
   <identifyingName>
@@ -15,7 +16,7 @@
     <class>
       interactivespaces.example.activity.image.gesture.GestureExampleActivity
     </class>
-    
+
     <configuration>
       <property name="space.activity.log.level" value="info" />
     </configuration>
