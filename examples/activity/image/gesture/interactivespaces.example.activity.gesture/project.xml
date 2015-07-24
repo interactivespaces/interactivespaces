@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<project type="activity" builder="java">
+  <name>Gesture Example</name>
+  <description>
+    An activity that uses a connected gesture detection device to register gestural events.
+  </description>
+
+  <identifyingName>
+    interactivespaces.example.activity.image.gesture
+  </identifyingName>
+  <version>1.0.0</version>
+
+  <activity type="interactivespaces_native">
+    <name>interactivespacesExampleActivityGesture</name>
+    <class>
+      interactivespaces.example.activity.image.gesture.GestureExampleActivity
+    </class>
+    
+    <configuration>
+      <property name="space.activity.log.level" value="info" />
+    </configuration>
+  </activity>
+</project>
