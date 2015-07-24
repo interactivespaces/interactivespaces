@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2011 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -24,18 +24,9 @@ import org.apache.commons.logging.LogFactory;
 import org.ros.address.AdvertiseAddress;
 import org.ros.address.BindAddress;
 import org.ros.internal.node.client.SlaveClient;
-import org.ros.internal.node.server.NodeIdentifier;
-import org.ros.internal.node.server.SlaveServer;
 import org.ros.internal.node.server.XmlRpcServer;
-import org.ros.internal.node.topic.Topic;
 import org.ros.internal.node.xmlrpc.MasterXmlRpcEndpointImpl;
-import org.ros.master.client.TopicSystemState;
-import org.ros.message.Service;
 import org.ros.namespace.GraphName;
-import org.ros.node.Node;
-import org.ros.node.service.ServiceServer;
-import org.ros.node.topic.Publisher;
-import org.ros.node.topic.Subscriber;
 
 import java.net.URI;
 import java.util.Collection;
@@ -43,21 +34,27 @@ import java.util.List;
 
 /**
  * The {@link MasterServer} provides naming and registration services to the
- * rest of the {@link Node}s in the ROS system. It tracks {@link Publisher}s and
- * {@link Subscriber}s to {@link TopicSystemState}s as well as
- * {@link ServiceServer}s. The role of the {@link MasterServer} is to enable
- * individual ROS {@link Node}s to locate one another. Once these {@link Node}s
+ * rest of the {@link org.ros.node.Node}s in the ROS system. It tracks {@link org.ros.node.topic.Publisher}s and
+ * {@link org.ros.node.topic.Subscriber}s to {@link org.ros.master.client.TopicSystemState}s as well as
+ * {@link org.ros.node.service.ServiceServer}s. The role of the {@link MasterServer} is to enable
+ * individual ROS {@link org.ros.node.Node}s to locate one another. Once these {@link org.ros.node.Node}s
  * have located each other they communicate with each other peer-to-peer.
- * 
+ *
  * @see <a href="http://www.ros.org/wiki/Master">Master documentation</a>
- * 
+ *
  * @author damonkohler@google.com (Damon Kohler)
  * @author khughes@google.com (Keith M. Hughes)
  */
 public class MasterServer extends XmlRpcServer implements MasterRegistrationListener {
-
+  /**
+   * Whether or not to log debug-level messages.
+   */
   private static final boolean DEBUG = false;
-  private static final Log log = LogFactory.getLog(MasterServer.class);
+
+  /**
+   * The Log object to use for logging messages.
+   */
+  private static final Log LOG = LogFactory.getLog(MasterServer.class);
 
   /**
    * Position in the {@link #getSystemState()} for publisher information.
@@ -76,7 +73,7 @@ public class MasterServer extends XmlRpcServer implements MasterRegistrationList
 
   /**
    * The node name (i.e. the callerId XML-RPC field) used when the
-   * {@link MasterServer} contacts a {@link SlaveServer}.
+   * {@link MasterServer} contacts a {@link org.ros.internal.node.server.SlaveServer}.
    */
   private static final GraphName MASTER_NODE_NAME = new GraphName("/master");
 
@@ -85,6 +82,14 @@ public class MasterServer extends XmlRpcServer implements MasterRegistrationList
    */
   private final MasterRegistrationManagerImpl masterRegistrationManager;
 
+  /**
+   * Create a new MasterServer.
+   *
+   * @param bindAddress
+   *          the {@link BindAddress} to use for this server
+   * @param advertiseAddress
+   *          the {@link AdvertiseAddress} to use for this server
+   */
   public MasterServer(BindAddress bindAddress, AdvertiseAddress advertiseAddress) {
     super(bindAddress, advertiseAddress);
     masterRegistrationManager = new MasterRegistrationManagerImpl(this);
@@ -95,25 +100,25 @@ public class MasterServer extends XmlRpcServer implements MasterRegistrationList
    */
   public void start() {
     if (DEBUG) {
-      log.info("Starting master server.");
+      LOG.info("Starting master server.");
     }
     super.start(MasterXmlRpcEndpointImpl.class, new MasterXmlRpcEndpointImpl(this));
   }
 
   /**
    * Register a service with the master.
-   * 
+   *
    * @param nodeName
-   *          the {@link GraphName} of the {@link Node} offering the service
+   *          the {@link GraphName} of the {@link org.ros.node.Node} offering the service
    * @param nodeSlaveUri
-   *          the {@link URI} of the {@link Node}'s {@link SlaveServer}
+   *          the {@link URI} of the {@link org.ros.node.Node}'s {@link org.ros.internal.node.server.SlaveServer}
    * @param serviceName
    *          the {@link GraphName} of the service
    * @param serviceUri
    *          the {@link URI} of the service
    */
   public void registerService(GraphName nodeName, URI nodeSlaveUri, GraphName serviceName,
-      URI serviceUri) {
+                              URI serviceUri) {
     synchronized (masterRegistrationManager) {
       masterRegistrationManager.registerService(nodeName, nodeSlaveUri, serviceName, serviceUri);
     }
@@ -121,9 +126,9 @@ public class MasterServer extends XmlRpcServer implements MasterRegistrationList
 
   /**
    * Unregister a service from the master.
-   * 
+   *
    * @param nodeName
-   *          the {@link GraphName} of the {@link Node} offering the service
+   *          the {@link GraphName} of the {@link org.ros.node.Node} offering the service
    * @param serviceName
    *          the {@link GraphName} of the service
    * @param serviceUri
@@ -140,22 +145,22 @@ public class MasterServer extends XmlRpcServer implements MasterRegistrationList
    * Subscribe the caller to the specified topic. In addition to receiving a
    * list of current publishers, the subscriber will also receive notifications
    * of new publishers via the publisherUpdate API.
-   * 
+   *
    * @param nodeName
-   *          the {@link GraphName} of the {@link Node} offering the service
+   *          the {@link GraphName} of the {@link org.ros.node.Node} offering the service
    * @param nodeSlaveUri
-   *          the {@link URI} of the {@link Node}'s {@link SlaveServer}
+   *          the {@link URI} of the {@link org.ros.node.Node}'s {@link org.ros.internal.node.server.SlaveServer}
    * @param topicName
-   *          the {@link GraphName} of the subscribed {@link Topic}
+   *          the {@link GraphName} of the subscribed {@link org.ros.internal.node.topic.Topic}
    * @param topicMessageType
    *          the message type of the topic
    * @return A {@link List} of XMLRPC API {@link URI}s for nodes currently
    *         publishing the specified topic
    */
   public List<URI> registerSubscriber(GraphName nodeName, URI nodeSlaveUri, GraphName topicName,
-      String topicMessageType) {
+                                      String topicMessageType) {
     if (DEBUG) {
-      log.info(String.format(
+      LOG.info(String.format(
           "Registering subscriber %s with message type %s on node %s with URI %s", topicName,
           topicMessageType, nodeName, nodeSlaveUri));
     }
@@ -163,7 +168,7 @@ public class MasterServer extends XmlRpcServer implements MasterRegistrationList
     synchronized (masterRegistrationManager) {
       TopicRegistrationInfo topicInfo =
           masterRegistrationManager.registerSubscriber(nodeName, nodeSlaveUri, topicName,
-              topicMessageType);
+                                                       topicMessageType);
       List<URI> publisherUris = Lists.newArrayList();
       for (NodeRegistrationInfo publisherNodeInfo : topicInfo.getPublishers()) {
         publisherUris.add(publisherNodeInfo.getNodeSlaveUri());
@@ -173,17 +178,17 @@ public class MasterServer extends XmlRpcServer implements MasterRegistrationList
   }
 
   /**
-   * Unregister a {@link Subscriber}.
-   * 
+   * Unregister a {@link org.ros.node.topic.Subscriber}.
+   *
    * @param nodeName
-   *          the {@link GraphName} of the {@link Node} offering the service
+   *          the {@link GraphName} of the {@link org.ros.node.Node} offering the service
    * @param topicName
-   *          the {@link GraphName} of the subscribed {@link Topic}
-   * @return {@code true} if the {@link Subscriber} was registered
+   *          the {@link GraphName} of the subscribed {@link org.ros.internal.node.topic.Topic}
+   * @return {@code true} if the {@link org.ros.node.topic.Subscriber} was registered
    */
   public boolean unregisterSubscriber(GraphName nodeName, GraphName topicName) {
     if (DEBUG) {
-      log.info(String.format("Unregistering subscriber for %s on node %s.", topicName, nodeName));
+      LOG.info(String.format("Unregistering subscriber for %s on node %s.", topicName, nodeName));
     }
     synchronized (masterRegistrationManager) {
       return masterRegistrationManager.unregisterSubscriber(nodeName, topicName);
@@ -191,24 +196,25 @@ public class MasterServer extends XmlRpcServer implements MasterRegistrationList
   }
 
   /**
-   * Register the caller as a {@link Publisher} of the specified topic.
-   * 
+   * Register the caller as a {@link org.ros.node.topic.Publisher} of the specified topic.
+   *
    * @param nodeName
-   *          the {@link GraphName} of the {@link Node} offering the service
+   *          the {@link GraphName} of the {@link org.ros.node.Node} offering the service
    * @param nodeSlaveUri
-   *          the {@link URI} of the {@link Node}'s {@link SlaveServer}
+   *          the {@link URI} of the {@link org.ros.node.Node}'s {@link org.ros.internal.node.server.SlaveServer}
    * @param topicName
-   *          the {@link GraphName} of the subscribed {@link Topic}
+   *          the {@link GraphName} of the subscribed {@link org.ros.internal.node.topic.Topic}
    * @param topicMessageType
    *          the message type of the topic
-   * @return a {@link List} of the current {@link Subscriber}s to the
-   *         {@link Publisher}'s {@link TopicSystemState} in the form of XML-RPC
-   *         {@link URI}s for each {@link Subscriber}'s {@link SlaveServer}
+   * @return a {@link List} of the current {@link org.ros.node.topic.Subscriber}s to the
+   *         {@link org.ros.node.topic.Publisher}'s {@link org.ros.master.client.TopicSystemState} in
+   *         the form of XML-RPC {@link URI}s for each {@link org.ros.node.topic.Subscriber}'s
+   *         {@link org.ros.internal.node.server.SlaveServer}
    */
   public List<URI> registerPublisher(GraphName nodeName, URI nodeSlaveUri, GraphName topicName,
-      String topicMessageType) {
+                                     String topicMessageType) {
     if (DEBUG) {
-      log.info(String.format(
+      LOG.info(String.format(
           "Registering publisher %s with message type %s on node %s with URI %s.", topicName,
           topicMessageType, nodeName, nodeSlaveUri));
     }
@@ -216,7 +222,7 @@ public class MasterServer extends XmlRpcServer implements MasterRegistrationList
     synchronized (masterRegistrationManager) {
       TopicRegistrationInfo topicInfo =
           masterRegistrationManager.registerPublisher(nodeName, nodeSlaveUri, topicName,
-              topicMessageType);
+                                                      topicMessageType);
 
       List<URI> subscriberSlaveUris = Lists.newArrayList();
       for (NodeRegistrationInfo publisherNodeInfo : topicInfo.getSubscribers()) {
@@ -232,7 +238,7 @@ public class MasterServer extends XmlRpcServer implements MasterRegistrationList
   /**
    * Something has happened to the publishers for a topic. Tell every subscriber
    * about the current set of publishers.
-   * 
+   *
    * @param topicInfo
    *          the topic information for the update
    * @param subscriberSlaveUris
@@ -240,7 +246,7 @@ public class MasterServer extends XmlRpcServer implements MasterRegistrationList
    */
   private void publisherUpdate(TopicRegistrationInfo topicInfo, List<URI> subscriberSlaveUris) {
     if (DEBUG) {
-      log.info("Publisher update: " + topicInfo.getTopicName());
+      LOG.info("Publisher update: " + topicInfo.getTopicName());
     }
     List<URI> publisherUris = Lists.newArrayList();
     for (NodeRegistrationInfo publisherNodeInfo : topicInfo.getPublishers()) {
@@ -255,7 +261,7 @@ public class MasterServer extends XmlRpcServer implements MasterRegistrationList
 
   /**
    * Contact a subscriber and send it a publisher update.
-   * 
+   *
    * @param subscriberSlaveUri
    *          the slave URI of the subscriber to contact
    * @param topicName
@@ -265,23 +271,23 @@ public class MasterServer extends XmlRpcServer implements MasterRegistrationList
    */
   @VisibleForTesting
   protected void contactSubscriberForPublisherUpdate(URI subscriberSlaveUri, GraphName topicName,
-      List<URI> publisherUris) {
+                                                     List<URI> publisherUris) {
     SlaveClient client = new SlaveClient(MASTER_NODE_NAME, subscriberSlaveUri);
     client.publisherUpdate(topicName, publisherUris);
   }
 
   /**
-   * Unregister a {@link Publisher}.
-   * 
+   * Unregister a {@link org.ros.node.topic.Publisher}.
+   *
    * @param nodeName
-   *          the {@link GraphName} of the {@link Node} offering the service
+   *          the {@link GraphName} of the {@link org.ros.node.Node} offering the service
    * @param topicName
-   *          the {@link GraphName} of the subscribed {@link Topic}
-   * @return {@code true} if the {@link Publisher} was unregistered
+   *          the {@link GraphName} of the subscribed {@link org.ros.internal.node.topic.Topic}
+   * @return {@code true} if the {@link org.ros.node.topic.Publisher} was unregistered
    */
   public boolean unregisterPublisher(GraphName nodeName, GraphName topicName) {
     if (DEBUG) {
-      log.info(String.format("Unregistering publisher for %s on %s.", topicName, nodeName));
+      LOG.info(String.format("Unregistering publisher for %s on %s.", topicName, nodeName));
     }
     synchronized (masterRegistrationManager) {
       return masterRegistrationManager.unregisterPublisher(nodeName, topicName);
@@ -289,15 +295,16 @@ public class MasterServer extends XmlRpcServer implements MasterRegistrationList
   }
 
   /**
-   * Returns a {@link NodeIdentifier} for the {@link Node} with the given name.
-   * This API is for looking information about {@link Publisher}s and
-   * {@link Subscriber}s. Use {@link #lookupService(GraphName)} instead to
-   * lookup ROS-RPC {@link URI}s for {@link ServiceServer}s.
-   * 
+   * Returns a {@link org.ros.internal.node.server.NodeIdentifier} for
+   * the {@link org.ros.node.Node} with the given name.
+   * This API is for looking information about {@link org.ros.node.topic.Publisher}s and
+   * {@link org.ros.node.topic.Subscriber}s. Use {@link #lookupService(GraphName)} instead to
+   * lookup ROS-RPC {@link URI}s for {@link org.ros.node.topic.ServiceServer}s.
+   *
    * @param nodeName
-   *          name of {@link Node} to lookup
-   * @return the {@link URI} for the {@link Node} slave server with the given
-   *         name, or {@code null} if there is no {@link Node} with the given
+   *          name of {@link org.ros.node.Node} to lookup
+   * @return the {@link URI} for the {@link org.ros.node.Node} slave server with the given
+   *         name, or {@code null} if there is no {@link org.ros.node.Node} with the given
    *         name
    */
   public URI lookupNode(GraphName nodeName) {
@@ -312,10 +319,10 @@ public class MasterServer extends XmlRpcServer implements MasterRegistrationList
   }
 
   /**
-   * Get a {@link List} of all {@link TopicSystemState} message types.
-   * 
+   * Get a {@link List} of all {@link org.ros.master.client.TopicSystemState} message types.
+   *
    * @param calledId
-   *          the {@link Node} name of the caller
+   *          the {@link org.ros.node.Node} name of the caller
    * @return a list of the form [[topic 1 name, topic 1 message type], [topic 2
    *         name, topic 2 message type], ...]
    */
@@ -331,10 +338,10 @@ public class MasterServer extends XmlRpcServer implements MasterRegistrationList
 
   /**
    * Get the state of the ROS graph.
-   * 
+   *
    * <p>
    * This includes information about publishers, subscribers, and services.
-   * 
+   *
    * @return TODO(keith): Fill in.
    */
   public List<Object> getSystemState() {
@@ -350,14 +357,14 @@ public class MasterServer extends XmlRpcServer implements MasterRegistrationList
   }
 
   /**
-   * Get the system state for {@link Publisher}s.
-   * 
+   * Get the system state for {@link org.ros.node.topic.Publisher}s.
+   *
    * @param topics
    *          all topics known by the master
-   * 
+   *
    * @return a {@link List} of the form [ [topic1,
    *         [topic1Publisher1...topic1PublisherN]] ... ] where the
-   *         topicPublisherI instances are {@link Node} names
+   *         topicPublisherI instances are {@link org.ros.node.Node} names
    */
   private List<Object> getSystemStatePublishers(Collection<TopicRegistrationInfo> topics) {
     List<Object> result = Lists.newArrayList();
@@ -379,14 +386,14 @@ public class MasterServer extends XmlRpcServer implements MasterRegistrationList
   }
 
   /**
-   * Get the system state for {@link Subscriber}s.
-   * 
+   * Get the system state for {@link org.ros.node.topic.Subscriber}s.
+   *
    * @param topics
    *          all topics known by the master
-   * 
+   *
    * @return a {@link List} of the form [ [topic1,
    *         [topic1Subscriber1...topic1SubscriberN]] ... ] where the
-   *         topicSubscriberI instances are {@link Node} names
+   *         topicSubscriberI instances are {@link org.ros.node.Node} names
    */
   private List<Object> getSystemStateSubscribers(Collection<TopicRegistrationInfo> topics) {
     List<Object> result = Lists.newArrayList();
@@ -408,11 +415,11 @@ public class MasterServer extends XmlRpcServer implements MasterRegistrationList
   }
 
   /**
-   * Get the system state for {@link Service}s.
-   * 
+   * Get the system state for {@link org.ros.message.Service}s.
+   *
    * @return a {@link List} of the form [ [service1,
    *         [serviceProvider1...serviceProviderN]] ... ] where the
-   *         serviceProviderI instances are {@link Node} names
+   *         serviceProviderI instances are {@link org.ros.node.Node} names
    */
   private List<Object> getSystemStateServices() {
     List<Object> result = Lists.newArrayList();
@@ -430,10 +437,10 @@ public class MasterServer extends XmlRpcServer implements MasterRegistrationList
 
   /**
    * Lookup the provider of a particular service.
-   * 
+   *
    * @param serviceName
    *          name of service
-   * @return {@link URI} of the {@link SlaveServer} with the provided name, or
+   * @return {@link URI} of the {@link org.ros.internal.node.server.SlaveServer} with the provided name, or
    *         {@code null} if there is no such service.
    */
   public URI lookupService(GraphName serviceName) {
@@ -450,15 +457,15 @@ public class MasterServer extends XmlRpcServer implements MasterRegistrationList
 
   /**
    * Get a list of all topics published for the give subgraph.
-   * 
+   *
    * @param caller
    *          name of the caller
    * @param subgraph
-   *          subgraph containing the requested {@link TopicSystemState}s,
+   *          subgraph containing the requested {@link org.ros.master.client.TopicSystemState}s,
    *          relative to caller
    * @return a {@link List} of {@link List}s where the nested {@link List}s
-   *         contain, in order, the {@link TopicSystemState} name and
-   *         {@link TopicSystemState} message type
+   *         contain, in order, the {@link org.ros.master.client.TopicSystemState} name and
+   *         {@link org.ros.master.client.TopicSystemState} message type
    */
   public List<Object> getPublishedTopics(GraphName caller, GraphName subgraph) {
     synchronized (masterRegistrationManager) {
@@ -477,12 +484,13 @@ public class MasterServer extends XmlRpcServer implements MasterRegistrationList
   public void onNodeReplacement(NodeRegistrationInfo nodeInfo) {
     // A node in the registration manager is being replaced. Contact the node
     // and tell it to shut down.
-    if (log.isWarnEnabled()) {
-      log.warn(String.format("Existing node %s with slave URI %s will be shutdown.",
-          nodeInfo.getNodeName(), nodeInfo.getNodeSlaveUri()));
+    if (LOG.isWarnEnabled()) {
+      LOG.warn(String.format("Existing node %s with slave URI %s will be shutdown.",
+                             nodeInfo.getNodeName(), nodeInfo.getNodeSlaveUri()));
     }
 
     SlaveClient client = new SlaveClient(MASTER_NODE_NAME, nodeInfo.getNodeSlaveUri());
-    client.shutdown("Replaced by new slave");
+    final String warning = "WARNING: duplicate ROS node name: %s. The original node will be shutdown and replaced!";
+    client.shutdown(String.format(warning, nodeInfo.getNodeName()));
   }
 }
