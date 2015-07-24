@@ -17,6 +17,7 @@
 package interactivespaces.master.server.services.internal.ros;
 
 import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
@@ -28,10 +29,12 @@ import org.ros.node.NodeConfiguration;
 import org.ros.node.NodeListener;
 import org.ros.osgi.common.RosEnvironment;
 import org.ros.osgi.master.core.RosMasterController;
+import org.ros.osgi.master.core.RosMasterControllerFactory;
 import org.ros.osgi.master.core.RosMasterControllerListener;
-import org.ros.osgi.master.core.internal.RosJavaRosMasterController;
+import org.ros.osgi.master.core.internal.StandardRosMasterControllerFactory;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A ROS context for the Interactive Spaces Master.
@@ -39,6 +42,11 @@ import java.util.concurrent.CountDownLatch;
  * @author Keith M. Hughes
  */
 public class StandardMasterRosContext implements MasterRosContext {
+
+  /**
+   * The timeout default for the registration of the Interactive Spaces Master ROS node with the ROS master.
+   */
+  public static final int ROS_MASTER_REGISTRATION_TIMEOUT_DEFAULT = 10000;
 
   /**
    * The ROS environment the client is running in.
@@ -56,14 +64,29 @@ public class StandardMasterRosContext implements MasterRosContext {
   private ConnectedNode masterNode;
 
   /**
-   * Logger for this node.
+   * Logger for this context.
    */
   private Log log;
 
   /**
-   * The startup latch used for startup.
+   * The startup latch used for startup of the ROS node for the Interactive Spaces master.
    */
   private CountDownLatch startupLatch;
+
+  /**
+   * The timeout for waiting for a OS master registration for the Interactive Spaces Master ROS node.
+   */
+  private int rosMasterRegistrationTimeout = ROS_MASTER_REGISTRATION_TIMEOUT_DEFAULT;
+
+  /**
+   * The space environment to use.
+   */
+  private InteractiveSpacesEnvironment spaceEnvironment;
+
+  /**
+   * The factory for creating ROS Master Controller instances.
+   */
+  private RosMasterControllerFactory rosMasterControllerFactory;
 
   /**
    * The master node listener.
@@ -91,21 +114,21 @@ public class StandardMasterRosContext implements MasterRosContext {
   };
 
   /**
-   * Construct a new master context.
+   * Construct a new ROS context.
    */
   public StandardMasterRosContext() {
-    this(new RosJavaRosMasterController());
+    this(new StandardRosMasterControllerFactory());
   }
 
   /**
-   * Construct a new context.
+   * Construct a new ROS context.
    *
-   * @param rosMasterController
-   *          the ROS Master controller to use
+   * @param rosMasterControllerFactory
+   *          the factory for creating ROS Master Controller instances
    */
   @VisibleForTesting
-  StandardMasterRosContext(RosMasterController rosMasterController) {
-    this.rosMasterController = rosMasterController;
+  StandardMasterRosContext(RosMasterControllerFactory rosMasterControllerFactory) {
+    this.rosMasterControllerFactory = rosMasterControllerFactory;
   }
 
   @Override
@@ -113,24 +136,20 @@ public class StandardMasterRosContext implements MasterRosContext {
     log.info("Starting up the Interactive Spaces Master ROS context");
 
     startupLatch = new CountDownLatch(1);
-    rosMasterController.setRosEnvironment(rosEnvironment);
 
-    rosMasterController.addListener(new RosMasterControllerListener() {
-      @Override
-      public void onRosMasterStartup() {
-        handleRosMasterStartup(startupLatch);
-      }
-
-      @Override
-      public void onRosMasterShutdown() {
-        // Don't care
-      }
-    });
-
-    rosMasterController.startup();
+    if (CONFIGURATION_VALUE_MASTER_ENABLE_TRUE.equals(spaceEnvironment.getSystemConfiguration().getPropertyString(
+        CONFIGURATION_NAME_ROS_MASTER_ENABLE, CONFIGURATION_DEFAULT_ROS_MASTER_ENABLE))) {
+      startupRosMasterController();
+    } else {
+      connectToRosMaster();
+    }
 
     try {
-      startupLatch.await();
+      if (!startupLatch.await(rosMasterRegistrationTimeout, TimeUnit.MILLISECONDS)) {
+        log.error(String.format(
+            "Could not register the Interactive Spaces Master with the ROS Master within %d milliseconds",
+            rosMasterRegistrationTimeout));
+      }
     } catch (InterruptedException e) {
       SimpleInteractiveSpacesException.throwFormattedException("ROS Master Context Startup interrupted");
     }
@@ -141,6 +160,10 @@ public class StandardMasterRosContext implements MasterRosContext {
     if (masterNode != null) {
       masterNode.shutdown();
     }
+
+    if (rosMasterController != null) {
+      rosMasterController.shutdown();
+    }
   }
 
   /**
@@ -150,7 +173,12 @@ public class StandardMasterRosContext implements MasterRosContext {
    */
   @Override
   public ConnectedNode getMasterNode() {
-    return masterNode;
+    if (masterNode != null) {
+      return masterNode;
+    } else {
+      throw SimpleInteractiveSpacesException
+          .newFormattedException("The Interactive Spaces Master is not connected to a ROS Master");
+    }
   }
 
   @Override
@@ -159,12 +187,31 @@ public class StandardMasterRosContext implements MasterRosContext {
   }
 
   /**
-   * Handle the ROS Master starting up.
-   *
-   * @param startupLatch
-   *          the latch for startup completion
+   * Start the ROS master.
    */
-  private void handleRosMasterStartup(final CountDownLatch startupLatch) {
+  private void startupRosMasterController() {
+    rosMasterController = rosMasterControllerFactory.newInternalController();
+    rosMasterController.setRosEnvironment(rosEnvironment);
+
+    rosMasterController.addListener(new RosMasterControllerListener() {
+      @Override
+      public void onRosMasterStartup() {
+        connectToRosMaster();
+      }
+
+      @Override
+      public void onRosMasterShutdown() {
+        // Don't care
+      }
+    });
+
+    rosMasterController.startup();
+  }
+
+  /**
+   * Connect to the ROS master..
+   */
+  private void connectToRosMaster() {
     NodeConfiguration nodeConfiguration = rosEnvironment.getPublicNodeConfigurationWithNodeName();
     nodeConfiguration.setNodeName(ROS_NODENAME_INTERACTIVESPACES_MASTER);
 
@@ -186,8 +233,12 @@ public class StandardMasterRosContext implements MasterRosContext {
    * Handle any operations after the complete shutdown of the ROS node for the Interactive Spaces Master.
    */
   private void handleMasterRosNodeCompleteShutdown() {
-    log.info(String.format("Got ROS node complete shutdown for Interactive Spaces master node %s", masterNode.getName()));
-    rosMasterController.shutdown();
+    log.info(String.format("Got ROS node complete shutdown for Interactive Spaces master node %s",
+        masterNode.getName()));
+
+    if (rosMasterController != null) {
+      rosMasterController.shutdown();
+    }
   }
 
   /**
@@ -220,6 +271,16 @@ public class StandardMasterRosContext implements MasterRosContext {
    */
   public void setLog(Log log) {
     this.log = log;
+  }
+
+  /**
+   * Set the space environment.
+   *
+   * @param spaceEnvironment
+   *          the space environment
+   */
+  public void setSpaceEnvironment(InteractiveSpacesEnvironment spaceEnvironment) {
+    this.spaceEnvironment = spaceEnvironment;
   }
 
   /**

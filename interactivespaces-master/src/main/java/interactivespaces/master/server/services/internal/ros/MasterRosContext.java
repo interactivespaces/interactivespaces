@@ -29,6 +29,28 @@ import org.ros.osgi.common.RosEnvironment;
 public interface MasterRosContext extends ManagedResource {
 
   /**
+   * Configuration property name for having the Interactive Spaces master create it's own ROS master.
+   */
+  String CONFIGURATION_NAME_ROS_MASTER_ENABLE = "interactivespaces.master.ros.master.enable";
+
+  /**
+   * Configuration property value for {@link #CONFIGURATION_NAME_ROS_MASTER_ENABLE} for having Interactive Spaces create
+   * it's own ROS master.
+   */
+  String CONFIGURATION_VALUE_MASTER_ENABLE_TRUE = "true";
+
+  /**
+   * Configuration property value for {@link #CONFIGURATION_NAME_ROS_MASTER_ENABLE} for having Interactive Spaces not
+   * create it's own ROS master.
+   */
+  String CONFIGURATION_VALUE_MASTER_ENABLE_FALSE = "false";
+
+  /**
+   * Configuration property name for having Interactive Spaces create it's own ROS master.
+   */
+  String CONFIGURATION_DEFAULT_ROS_MASTER_ENABLE = CONFIGURATION_VALUE_MASTER_ENABLE_TRUE;
+
+  /**
    * The ROS node name for the master.
    */
   String ROS_NODENAME_INTERACTIVESPACES_MASTER = "interactivespaces/master";

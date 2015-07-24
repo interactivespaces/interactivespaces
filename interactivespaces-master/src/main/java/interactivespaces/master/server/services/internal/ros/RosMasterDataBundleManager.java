@@ -47,15 +47,14 @@ public class RosMasterDataBundleManager extends StandardMasterDataBundleManager 
   @Override
   public void startup() {
     super.startup();
-    controllerDataRequestMessageSerializer = getMasterNode()
-        .getMessageSerializationFactory().newMessageSerializer(ControllerDataRequest._TYPE);
+    controllerDataRequestMessageSerializer =
+        getMasterNode().getMessageSerializationFactory().newMessageSerializer(ControllerDataRequest._TYPE);
   }
 
   /**
    * Return the master connection node for communication.
    *
-   * @return
-   *       master connection node.
+   * @return master connection node.
    */
   private ConnectedNode getMasterNode() {
     return masterRosContext.getMasterNode();
@@ -64,16 +63,14 @@ public class RosMasterDataBundleManager extends StandardMasterDataBundleManager 
   /**
    * Create an empty controller data request message.
    *
-   * @return
-   *       empty controller data request
+   * @return empty controller data request
    */
   private ControllerDataRequest newControllerDataRequest() {
     return getMasterNode().getTopicMessageFactory().newFromType(ControllerDataRequest._TYPE);
   }
 
   @Override
-  protected void sendControllerDataBundleCaptureRequest(ActiveSpaceController controller,
-      String destinationUri) {
+  protected void sendControllerDataBundleCaptureRequest(ActiveSpaceController controller, String destinationUri) {
     ControllerDataRequest request = newControllerDataRequest();
     request.setTransferType(ControllerDataRequest.TRANSFER_TYPE_CONTROLLER_DATA_PERMANENT);
     request.setTransferUri(destinationUri);
@@ -84,8 +81,7 @@ public class RosMasterDataBundleManager extends StandardMasterDataBundleManager 
   }
 
   @Override
-  protected void sendControllerDataBundleRestoreRequest(ActiveSpaceController controller,
-      String sourceUri) {
+  protected void sendControllerDataBundleRestoreRequest(ActiveSpaceController controller, String sourceUri) {
     ControllerDataRequest request = newControllerDataRequest();
     request.setTransferType(ControllerDataRequest.TRANSFER_TYPE_CONTROLLER_DATA_PERMANENT);
     request.setTransferUri(sourceUri);
@@ -105,7 +101,7 @@ public class RosMasterDataBundleManager extends StandardMasterDataBundleManager 
 
   /**
    * @param rosRemoteControllerClient
-   *           the remote controller client to set
+   *          the remote controller client to set
    */
   public void setRosRemoteSpaceControllerClient(RosRemoteSpaceControllerClient rosRemoteControllerClient) {
     this.rosRemoteSpaceControllerClient = rosRemoteControllerClient;

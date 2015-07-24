@@ -16,6 +16,9 @@
 
 package interactivespaces.master.server.services.internal.ros;
 
+import interactivespaces.configuration.Configuration;
+import interactivespaces.system.InteractiveSpacesEnvironment;
+
 import com.google.common.collect.Lists;
 
 import junit.framework.Assert;
@@ -30,6 +33,7 @@ import org.mockito.stubbing.Answer;
 import org.ros.node.ConnectedNode;
 import org.ros.node.NodeConfiguration;
 import org.ros.osgi.common.RosEnvironment;
+import org.ros.osgi.master.core.RosMasterControllerFactory;
 import org.ros.osgi.master.core.internal.BaseRosMasterController;
 
 /**
@@ -44,10 +48,19 @@ public class StandardMasterRosContextTest {
   private TestRosMasterController rosMasterController;
 
   @Mock
+  private RosMasterControllerFactory rosMasterControllerFactory;
+
+  @Mock
   private RosEnvironment rosEnvironment;
 
   @Mock
   private NodeConfiguration nodeConfiguration;
+
+  @Mock
+  private InteractiveSpacesEnvironment spaceEnvironment;
+
+  @Mock
+  private Configuration systemConfiguration;
 
   @Mock
   private ConnectedNode masterNode;
@@ -61,9 +74,14 @@ public class StandardMasterRosContextTest {
 
     rosMasterController = new TestRosMasterController();
 
-    context = new StandardMasterRosContext(rosMasterController);
+    Mockito.when(rosMasterControllerFactory.newInternalController()).thenReturn(rosMasterController);
+
+    Mockito.when(spaceEnvironment.getSystemConfiguration()).thenReturn(systemConfiguration);
+
+    context = new StandardMasterRosContext(rosMasterControllerFactory);
     context.setLog(log);
     context.setRosEnvironment(rosEnvironment);
+    context.setSpaceEnvironment(spaceEnvironment);
 
     Mockito.when(rosEnvironment.getPublicNodeConfigurationWithNodeName()).thenReturn(nodeConfiguration);
 
@@ -80,22 +98,38 @@ public class StandardMasterRosContextTest {
 
   /**
    * Test starting up the context.
+   *
+   * <p>
+   * This test has a local ROS master start up at the same time.
    */
   @Test
-  public void testStartup() {
+  public void testStartupLocalRosMaster() {
+    Mockito.when(
+        systemConfiguration.getPropertyString(MasterRosContext.CONFIGURATION_NAME_ROS_MASTER_ENABLE,
+            MasterRosContext.CONFIGURATION_DEFAULT_ROS_MASTER_ENABLE)).thenReturn(
+        MasterRosContext.CONFIGURATION_VALUE_MASTER_ENABLE_TRUE);
+
     context.startup();
 
-    Assert.assertEquals(rosEnvironment, rosMasterController.getRosEnvironment());
     Mockito.verify(nodeConfiguration).setNodeName(MasterRosContext.ROS_NODENAME_INTERACTIVESPACES_MASTER);
     Mockito.verify(rosEnvironment).newNode(nodeConfiguration, Lists.newArrayList(context.getMasterNodeListener()));
     Assert.assertEquals(masterNode, context.getMasterNode());
+    Assert.assertEquals(rosEnvironment, rosMasterController.getRosEnvironment());
   }
 
   /**
    * Test shutting down the context.
+   *
+   * <p>
+   * This test using a local ROS master.
    */
   @Test
-  public void testShutdown() {
+  public void testShutdownLocalRosMaster() {
+    Mockito.when(
+        systemConfiguration.getPropertyString(MasterRosContext.CONFIGURATION_NAME_ROS_MASTER_ENABLE,
+            MasterRosContext.CONFIGURATION_DEFAULT_ROS_MASTER_ENABLE)).thenReturn(
+        MasterRosContext.CONFIGURATION_VALUE_MASTER_ENABLE_TRUE);
+
     context.startup();
 
     context.shutdown();
@@ -104,6 +138,50 @@ public class StandardMasterRosContextTest {
     // Wrong pieces in place for the node to call its listeners, so call directly.
     context.getMasterNodeListener().onShutdownComplete(context.getMasterNode());
     Assert.assertTrue(rosMasterController.isShutdownCalled());
+  }
+
+  /**
+   * Test starting up the context.
+   *
+   * <p>
+   * This test has a remote ROS master.
+   */
+  @Test
+  public void testStartupRemoteRosMaster() {
+    Mockito.when(
+        systemConfiguration.getPropertyString(MasterRosContext.CONFIGURATION_NAME_ROS_MASTER_ENABLE,
+            MasterRosContext.CONFIGURATION_DEFAULT_ROS_MASTER_ENABLE)).thenReturn(
+        MasterRosContext.CONFIGURATION_VALUE_MASTER_ENABLE_FALSE);
+
+    context.startup();
+
+    Assert.assertNull(rosMasterController.getRosEnvironment());
+    Mockito.verify(nodeConfiguration).setNodeName(MasterRosContext.ROS_NODENAME_INTERACTIVESPACES_MASTER);
+    Mockito.verify(rosEnvironment).newNode(nodeConfiguration, Lists.newArrayList(context.getMasterNodeListener()));
+    Assert.assertEquals(masterNode, context.getMasterNode());
+  }
+
+  /**
+   * Test shutting down the context.
+   *
+   * <p>
+   * This test using a remote ROS master.
+   */
+  @Test
+  public void testShutdownRemoteRosMaster() {
+    Mockito.when(
+        systemConfiguration.getPropertyString(MasterRosContext.CONFIGURATION_NAME_ROS_MASTER_ENABLE,
+            MasterRosContext.CONFIGURATION_DEFAULT_ROS_MASTER_ENABLE)).thenReturn(
+        MasterRosContext.CONFIGURATION_VALUE_MASTER_ENABLE_FALSE);
+
+    context.startup();
+
+    context.shutdown();
+    Mockito.verify(masterNode).shutdown();
+
+    // Wrong pieces in place for the node to call its listeners, so call directly.
+    context.getMasterNodeListener().onShutdownComplete(context.getMasterNode());
+    Assert.assertFalse(rosMasterController.isShutdownCalled());
   }
 
   /**

@@ -128,6 +128,8 @@
   >
 
     <property name="rosEnvironment" ref="ros.environment" />
+    
+    <property name="spaceEnvironment" ref="interactivespaces.environment" />
 
     <property name="log" ref="interactivespaces.master.logger" />
   </bean>
