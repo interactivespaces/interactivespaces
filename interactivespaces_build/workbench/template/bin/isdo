@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # Copyright (C) 2015 Google Inc.
 #
@@ -24,7 +24,6 @@ import json
 import time
 import glob
 import errno
-import shutil
 import thread
 import threading
 import subprocess
@@ -33,6 +32,7 @@ import fnmatch
 import itertools
 import pprint
 import logging
+import requests
 
 try:
   import websocket
@@ -42,9 +42,10 @@ except:
   exit(1)
 
 logging.basicConfig(level=logging.DEBUG)
+logging.getLogger("urllib3").setLevel(logging.CRITICAL)
+logging.getLogger("requests").setLevel(logging.CRITICAL)
 
 ACTIVITY_UPDATE_DELAY = 3 # Seconds
-ACTIVITY_PICKUP_DELAY = 15 # Seconds
 
 INTERACTIVE_SPACES_NAMESPACES = {'is': 'http://interactive-spaces.org/project.xsd'}
 
@@ -337,12 +338,16 @@ def parse_command_line(arguments):
     else:
       config.folders.append(argument)
 
+  config.known_controllers = {}
+  config.known_activities = {}
+  config.known_live_activities = {}
   config.selected_live_activities = {}
   config.selected_activities = {}
   config.selected_controllers = {}
 
   config.project_folders = {}
   config.states = None
+  config.host_upload_url = "http://%s:%s/masterapi/activity/upload" % (config.host_name, config.host_port)
 
   return config
 
@@ -395,7 +400,7 @@ class Command(object):
   def validate_has_files(self, fatal=True):
     if not self.config.folders:
       print_error('No files provided for command {}'.format(self.__class__.__name__), fatal=fatal)
-        
+
   def validate_has_controller(self, fatal=True):
     if len(self.config.selected_controllers) != 1:
       print_error('Exactly one controller required for command {}, found {}'.format( \
@@ -474,31 +479,35 @@ class DeleteActivityCommand(Command):
 
 
 class UploadCommand(Command):
-  """Uploads activities. Note that remote hosts are not supported yet."""
+  """Uploads activities."""
 
   def validate(self, *args, **kwargs):
     self.validate_has_files()
-
-    if self.config.host_name != 'localhost':
-      print_fatal('Upload command currently requires that the host be "localhost"')
-
     self.config.activity_generated = True
 
   def requires_server(self):
     return False
 
   def execute(self, server_connection):
-    drop_folder = os.path.join(os.path.expandvars('$INTERACTIVESPACES_HOME'), 'master', 'master', 'activity', 'import')
-    if not os.path.isdir(drop_folder):
-      os.makedirs(drop_folder)
-
     for (folder, activity) in self.config.project_folders.iteritems():
       activity_zip = os.path.join(folder, 'build', activity + '*.zip')
       for file in glob.glob(activity_zip):
-        print_verbose('  Copying %s to %s' % (file, drop_folder))
-        shutil.copyfile(file, os.path.join(drop_folder, os.path.basename(file)))
+        print_verbose('  Uploading %s' % file)
+        with open(file, 'rb') as contents:
+          result = requests.post(self.config.host_upload_url, files={'file': contents})
+        if result.status_code >= 400:
+          print_fatal("Activity Upload Failed: %s\n%s" % (result.status_code, result.text))
+        else:
+          result_data = json.loads(result.text)
+          if result_data["result"] == "success":
+            activity_data = result_data["data"]
+            self.config.known_activities[activity_data["id"]] = activity_data
+            self.config.selected_activities[activity_data["id"]] = activity_data
+            print_debug('  Uploaded  %s - %s' % (file, activity_data["identifyingName"]))
+          else:
+            print_fatal("Activity Upload Failed: %s" % result_data["reason"])
 
-    time.sleep(ACTIVITY_PICKUP_DELAY)
+
 
 
 class CreateAndConfigCommand(Command):
@@ -542,7 +551,7 @@ class CreateAndConfigCommand(Command):
 
       # Configure the live activity.
       ConfigCommand.config(server_connection, live_activity_id, config['contents'])
-      
+
 
 class CreateCommand(Command):
   """Creates a new live activity for a given activity."""
