@@ -64,9 +64,9 @@ task copyExamples(type:Copy) {
   outputs.upToDateWhen { false }
   from rootProject.file('examples')
   into "${project.ext.containerBuildTarget}/examples"
-  include "**/interactivespaces.example.activity.*/**"
-  include "**/interactivespaces.example.library.*/**"
   exclude "**/bin/**"
+  exclude "**/classes/**"
+  exclude "**/staging/**"
   exclude "**/.project"
   exclude "**/.classpath"
 }
