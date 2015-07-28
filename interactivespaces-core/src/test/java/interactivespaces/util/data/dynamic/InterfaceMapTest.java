@@ -49,7 +49,10 @@ public class InterfaceMapTest {
     } catch (Exception e) {
       fail("cannot set bad list");
     }
-    q.getBooleanList();
+    List<Boolean> booleanList = q.getBooleanList();
+    for (Boolean aBoolean : booleanList) {
+      // Should throw ClassCastException due to incompatible types.
+    }
   }
 
   @Test
@@ -163,9 +166,10 @@ public class InterfaceMapTest {
     List<Object> list = asList(w1, "hello");
     map.put("listOfW", list);
 
-    q.getListOfW();
-
-    // Should have thrown since incompatible types in list.
+    List<JavaBeanProperties> listOfW = q.getListOfW();
+    for (JavaBeanProperties javaBeanProperties : listOfW) {
+      // Should have thrown since incompatible types in list.
+    }
   }
 
   @Test
