@@ -16,6 +16,7 @@
 
 package interactivespaces.master.server.services.internal.ros;
 
+import interactivespaces.system.core.configuration.CoreConfiguration;
 import interactivespaces.util.resource.ManagedResource;
 
 import org.ros.node.ConnectedNode;
@@ -37,16 +38,16 @@ public interface MasterRosContext extends ManagedResource {
    * Configuration property value for {@link #CONFIGURATION_NAME_ROS_MASTER_ENABLE} for having Interactive Spaces create
    * it's own ROS master.
    */
-  String CONFIGURATION_VALUE_MASTER_ENABLE_TRUE = "true";
+  String CONFIGURATION_VALUE_MASTER_ENABLE_TRUE = CoreConfiguration.CONFIGURATION_VALUE_TRUE;
 
   /**
    * Configuration property value for {@link #CONFIGURATION_NAME_ROS_MASTER_ENABLE} for having Interactive Spaces not
    * create it's own ROS master.
    */
-  String CONFIGURATION_VALUE_MASTER_ENABLE_FALSE = "false";
+  String CONFIGURATION_VALUE_MASTER_ENABLE_FALSE = CoreConfiguration.CONFIGURATION_VALUE_FALSE;
 
   /**
-   * Configuration property name for having Interactive Spaces create it's own ROS master.
+   * Configuration property default value for having Interactive Spaces create it's own ROS master.
    */
   String CONFIGURATION_DEFAULT_ROS_MASTER_ENABLE = CONFIGURATION_VALUE_MASTER_ENABLE_TRUE;
 

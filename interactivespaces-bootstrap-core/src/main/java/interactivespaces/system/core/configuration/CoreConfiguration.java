@@ -76,4 +76,14 @@ public interface CoreConfiguration {
    * The platform-specific file separator character.
    */
   String CONFIGURATION_PLATFORM_FILE_SEPARATOR = "platform.file.separator";
+
+  /**
+   * The value for any boolean configurations that should be true.
+   */
+  String CONFIGURATION_VALUE_TRUE = "true";
+
+  /**
+   * The value for any boolean configurations that should be false.
+   */
+  String CONFIGURATION_VALUE_FALSE = "false";
 }

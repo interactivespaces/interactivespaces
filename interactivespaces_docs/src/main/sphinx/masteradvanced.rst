@@ -462,6 +462,16 @@ is
   HostId: livingroomcontroller
 
 
+The Internal Interactive Spaces ROS Master
+==========================================
+
+Interactive Spaces uses ROS (the Robot Operating System) for its inter-activity communication. Interactive Spaces usually
+assumes that there is not an external ROS environment that it needs to plug itself into and so starts up its own ROS Master.
+
+If you want the Interactive Spaces Master to not start up its own ROS Master, you can use the configuration parameter
+``interactivespaces.master.ros.master.enable``. Assigning it a value of ``false`` will disable the internal ROS Master.
+Assigning it the value of ``true`` will enable the internal ROS Master. The default value for the configuration is
+``true``.
 
 
 
