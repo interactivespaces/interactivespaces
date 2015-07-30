@@ -477,6 +477,10 @@ class DeleteActivityCommand(Command):
   def validate(self, *args, **kwargs):
     self.validate_has_activities(fatal=self.config.strict)
 
+  def execute(self, server_connection):
+    for activity_id in self.config.selected_activities:
+      server_connection.send('/activity/delete/local', { 'id': str(activity_id) })
+
 
 class UploadCommand(Command):
   """Uploads activities."""
