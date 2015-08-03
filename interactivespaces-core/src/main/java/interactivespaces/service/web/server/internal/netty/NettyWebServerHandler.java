@@ -26,6 +26,7 @@ import static org.jboss.netty.handler.codec.http.HttpResponseStatus.FORBIDDEN;
 import static org.jboss.netty.handler.codec.http.HttpResponseStatus.FOUND;
 import static org.jboss.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
+import interactivespaces.InteractiveSpacesExceptionUtils;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.service.web.HttpConstants;
 import interactivespaces.service.web.server.HttpAuthProvider;
@@ -40,6 +41,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 
+import org.apache.commons.logging.Log;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
@@ -164,6 +166,11 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
    * The access manager for determining who gets access to a resource.
    */
   private WebResourceAccessManager accessManager;
+
+  /**
+   * The lock for protecting access to channel data.
+   */
+  private final Object channelLock = new Object();
 
   /**
    * Construct a new handler.
@@ -467,12 +474,7 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
       handshake.addListener(new ChannelFutureListener() {
         @Override
         public void operationComplete(ChannelFuture future) throws Exception {
-          NettyWebServerWebSocketConnection connection =
-              new NettyWebServerWebSocketConnection(channel, user, handshaker, webSocketHandlerFactory, accessManager,
-                  webServer.getLog());
-          webSocketConnections.put(channel.getId(), connection);
-
-          connection.getHandler().onConnect();
+          completeWebSocketHandshake(user, channel, handshaker);
         }
       });
     }
@@ -513,6 +515,33 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
    */
   private String getWebSocketLocation(String host) {
     return "ws://" + host + fullWebSocketUriPrefix;
+  }
+
+  /**
+   * Complete the handshake for a websocket connection.
+   *
+   * @param user
+   *          the user making the web socket connection
+   * @param channel
+   *          the Netty channel for the connection
+   * @param handshaker
+   *          the web socket handshaker
+   */
+  private void completeWebSocketHandshake(String user, Channel channel, WebSocketServerHandshaker handshaker) {
+    NettyWebServerWebSocketConnection connection =
+        new NettyWebServerWebSocketConnection(channel, user, handshaker, webSocketHandlerFactory, accessManager,
+            webServer.getLog());
+
+    synchronized (channelLock) {
+      webSocketConnections.put(channel.getId(), connection);
+    }
+
+    try {
+      connection.getHandler().onConnect();
+    } catch (Throwable e) {
+      getWebServer().getLog().error(
+          "Could not process a websocket onConnect message: " + InteractiveSpacesExceptionUtils.getExceptionDetail(e));
+    }
   }
 
   /**
@@ -692,14 +721,22 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
 
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
-    Throwable cause = e.getCause();
-    if (cause instanceof IOException && MESSAGE_WEB_SOCKET_CLOSED_EXCEPTION.equals(cause.getMessage())) {
-      // We don't log this exception
-    } else {
-      webServer.getLog().error("Exception caught in the web server", cause);
+    Channel channel = e.getChannel();
+    boolean isWebsocketChannel;
+    synchronized (channelLock) {
+      isWebsocketChannel = webSocketConnections.containsKey(channel.getId());
     }
 
-    e.getChannel().close();
+    Log log = webServer.getLog();
+    Throwable cause = e.getCause();
+    if (isWebsocketChannel) {
+      log.error("Exception caught in web server for web socket connections: " + cause.getMessage());
+    } else {
+      log.error("Exception caught in the web server", cause);
+    }
+
+    // Can call close many times without negative effect.
+    channel.close();
   }
 
   /**
@@ -713,7 +750,10 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
   private void handleWebSocketFrame(ChannelHandlerContext ctx, WebSocketFrame frame) {
     Channel channel = ctx.getChannel();
 
-    NettyWebServerWebSocketConnection handler = webSocketConnections.get(channel.getId());
+    NettyWebServerWebSocketConnection handler;
+    synchronized (channelLock) {
+      handler = webSocketConnections.get(channel.getId());
+    }
     if (handler != null) {
       handler.handleWebSocketFrame(ctx, frame);
     } else {
@@ -728,12 +768,18 @@ public class NettyWebServerHandler extends SimpleChannelUpstreamHandler {
    *          the channel which is closing
    */
   private void webSocketChannelClosing(Channel channel) {
-    NettyWebServerWebSocketConnection handler = webSocketConnections.get(channel.getId());
+    NettyWebServerWebSocketConnection handler;
+    synchronized (channelLock) {
+      handler = webSocketConnections.remove(channel.getId());
+    }
     if (handler != null) {
-      // Is a web socket handler. Remove it and tell the handler it is
-      // done.
-      webSocketConnections.remove(channel.getId());
-      handler.getHandler().onClose();
+      try {
+        handler.getHandler().onClose();
+      } catch (Throwable e) {
+        getWebServer().getLog().error(
+            String.format("Error while closing web socket connection: %s",
+                InteractiveSpacesExceptionUtils.getExceptionDetail(e)));
+      }
     }
   }
 
