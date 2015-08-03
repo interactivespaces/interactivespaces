@@ -25,6 +25,7 @@ import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.FileProjectDependencyProvider;
 import interactivespaces.workbench.project.ProjectDependency;
+import interactivespaces.workbench.project.ProjectDependency.ProjectDependencyLinking;
 import interactivespaces.workbench.project.ProjectTaskContext;
 import interactivespaces.workbench.project.activity.type.ProjectType;
 import interactivespaces.workbench.tasks.WorkbenchTaskContext;
@@ -128,14 +129,18 @@ public abstract class JavaProjectType implements ProjectType {
     classpath.addAll(dynamicProjectDependencies);
     classpathAdditions.addAll(dynamicProjectDependencies);
 
-    Set<File> userBootstrapAdditions =
-        addDependenciesFromUserBootstrap(needsDynamicArtifacts, projectTaskContext, workbenchTaskContext);
-    classpath.addAll(userBootstrapAdditions);
-    classpathAdditions.addAll(userBootstrapAdditions);
+    // The compiletime class path will be everything needed to compile the project. This includes resources that will be
+    // statically linked. The runtime class path will be bundles that will be available at runtime and won't be
+    // statically linked.
+    Set<File> compiletimeClasspathFromUserBootstrap = Sets.newHashSet();
+    Set<File> runtimeClasspathFromUserBootstrap = Sets.newHashSet();
+    addDependenciesFromUserBootstrap(compiletimeClasspathFromUserBootstrap, runtimeClasspathFromUserBootstrap,
+        needsDynamicArtifacts, projectTaskContext, workbenchTaskContext);
+    classpath.addAll(compiletimeClasspathFromUserBootstrap);
+    classpathAdditions.addAll(runtimeClasspathFromUserBootstrap);
 
     addClasspathConfiguration(classpathAdditions, CONFIGURATION_NAME_PROJECT_JAVA_CLASSPATH_ADDITIONS,
         projectTaskContext);
-
   }
 
   /**
@@ -177,20 +182,26 @@ public abstract class JavaProjectType implements ProjectType {
   }
 
   /**
-   * Add dependencies to the classpath if they are found in the user bootstrap folder of the controller.
+   * Get dependencies for the compile time and runtime classpaths if they are found in the user bootstrap folder of the
+   * controller.
    *
+   * <p>
+   * In essense, this method returns two values, the classpaths in the first 2 arguments.
+   *
+   * @param compiletimeClasspathFromUserBootstrap
+   *          the classpath items needed during compile time
+   * @param runtimeClasspathFromUserBootstrap
+   *          the classpath items that will be available at runtime
    * @param needsDynamicArtifacts
    *          {@code true} if needs artifacts from the dynamic projects
    * @param projectTaskContext
    *          the project build context
    * @param wokbenchTaskContext
    *          the workbench task context
-   *
-   * @return the files to add to the classpath
    */
-  private Set<File> addDependenciesFromUserBootstrap(boolean needsDynamicArtifacts,
+  private void addDependenciesFromUserBootstrap(Set<File> compiletimeClasspathFromUserBootstrap,
+      Set<File> runtimeClasspathFromUserBootstrap, boolean needsDynamicArtifacts,
       ProjectTaskContext projectTaskContext, WorkbenchTaskContext wokbenchTaskContext) {
-    Set<File> filesToAdd = Sets.newHashSet();
 
     NamedVersionedResourceCollection<NamedVersionedResourceWithData<URI>> startupResources =
         new OsgiResourceAnalyzer(wokbenchTaskContext.getWorkbench().getLog()).getResourceCollection(fileSupport
@@ -212,16 +223,17 @@ public abstract class JavaProjectType implements ProjectType {
 
         dependency.setProvider(new FileProjectDependencyProvider(dependencyFile));
 
-        filesToAdd.add(dependencyFile);
+        compiletimeClasspathFromUserBootstrap.add(dependencyFile);
+        if (ProjectDependencyLinking.RUNTIME == dependency.getLinking()) {
+          runtimeClasspathFromUserBootstrap.add(dependencyFile);
+        }
       } else {
         // TODO(keith): Collect all missing and put into a single exception.
-        throw new SimpleInteractiveSpacesException(String.format(
+        throw SimpleInteractiveSpacesException.newFormattedException(
             "Project has listed dependency that isn't available %s:%s", dependency.getIdentifyingName(),
-            dependency.getVersion()));
+            dependency.getVersion());
       }
     }
-
-    return filesToAdd;
   }
 
   /**
