@@ -32,13 +32,23 @@ import fnmatch
 import itertools
 import pprint
 import logging
-import requests
+
+needed_libraries = []
+
+try:
+  import requests
+except:
+  needed_libraries.append("requests")
+  print("Requests library not installed.")
 
 try:
   import websocket
 except:
-  print("WebSockets library not installed. Please install with `sudo pip install websocket-client`")
-  print("If pip is not installed, please install with `sudo easy_install pip`")
+  needed_libraries.append("websocket-client")
+  print("WebSockets library not installed.")
+
+if needed_libraries:
+  print("Please install with `sudo easy_install pip && sudo pip install %s`" % " ".join(needed_libraries))
   exit(1)
 
 logging.basicConfig(level=logging.DEBUG)
@@ -276,11 +286,12 @@ def parse_command_line(arguments):
       config.commands[ShutdownCommand] = ShutdownCommand()
 
     elif argument in ['--delete-live-activity']:
-      arguments.append('--shutdown')
+      config.commands[SilentShutdownCommand] = SilentShutdownCommand()
       config.commands[DeleteLiveActivityCommand] = DeleteLiveActivityCommand()
 
     elif argument in ['--delete-activity']:
-      arguments.append('--delete-live-activity')
+      config.commands[SilentShutdownCommand] = SilentShutdownCommand()
+      config.commands[SilentDeleteLiveActivityCommand] = SilentDeleteLiveActivityCommand()
       config.commands[DeleteActivityCommand] = DeleteActivityCommand()
 
     elif argument in ['--upload', '-u']:
@@ -295,7 +306,7 @@ def parse_command_line(arguments):
       config.commands[UpgradeCommand] = UpgradeCommand()
 
     elif argument in ['--deploy', '-d']:
-      arguments.append('--shutdown')
+      config.commands[SilentShutdownCommand] = SilentShutdownCommand()
       config.commands[DeployCommand] = DeployCommand()
 
     elif argument in ['--config']:
@@ -316,7 +327,7 @@ def parse_command_line(arguments):
       config.commands[GroupAddCommand] = GroupAddCommand()
 
     elif argument in ['--reactivate', '-r']:
-      arguments.append('--shutdown')
+      config.commands[SilentShutdownCommand] = SilentShutdownCommand()
       config.commands[ReactivateCommand] = ReactivateCommand()
       config.commands[ActivateCommand] = None
 
@@ -331,9 +342,11 @@ def parse_command_line(arguments):
       config.commands[CreateAndConfigCommand] = CreateAndConfigCommand()
 
     elif argument in ['--run', '-r']:
-      arguments.append('--auto-configure')
-      arguments.append('--deploy')
-      arguments.append('--activate')
+      config.commands[CreateAndConfigCommand] = CreateAndConfigCommand()
+      config.commands[SilentShutdownCommand] = SilentShutdownCommand()
+      config.commands[DeployCommand] = DeployCommand()
+      config.commands[ActivateCommand] = ActivateCommand()
+      config.commands[ReactivateCommand] = None
 
     else:
       config.folders.append(argument)
@@ -354,18 +367,28 @@ def parse_command_line(arguments):
 
 def execute_command_line(commands, debug=False, indent="", **kwargs):
   """Execute a command-line program."""
-  output = subprocess.Popen(commands,
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE,
-                            **kwargs).stdout
+  process = subprocess.Popen(commands,
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT,
+                             **kwargs)
+
+  output = process.stdout
   result = ""
   while True:
     line = output.readline()
-    if line:
-      result = result + line
-      print_debug("%s%s" % (indent, line.rstrip()))
-    else:
+
+    if not line:
       break
+
+    result = result + line
+    print_debug('%s%s' % (indent, line.rstrip()))
+
+  process.wait()
+
+  if process.returncode > 0:
+    if not debug:
+      print(result)
+    print_error('Process returned code %s' % process.returncode)
 
   return result
 
@@ -389,7 +412,7 @@ class Command(object):
 
     raise NotImplementedError("Command %s not implemented" % self.__class__.__name__)
 
-  def prep(self):
+  def prep(self, *args):
     """Prepares this task for execution"""
     pass
 
@@ -397,7 +420,7 @@ class Command(object):
     """Validates this step's configuration. Override this to add custom validation steps."""
     pass
 
-  def validate_has_files(self, fatal=True):
+  def validate_has_projects(self, fatal=True):
     if not self.config.folders:
       print_error('No files provided for command {}'.format(self.__class__.__name__), fatal=fatal)
 
@@ -436,7 +459,8 @@ class BuildCommand(Command):
   """Compiles one or more IS projects using isbuild."""
 
   def validate(self, *args, **kwargs):
-    self.validate_has_files()
+    self.validate_has_projects()
+    self.config.zip_generated = True
 
   def requires_server(self):
     return False
@@ -448,27 +472,35 @@ class BuildCommand(Command):
       execute_command_line([isbuild, folder], debug=self.config.debug, indent="  ")
 
 
-class ShutdownCommand(Command):
-  """Shuts down selected live activities."""
-
-  def validate(self, *args, **kwargs):
-    self.validate_has_live_activities(fatal=self.config.strict)
+class SilentShutdownCommand(Command):
+  """Shuts down selected live activities without checking to see if any are selected."""
 
   def execute(self, server_connection):
     for live_activity in self.config.selected_live_activities:
       server_connection.send('/liveactivity/shutdown', { 'id': self.config.known_live_activities[live_activity]['id'] })
 
 
-class DeleteLiveActivityCommand(Command):
-  """Deletes live activities."""
+class ShutdownCommand(SilentShutdownCommand):
+  """Shuts down selected live activities."""
 
   def validate(self, *args, **kwargs):
     self.validate_has_live_activities(fatal=self.config.strict)
+
+
+class SilentDeleteLiveActivityCommand(Command):
+  """Deletes live activities without checking to see if any are selected."""
 
   def execute(self, server_connection):
     for live_activity in self.config.selected_live_activities:
       server_connection.send('/liveactivity/delete/remote', { 'id': self.config.known_live_activities[live_activity]['id'] })
       server_connection.send('/liveactivity/delete/local', { 'id': self.config.known_live_activities[live_activity]['id'] })
+
+
+class DeleteLiveActivityCommand(SilentDeleteLiveActivityCommand):
+  """Deletes live activities."""
+
+  def validate(self, *args, **kwargs):
+    self.validate_has_live_activities(fatal=self.config.strict)
 
 
 class DeleteActivityCommand(Command):
@@ -486,7 +518,7 @@ class UploadCommand(Command):
   """Uploads activities."""
 
   def validate(self, *args, **kwargs):
-    self.validate_has_files()
+    self.validate_has_projects()
     self.config.activity_generated = True
 
   def requires_server(self):
@@ -518,9 +550,7 @@ class CreateAndConfigCommand(Command):
   """Creates and configures new live activities if necessary."""
 
   def validate(self, *args, **kwargs):
-    self.validate_has_files()
-
-    super(CreateAndConfigCommand, self).validate(*args)
+    self.validate_has_projects()
     self.config.live_activity_generated = True
 
     self.configs = {}
@@ -582,6 +612,7 @@ class CreateCommand(Command):
   @staticmethod
   def create(server_connection, config, name, activity_id, controller_id):
     result = server_connection.send('/liveactivity/create', { 'name': name,
+                                                              'description': '',
                                                               'activityId': str(activity_id),
                                                               'spaceControllerId': str(controller_id) })
 
@@ -633,7 +664,7 @@ class ConfigCommand(Command):
       else:
         print_fatal('Configuration file "%s" not found' % self.path)
 
-  def prep(self):
+  def prep(self, *args):
     if self.path == '-':
       self.contents = sys.stdin.read()
 
@@ -895,7 +926,9 @@ class Runner(object):
   """Main script runner."""
 
   command_order = [ BuildCommand,
+                    SilentShutdownCommand,
                     ShutdownCommand,
+                    SilentDeleteLiveActivityCommand,
                     DeleteLiveActivityCommand,
                     DeleteActivityCommand,
                     UploadCommand,
@@ -948,7 +981,7 @@ class Runner(object):
     for command_name in Runner.command_order:
       command = config.commands.get(command_name)
       if command:
-        command.prep()
+        command.prep(server_connection)
 
     for command_name in Runner.command_order:
       command = config.commands.get(command_name)
