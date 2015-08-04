@@ -67,4 +67,16 @@ public class ContainerResourceDeploymentItem extends ContainerResource {
   public String getResourceSourceUri() {
     return resourceSourceUri;
   }
+
+  /**
+   * Create this deployment item as a container resource of the specified type.
+   *
+   * @param type
+   *          the type the container resource should be
+   *
+   * @return the container resource representing this deployment item
+   */
+  public ContainerResource asContainerResource(ContainerResourceType type) {
+    return new ContainerResource(getName(), getVersion(), type, getLocation(), getSignature());
+  }
 }

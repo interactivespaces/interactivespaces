@@ -92,7 +92,7 @@ public class StandardLiveActivityBundleLoader implements LiveActivityBundleLoade
    * @return the number of bundles known to the loader
    */
   @VisibleForTesting
-  int getNumberEntries() {
+  int getNumberLoadedBundles() {
     return loadedBundles.size();
   }
 

@@ -40,11 +40,11 @@ import java.net.URI;
 import java.util.Set;
 
 /**
- * Basic implementation of a container resource de[ployment manager.
+ * Standard implementation of a container resource deployment manager.
  *
  * @author Keith M. Hughes
  */
-public class BasicContainerResourceDeploymentManager implements ContainerResourceDeploymentManager {
+public class StandardContainerResourceDeploymentManager implements ContainerResourceDeploymentManager {
 
   /**
    * The resource repository storage manager to use.

@@ -185,7 +185,7 @@
   </bean>
 
   <bean id="interactivespaces.resource.deployment.manager"
-    class="interactivespaces.master.server.services.internal.BasicContainerResourceDeploymentManager"
+    class="interactivespaces.master.server.services.internal.StandardContainerResourceDeploymentManager"
     destroy-method="shutdown" init-method="startup"
   >
 

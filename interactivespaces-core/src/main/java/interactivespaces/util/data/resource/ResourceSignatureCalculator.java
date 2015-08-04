@@ -53,7 +53,7 @@ public interface ResourceSignatureCalculator {
   String getResourceSignature(URI resourceUri);
 
   /**
-   * Provide a signature for the resource stream.
+   * Get the signature for the resource stream.
    *
    * @param inputStream
    *          stream which to digest

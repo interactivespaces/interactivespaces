@@ -64,12 +64,12 @@ public class StandardLiveActivityBundleLoaderTest {
 
     when(containerResourceManager.loadAndStartBundle(bundleFile, ContainerResourceType.ACTIVITY)).thenReturn(bundle);
 
-    assertEquals(0, loader.getNumberEntries());
+    assertEquals(0, loader.getNumberLoadedBundles());
 
     Bundle loadedBundle = loader.loadLiveActivityBundle(bundleFile);
 
     assertEquals(bundle, loadedBundle);
-    assertEquals(1, loader.getNumberEntries());
+    assertEquals(1, loader.getNumberLoadedBundles());
   }
 
   /**
@@ -85,16 +85,16 @@ public class StandardLiveActivityBundleLoaderTest {
 
     when(containerResourceManager.loadAndStartBundle(bundleFile, ContainerResourceType.ACTIVITY)).thenReturn(bundle);
 
-    assertEquals(0, loader.getNumberEntries());
+    assertEquals(0, loader.getNumberLoadedBundles());
 
     Bundle loadedBundle = loader.loadLiveActivityBundle(bundleFile);
 
     assertEquals(bundle, loadedBundle);
-    assertEquals(1, loader.getNumberEntries());
+    assertEquals(1, loader.getNumberLoadedBundles());
 
     loader.dismissLiveActivityBundle(bundle);
 
-    assertEquals(0, loader.getNumberEntries());
+    assertEquals(0, loader.getNumberLoadedBundles());
   }
 
   /**
@@ -109,12 +109,12 @@ public class StandardLiveActivityBundleLoaderTest {
     when(containerResourceManager.loadAndStartBundle(bundleFile, ContainerResourceType.ACTIVITY)).thenThrow(
         new InteractiveSpacesException("foo"));
 
-    assertEquals(0, loader.getNumberEntries());
+    assertEquals(0, loader.getNumberLoadedBundles());
 
     try {
       loader.loadLiveActivityBundle(bundleFile);
     } catch (Throwable e) {
-      assertEquals(0, loader.getNumberEntries());
+      assertEquals(0, loader.getNumberLoadedBundles());
     }
   }
 }

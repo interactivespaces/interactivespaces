@@ -56,7 +56,7 @@ public class InteractiveSpacesException extends RuntimeException {
   }
 
   /**
-   * Create a new formatted exception.
+   * Throw a new formatted exception.
    *
    * @param message
    *          the message

@@ -19,7 +19,7 @@ package interactivespaces.resource.io;
 import java.io.File;
 
 /**
- * A source for a resouce.
+ * A source for a resource.
  *
  * @author Keith M. Hughes
  */
@@ -35,6 +35,9 @@ public interface ResourceSource {
 
   /**
    * Get the location of the resource.
+   *
+   * <p>
+   * The location only has meaning dependent on the implementing class and is used primarily for logging.
    *
    * @return the location of the resource
    */

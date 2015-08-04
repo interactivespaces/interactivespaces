@@ -324,22 +324,24 @@ public class OsgiContainerResourceManager implements ContainerResourceManager, M
     log.debug(String.format("Resource %s already was loaded. Attempting update.", incomingResource));
 
     ContainerResource existingResource = getContainerResource(getBundleUri(installedBundle).toString());
-    String signatureNew = incomingResource.getSignature();
-    if (!existingResource.getSignature().equals(signatureNew)) {
-      Collection<Bundle> activitiesDependentOnBundle = getLoadedActivitiesDependentOnBundle(installedBundle);
-      if (activitiesDependentOnBundle.isEmpty()) {
-        resourceSource.copyTo(resourceDestinationFile);
 
-        log.debug(String.format("Resource %s update beginning.", incomingResource));
-        newBundleUpdater(installedBundle, existingResource, signatureNew).updateBundle();
-      } else {
-        throw SimpleInteractiveSpacesException.newFormattedException(
-            "Cannot update dependency %s, an activity depends on it and the activity is running",
-            installedBundle.getLocation());
-      }
-    } else {
+    String signatureNew = incomingResource.getSignature();
+    if (existingResource.getSignature().equals(signatureNew)) {
       log.debug(String.format("Resource %s was not updated, signatures identical.", incomingResource));
+      return;
     }
+
+    Collection<Bundle> activitiesDependentOnBundle = getLoadedActivitiesDependentOnBundle(installedBundle);
+    if (!activitiesDependentOnBundle.isEmpty()) {
+      throw SimpleInteractiveSpacesException.newFormattedException(
+          "Cannot update dependency %s, an activity depends on it and the activity is running",
+          installedBundle.getLocation());
+    }
+
+    resourceSource.copyTo(resourceDestinationFile);
+
+    log.debug(String.format("Resource %s update beginning.", incomingResource));
+    newBundleUpdater(installedBundle, existingResource, signatureNew).updateBundle();
   }
 
   /**
@@ -458,12 +460,12 @@ public class OsgiContainerResourceManager implements ContainerResourceManager, M
   }
 
   /**
-   * Locate the bundle for a resource, if any, live in the container.
+   * Locate the bundle for a resource if it exists in the OSGi container.
    *
    * @param resource
    *          the resource
    *
-   * @return the bundle for the resource, or {@code null} if no bundles are available
+   * @return the bundle for the resource, or {@code null} if no bundles are available that provide the resource
    */
   private Bundle locateBundleForResource(ContainerResource resource) {
     Version version = resource.getVersion();
@@ -491,7 +493,7 @@ public class OsgiContainerResourceManager implements ContainerResourceManager, M
     cachedResources = Maps.newHashMap();
 
     for (Bundle bundle : bundleContext.getBundles()) {
-      org.osgi.framework.Version version = bundle.getVersion();
+      org.osgi.framework.Version osgiVersion = bundle.getVersion();
       String bundleLocation = bundle.getLocation();
       ContainerResourceLocation resourceLocation = null;
       if (bundleLocation.contains(SYSTEM_BOOTSTRAP_COMPONENT)) {
@@ -504,8 +506,9 @@ public class OsgiContainerResourceManager implements ContainerResourceManager, M
       if (resourceLocation != null) {
         try {
           ContainerResource resource =
-              new ContainerResource(bundle.getSymbolicName(), new Version(version.getMajor(), version.getMinor(),
-                  version.getMicro(), version.getQualifier()), ContainerResourceType.LIBRARY, resourceLocation,
+              new ContainerResource(bundle.getSymbolicName(), new Version(osgiVersion.getMajor(),
+                  osgiVersion.getMinor(), osgiVersion.getMicro(), osgiVersion.getQualifier()),
+                  ContainerResourceType.LIBRARY, resourceLocation,
                   resourceSignatureCalculator.getResourceSignature(getBundleFile(bundle)));
           cachedResources.put(bundleLocation, resource);
         } catch (Throwable e) {
@@ -591,7 +594,7 @@ public class OsgiContainerResourceManager implements ContainerResourceManager, M
    * Get the bundle updater for a bundle.
    *
    * @param bundle
-   *        the bundle
+   *          the bundle
    *
    * @return the updater for the bundle, or {@code null} if none
    */

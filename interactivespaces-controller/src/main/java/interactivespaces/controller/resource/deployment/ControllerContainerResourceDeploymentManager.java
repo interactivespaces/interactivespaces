@@ -134,8 +134,7 @@ public class ControllerContainerResourceDeploymentManager implements ContainerRe
     String detail = null;
     for (ContainerResourceDeploymentItem item : request.getItems()) {
       try {
-        containerResourceManager.addResource(new ContainerResource(item.getName(), item.getVersion(),
-            ContainerResourceType.LIBRARY, item.getLocation(), item.getSignature()),
+        containerResourceManager.addResource(item.asContainerResource(ContainerResourceType.LIBRARY),
             new HttpCopierResourceSource(item.getResourceSourceUri(), contentCopier));
       } catch (Throwable e) {
         success = false;

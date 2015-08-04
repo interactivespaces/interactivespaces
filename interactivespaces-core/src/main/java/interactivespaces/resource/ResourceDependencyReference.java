@@ -62,7 +62,7 @@ public class ResourceDependencyReference implements ResourceDependency {
     int result = 1;
     result = prime * result + name.hashCode();
     result = prime * result + versionRange.hashCode();
-     return result;
+    return result;
   }
 
   @Override
