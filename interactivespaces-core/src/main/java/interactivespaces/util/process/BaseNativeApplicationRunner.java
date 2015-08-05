@@ -272,10 +272,10 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
     String executable = commandLine[0];
     int endIndex = executable.lastIndexOf(File.separatorChar);
     if (endIndex < 0) {
-      SimpleInteractiveSpacesException.throwFormattedException(
-          "Executable path %s has no embedded file separator characters", executable);
+      executableFolder = null;
+    } else {
+      executableFolder = fileSupport.newFile(executable.substring(0, endIndex));
     }
-    executableFolder = new File(executable.substring(0, endIndex));
   }
 
   @Override
@@ -325,9 +325,11 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
       }
       modifyEnvironment(processEnvironment, environment);
 
-      builder.directory(executableFolder);
-
-      log.info(String.format("Starting up native code in folder %s", executableFolder.getAbsolutePath()));
+      // If don't know the executable folder, the executable will be run in the process directory of the Java program.
+      if (executableFolder != null) {
+        builder.directory(executableFolder);
+        log.info(String.format("Starting up native code in folder %s", executableFolder.getAbsolutePath()));
+      }
 
       return builder.start();
     } catch (Exception e) {
@@ -336,7 +338,8 @@ public abstract class BaseNativeApplicationRunner implements NativeApplicationRu
         runnerState.set(NativeApplicationRunnerState.STARTUP_FAILED);
         handleApplicationStartupFailed();
 
-        throw InteractiveSpacesException.newFormattedException(e, "Can't start up native application " + executablePath);
+        throw InteractiveSpacesException.newFormattedException(e, "Can't start up native application "
+            + executablePath);
       }
 
       return null;

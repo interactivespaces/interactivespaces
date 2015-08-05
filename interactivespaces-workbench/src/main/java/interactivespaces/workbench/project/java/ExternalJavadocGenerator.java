@@ -18,17 +18,11 @@ package interactivespaces.workbench.project.java;
 
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
+import interactivespaces.util.process.NativeApplicationDescription;
 import interactivespaces.workbench.project.ProjectTaskContext;
+import interactivespaces.workbench.tasks.WorkbenchTaskContext;
 
-import com.google.common.collect.Lists;
-import com.google.common.io.Closeables;
-
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.List;
 
 /**
  * A Javadoc generator that uses an external Javadoc compiler.
@@ -36,6 +30,41 @@ import java.util.List;
  * @author Keith M. Hughes
  */
 public class ExternalJavadocGenerator implements JavadocGenerator {
+
+  /**
+   * The separator between subpackage paths for the Javadoc compiler.
+   */
+  public static final String SUBPACKAGE_SEPARATOR = ":";
+
+  /**
+   * The amount of time to wait for the javadoc compiler to finish, in milliseconds.
+   */
+  public static final int MAX_TIME_FOR_JAVADOC_RUN = 60000;
+
+  /**
+   * The command executable for running Javadoc.
+   */
+  public static final String COMMAND_EXECUTABLE_JAVADOC = "javadoc";
+
+  /**
+   * Javadoc command arg for just generating public Javadoc.
+   */
+  public static final String COMMAND_ARG_PUBLIC = "-public";
+
+  /**
+   * Javadoc command arg for specifying the subpackages to be covered by Javadoc.
+   */
+  public static final String COMMAND_ARG_SUBPACKAGES = "-subpackages";
+
+  /**
+   * Javadoc command arg for just specifying the source path for the javadoc sources.
+   */
+  public static final String COMMAND_ARG_SOURCE_PATH = "-sourcepath";
+
+  /**
+   * Javadoc command arg for specifying where the generated Javadoc files should go.
+   */
+  public static final String COMMAND_ARG_DOC_BUILD_FOLDER = "-d";
 
   /**
    * The file support to use.
@@ -50,39 +79,32 @@ public class ExternalJavadocGenerator implements JavadocGenerator {
 
     File classesFolder =
         fileSupport.newFile(context.getBuildDirectory(), ProjectJavaCompiler.BUILD_DIRECTORY_CLASSES_MAIN);
+    WorkbenchTaskContext workbenchTaskContext = context.getWorkbenchTaskContext();
     if (!classesFolder.exists() || !classesFolder.isDirectory()) {
-      context.getWorkbenchTaskContext().handleError(
-          String.format("Java class files folder %s does not exist", classesFolder.getAbsolutePath()));
+      workbenchTaskContext.handleError(String.format("Java class files folder %s does not exist",
+          classesFolder.getAbsolutePath()));
     }
 
-    File sourcesFolder = fileSupport.newFile(context.getProject().getBaseDirectory(), JavaProjectType.SOURCE_MAIN_JAVA);
+    File sourcesFolder =
+        fileSupport.newFile(context.getProject().getBaseDirectory(), JavaProjectType.SOURCE_MAIN_JAVA);
     if (!sourcesFolder.exists() || !sourcesFolder.isDirectory()) {
-      context.getWorkbenchTaskContext().handleError(
-          String.format("Java source files folder %s does not exist", classesFolder.getAbsolutePath()));
+      workbenchTaskContext.handleError(String.format("Java source files folder %s does not exist",
+          classesFolder.getAbsolutePath()));
     }
 
-    List<String> command = Lists.newArrayList();
-    command.add("javadoc");
-    command.add("-d");
-    command.add(docBuildFolder.getAbsolutePath());
-    command.add("-sourcepath");
-    command.add(sourcesFolder.getAbsolutePath());
+    NativeApplicationDescription description = new NativeApplicationDescription();
+    description.setExecutablePath(COMMAND_EXECUTABLE_JAVADOC);
+    description.addArguments(COMMAND_ARG_DOC_BUILD_FOLDER, docBuildFolder.getAbsolutePath(), COMMAND_ARG_SOURCE_PATH,
+        sourcesFolder.getAbsolutePath(), COMMAND_ARG_SUBPACKAGES, getRootSubpackages(classesFolder),
+        COMMAND_ARG_PUBLIC);
 
-    command.add("-subpackages");
-    command.add(getRootSubpackages(classesFolder));
+    workbenchTaskContext.getWorkbench().getLog().info(String.format("Javadoc command is %s", description));
 
-    command.add("-public");
+    workbenchTaskContext.getNativeApplicationRunners().runNativeApplicationRunner(description,
+        MAX_TIME_FOR_JAVADOC_RUN);
 
-    context.getWorkbenchTaskContext().getWorkbench().getLog().info(String.format("Javadoc command is %s", command));
-
-    try {
-      // TODO(keith): Move over to using IS process commands.
-      Process process = Runtime.getRuntime().exec(command.toArray(new String[0]));
-
-      waitForEnd(process, context);
-    } catch (IOException e) {
-      context.getWorkbenchTaskContext().handleError("Error while creating project", e);
-    }
+    context.getLog().info(
+        String.format("Completed Javadoc build, Javadoc found in %s", docBuildFolder.getAbsolutePath()));
   }
 
   /**
@@ -100,59 +122,12 @@ public class ExternalJavadocGenerator implements JavadocGenerator {
     if (packageDirs != null) {
       for (File f : packageDirs) {
         if (f.isDirectory()) {
-          builder.append(":").append(f.getName());
+          builder.append(SUBPACKAGE_SEPARATOR).append(f.getName());
         }
       }
     }
 
-    // Strip off the leading :
+    // Strip off the leading subpackage designator.
     return builder.substring(1);
-  }
-
-  /**
-   * Wait for the process to end and get any error codes.
-   *
-   * @param process
-   *          the Javadoc process
-   * @param context
-   *          the build context
-   */
-  private void waitForEnd(Process process, ProjectTaskContext context) {
-    try {
-      int exitValue = process.waitFor();
-      if (exitValue != 0) {
-        StringBuilder result = new StringBuilder();
-        getStreamContents(result, process.getErrorStream(), context);
-
-        context.getWorkbenchTaskContext().getWorkbench().getLog().error("Javadoc build process failed");
-        context.getWorkbenchTaskContext().getWorkbench().getLog().error(result.toString());
-      }
-    } catch (InterruptedException e) {
-      context.getWorkbenchTaskContext().handleError("Error while creating project", e);
-    }
-  }
-
-  /**
-   * Get the stream contents.
-   *
-   * @param result
-   *          where the contents will be written
-   * @param stream
-   *          the stream to read the contents from
-   * @param context
-   *          project build context
-   */
-  private void getStreamContents(StringBuilder result, InputStream stream, ProjectTaskContext context) {
-    BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-    String line = null;
-    try {
-      while ((line = reader.readLine()) != null) {
-        result.append(line);
-      }
-    } catch (Exception e) {
-      context.getWorkbenchTaskContext().handleError("Error while creating project", e);
-    } finally {
-      Closeables.closeQuietly(reader);
-    }
   }
 }
