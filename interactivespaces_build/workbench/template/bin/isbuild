@@ -14,7 +14,6 @@ if [ "$PROOT" == "" ]; then
   PROOT=.
 fi
 
-
 CURDIR="$( pwd )"
 
 SOURCE="${BASH_SOURCE[0]}"
@@ -30,6 +29,8 @@ export INTERACTIVESPACES_HOME=${INTERACTIVESPACES_HOME:-$EXEDIR/../..}
 WBDIR=$INTERACTIVESPACES_HOME/workbench
 cd "$PROOT"
 ROOTDIR=$PWD
+
+trap "echo Done with build in ${ROOTDIR}" EXIT
 
 if [ $CMD == debug ]; then
   # Requires proper setup in ~/.interactivespaces.rc
@@ -69,8 +70,14 @@ if [ ! "$SUPPRESS_WORKBENCH" ]; then
   PROJNAME=$(isproject extract $PROJFILE '/is:project/is:name/text()')
   echo Building interactive spaces project $PROJNAME
   WBEXE="${EXEDIR}/isworkbench"
-  # Re-run workbench to do the build.
-  (cd $WBDIR; $WBEXE "$INTERACTIVESPACES_ARGS" "$ROOTDIR" build) | "${ISLOG}"
+  # Run workbench to do the build.
+  SUCCESS_MARK="$(mktemp)"
+  (cd "${WBDIR}" && "${WBEXE}" "$INTERACTIVESPACES_ARGS" "$ROOTDIR" build) || rm "${SUCCESS_MARK}" | "${ISLOG}"
+  if [[ ! -f "${SUCCESS_MARK}" ]]; then
+    echo Failed workbench initial build, exiting.
+    false
+  fi
+  rm "${SUCCESS_MARK}"
 fi
 
 # If it exists, source any post-run files. Also process embedded scripts, unless suppressed.
@@ -90,8 +97,13 @@ fi
 if [[ "$WBEXE" && "$INTERACTIVESPACES_BUILD_DEPLOY_TARGET" ]]; then
   echo Exporting build artifacts...
   DEPLOYARGS=-Dexport.activity.dir=$INTERACTIVESPACES_EXPORT_ACTIVITY_DIR/
-  (cd $WBDIR; $WBEXE "$INTERACTIVESPACES_ARGS" $ROOTDIR $DEPLOYARGS deploy $INTERACTIVESPACES_BUILD_DEPLOY_TARGET) | "${ISLOG}"
-  rm -f $INTERACTIVESPACES_EXPORT_ACTIVITY_DIR/resource.map
+  SUCCESS_MARK="$(mktemp)"
+  (cd "${WBDIR}" && $WBEXE "$INTERACTIVESPACES_ARGS" $ROOTDIR $DEPLOYARGS deploy $INTERACTIVESPACES_BUILD_DEPLOY_TARGET) || rm "${SUCCESS_MARK}" | "${ISLOG}"
+  if [[ ! -f "${SUCCESS_MARK}" ]]; then
+    echo Failed workbench export build, exiting.
+    false
+  fi
+  rm -f "${INTERACTIVESPACES_EXPORT_ACTIVITY_DIR}/resource.map" "${SUCCESS_MARK}"
 fi
 
 RMAPFILE=$BUILDDIR/resource.map
