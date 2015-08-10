@@ -142,6 +142,10 @@ Command Flags:
                                     loaded from the file, or a dash indicates that data
                                     should be read from stdin. Requires live activities.
 
+    --metadata <FILE | ->           Adds metadata to the live activity. Metadata is loaded from
+                                    the file, or a dash indicates that data should be read from
+                                    stdin. Requires live activities.
+
     --group-remove                  Removes live activities from a live activity group. Requires
                                     live activities and the --group flag.
 
@@ -162,6 +166,10 @@ Command Flags:
 
     --list | -l                     Lists structured data about activities, live activities and
                                     files.
+
+    --script                        Uses the information about selected live activities to create
+                                    a script that can be used to regenerate the live activities
+                                    and their configuration.
 
     --run                           Shorthand to run activities. Implies --auto-configure,
                                     --deploy, and --activate. Requires files.
@@ -217,7 +225,7 @@ def parse_command_line(arguments):
   config.groups = []
   config.folders = []
   config.controllers = []
-  config.version = None
+  config.versions = []
   config.all = False
   config.commands = {}
   config.live_activity_generated = False
@@ -264,7 +272,7 @@ def parse_command_line(arguments):
     elif argument in ['--version', '-V']:
       if not arguments:
         print_fatal('Activity version not provided')
-      config.version = arguments.pop(0)
+      config.versions.append(arguments.pop(0))
 
     elif argument in ['--group', '-G']:
       if not arguments:
@@ -314,6 +322,11 @@ def parse_command_line(arguments):
         print_fatal('Config path not provided')
       config.commands[ConfigCommand] = ConfigCommand(arguments.pop(0))
 
+    elif argument in ['--metadata']:
+      if not arguments:
+        print_fatal('Metadata path not provided')
+      config.commands[MetadataCommand] = MetadataCommand(arguments.pop(0))
+
     elif argument in ['--group-remove', '-gr']:
       config.commands[GroupRemoveCommand] = GroupRemoveCommand()
 
@@ -337,6 +350,9 @@ def parse_command_line(arguments):
 
     elif argument in ['--list', '-l']:
       config.commands[ListCommand] = ListCommand()
+
+    elif argument in ['--script']:
+      config.commands[ScriptCommand] = ScriptCommand()
 
     elif argument in ['--auto-configure', '--auto-config']:
       config.commands[CreateAndConfigCommand] = CreateAndConfigCommand()
@@ -565,7 +581,7 @@ class CreateAndConfigCommand(Command):
             self.configs[name] = {
               'name': name,
               'activity': activity_name,
-              'contents': ConfigCommand.parse_config(config_file_stream.read()) }
+              'contents': BaseFileCommand.parse_map_file(config_file_stream.read()) }
 
       if not has_config:
         self.configs[activity_name] = {
@@ -619,6 +635,7 @@ class CreateCommand(Command):
     try:
       config.known_live_activities[result['data']['uuid']] = result['data']
       config.selected_live_activities[result['data']['uuid']] = result['data']
+      print_output(result['data']['uuid'])
     except Exception as e:
       print_fatal("Server returned unexpected data:\n{}".format(result))
 
@@ -644,9 +661,8 @@ class DeployCommand(Command):
       server_connection.send('/liveactivity/configure', { 'id': self.config.known_live_activities[live_activity]['id'] })
 
 
-
-class ConfigCommand(Command):
-  """Writes an updated configuration for an activity."""
+class BaseFileCommand(Command):
+  """Handles common functionality for commands that use files as input."""
 
   def __init__(self, path):
     self.path = path
@@ -655,27 +671,23 @@ class ConfigCommand(Command):
     self.validate_has_live_activity()
 
     if self.path != '-':
-      if os.path.exists(self.path):
-        try:
-          with open (self.path, "r") as config_file:
-            self.contents = config_file.read()
-        except Exception as e:
-          print_fatal('Reading from configuration file "%s" failed - %s' % (self.path, e))
-      else:
-        print_fatal('Configuration file "%s" not found' % self.path)
+      if not os.path.exists(self.path):
+        print_fatal('File "%s" not found' % self.path)
+
+      try:
+        with open (self.path, "r") as config_file:
+          self.contents = config_file.read()
+      except Exception as e:
+        print_fatal('Reading from file "%s" failed - %s' % (self.path, e))
 
   def prep(self, *args):
     if self.path == '-':
       self.contents = sys.stdin.read()
 
-    self.map = ConfigCommand.parse_config(self.contents)
-
-  def execute(self, server_connection):
-    for live_activity in self.config.selected_live_activities:
-      ConfigCommand.config(server_connection, self.config.known_live_activities[live_activity]['id'], self.map)
+    self.map = BaseFileCommand.parse_map_file(self.contents)
 
   @staticmethod
-  def parse_config(contents):
+  def parse_map_file(contents):
     # TODO: Support comments (lines start with # or !)
 
     result = {}
@@ -683,10 +695,32 @@ class ConfigCommand(Command):
       result[match[0]] = match[1]
     return result
 
+
+class ConfigCommand(BaseFileCommand):
+  """Writes an updated configuration for an activity."""
+
+  def __init__(self, path):
+    super(ConfigCommand, self).__init__(path)
+
+  def execute(self, server_connection):
+    for live_activity in self.config.selected_live_activities:
+      ConfigCommand.config(server_connection, self.config.known_live_activities[live_activity]['id'], self.map)
+
   @staticmethod
   def config(server_connection, live_activity_id, map):
     server_connection.send('/liveactivity/configuration/set', { 'id': str(live_activity_id), 'config': map })
     server_connection.send('/liveactivity/configure', { 'id': str(live_activity_id) })
+
+
+class MetadataCommand(BaseFileCommand):
+  """Writes all metadata for an activity."""
+
+  def __init__(self, path):
+    super(MetadataCommand, self).__init__(path)
+
+  def execute(self, server_connection):
+    for live_activity in self.config.selected_live_activities.itervalues():
+      server_connection.send('/liveactivity/metadata/set', { 'id': str(live_activity['id']), 'metadata': self.map })
 
 
 class GroupRemoveCommand(Command):
@@ -752,6 +786,46 @@ class ReactivateCommand(Command):
         server_connection.send('/liveactivity/activate', { 'id': live_activity_id })
 
 
+class ScriptCommand(Command):
+  """Writes out a script to recreate activities on a server."""
+
+  def execute(self, server_connection):
+    print_output('#!/usr/bin/env bash')
+
+    print_output('')
+    print_output('set -e')
+
+    for live_activity in self.config.selected_live_activities.itervalues():
+      config = server_connection.send('/liveactivity/configuration/get', { 'id': live_activity['id'] })
+
+      print_output('')
+      print_output('echo "Creating {} - {} ({})"'.format(live_activity['name'],
+                                                         live_activity['activity']['identifyingName'],
+                                                         live_activity['activity']['version']))
+      print_output('ID_{}=$(isdo --activity "{}" --version "{}" --controller "{}" --create "{}" "$@")' \
+          .format(live_activity['id'],
+                  live_activity['activity']['identifyingName'],
+                  live_activity['activity']['version'],
+                  live_activity['controller']['name'],
+                  live_activity['name']))
+
+      if config['data']:
+        print_output('isdo --live-activity $ID_{} --config - "$@" <<EOF'.format(live_activity['id']))
+        for (key, value) in config['data'].iteritems():
+          print_output('{} = {}'.format(key, value))
+        print_output('EOF')
+
+      if live_activity['metadata']:
+        print_output('isdo --live-activity $ID_{} --metadata - "$@" <<EOF'.format(live_activity['id']))
+        for (key, value) in live_activity['metadata'].iteritems():
+          print_output('{} = {}'.format(key, value))
+        print_output('EOF')
+
+    print_output('')
+    print_output('echo "Complete"')
+
+
+
 class ListCommand(Command):
   """Writes out deployment and state information about activities and live activities."""
 
@@ -771,7 +845,7 @@ class ListCommand(Command):
 
     if remaining_live_activities:
       print_output("[Unknown Activity]")
-      for live_activity in self.config.live_activities.itervalues():
+      for live_activity in self.config.known_live_activities.itervalues():
         if live_activity['uuid'] in remaining_live_activities:
           self.write_live_activity(live_activity, remaining_live_activities, indent=2)
 
@@ -788,7 +862,7 @@ class ListCommand(Command):
 
   def write_activity(self, activity, remaining_activities, remaining_live_activities):
     remaining_activities.discard(activity['id'])
-    print_output('  [%s] %s' % (activity['id'], activity['name']))
+    print_output('  [%s] %s (%s)' % (activity['id'], activity['name'], activity['version']))
     for live_activity in self.config.known_live_activities.itervalues():
       if live_activity['activity']['id'] == activity['id']:
         self.write_live_activity(live_activity, remaining_live_activities)
@@ -937,13 +1011,15 @@ class Runner(object):
                     UpgradeCommand,
                     DeployCommand,
                     ConfigCommand,
+                    MetadataCommand,
                     GroupRemoveCommand,
                     GroupDeleteCommand,
                     GroupCreateCommand,
                     GroupAddCommand,
                     ActivateCommand,
                     ReactivateCommand,
-                    ListCommand ]
+                    ListCommand,
+                    ScriptCommand ]
 
 
   def run(self, config):
@@ -996,7 +1072,7 @@ class Runner(object):
     config.known_live_activities = {a['uuid']: a for a in server_connection.send('/liveactivity/all')['data']}
 
     print_debug_list('Known Controllers', config.known_controllers, '{} - {}', 'uuid', 'name')
-    print_debug_list('Known Activities', config.known_activities, '{} - {}', 'id', 'identifyingName')
+    print_debug_list('Known Activities', config.known_activities, '{} - {} ({})', 'id', 'identifyingName', 'version')
     print_debug_list('Known Live Activities', config.known_live_activities, '{} - {}', 'uuid', 'name')
 
 
@@ -1018,8 +1094,11 @@ class Runner(object):
     config.selected_activities.update({a['id']: a for a in config.known_activities.itervalues() if \
         a['id'] in config.activities or \
         a['identifyingName'] in config.activities or \
+        a['name'] in config.activities or \
         config.all})
-    print_debug_list('Explicitly Selected Activities', config.selected_activities, '{} - {}', 'id', 'identifyingName')
+    if config.versions and not config.all:
+      config.selected_activities = dict(filter(lambda (id, activity): activity['version'] in config.versions, config.selected_activities.items()))
+    print_debug_list('Explicitly Selected Activities', config.selected_activities, '{} - {} ({})', 'id', 'identifyingName', 'version')
 
     # Explicit Live Activities
     config.selected_live_activities.update({a['uuid']: a for a in config.known_live_activities.itervalues() if \
@@ -1034,7 +1113,7 @@ class Runner(object):
       config.selected_activities.update({a['id']: a for a in config.known_activities.itervalues() if \
           a['identifyingName'] in config.project_folders.itervalues()})
 
-      print_debug_list('Implicitly Selected Activities (from project files)', config.selected_activities, '{} - {}', 'id', 'identifyingName')
+      print_debug_list('Implicitly Selected Activities (from project files)', config.selected_activities, '{} - {} ({})', 'id', 'identifyingName', 'version')
 
     # Implicit Live Activities
     if not config.selected_live_activities:
@@ -1053,7 +1132,7 @@ class Runner(object):
         activity = config.known_activities[config.known_live_activities[live_activity]['activity']['id']]
         config.selected_activities[activity['id']] = activity
 
-      print_debug_list('Implicitly Selected Activities (from live activities)', config.selected_activities, '{} - {}', 'id', 'identifyingName')
+      print_debug_list('Implicitly Selected Activities (from live activities)', config.selected_activities, '{} - {} ({})', 'id', 'identifyingName', 'version')
 
     # Implicit Controllers <-- Activities
     if not config.selected_controllers:
