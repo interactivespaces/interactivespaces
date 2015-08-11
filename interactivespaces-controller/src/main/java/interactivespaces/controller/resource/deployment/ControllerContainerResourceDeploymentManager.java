@@ -45,6 +45,11 @@ import java.util.List;
 public class ControllerContainerResourceDeploymentManager implements ContainerResourceDeploymentManager {
 
   /**
+   * A directory relative to the controller's tmp data directory for deployments.
+   */
+  public static final String TEMPORARY_SUBDIRECTORY_DEPLOYMENT = "interactivespaces/deployment";
+
+  /**
    * The container's resource manager.
    */
   private final ContainerResourceManager containerResourceManager;
@@ -83,7 +88,7 @@ public class ControllerContainerResourceDeploymentManager implements ContainerRe
     contentCopier = new HttpClientHttpContentCopier();
     contentCopier.startup();
 
-    deploymentTempDirectory = spaceEnvironment.getFilesystem().getTempDirectory("interactivespaces/deployment");
+    deploymentTempDirectory = spaceEnvironment.getFilesystem().getTempDirectory(TEMPORARY_SUBDIRECTORY_DEPLOYMENT);
   }
 
   @Override
