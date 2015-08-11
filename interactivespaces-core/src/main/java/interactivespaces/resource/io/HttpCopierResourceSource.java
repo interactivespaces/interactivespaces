@@ -40,6 +40,11 @@ public class HttpCopierResourceSource implements ResourceSource {
   private HttpContentCopier contentCopier;
 
   /**
+   * The temporary directory to use for file copies.
+   */
+  private File tempDirectory;
+
+  /**
    * The file support to use.
    */
   private FileSupport fileSupport = FileSupportImpl.INSTANCE;
@@ -51,17 +56,20 @@ public class HttpCopierResourceSource implements ResourceSource {
    *          URI for the source
    * @param contentCopier
    *          the content copier to use
+   * @param tempDirectory
+   *          the temporary directory to use for copies
    */
-  public HttpCopierResourceSource(String sourceUri, HttpContentCopier contentCopier) {
+  public HttpCopierResourceSource(String sourceUri, HttpContentCopier contentCopier, File tempDirectory) {
     this.sourceUri = sourceUri;
     this.contentCopier = contentCopier;
+    this.tempDirectory = tempDirectory;
   }
 
   @Override
   public void copyTo(File destination) {
     File intermediate = null;
     try {
-      intermediate = fileSupport.createTempFile("interactivespaces-", ".resource");
+      intermediate = fileSupport.createTempFile(tempDirectory, "interactivespaces-", ".resource");
       contentCopier.copy(sourceUri, intermediate);
 
       fileSupport.copyFile(intermediate, destination);

@@ -34,6 +34,7 @@ import interactivespaces.system.resources.ContainerResourceType;
 import interactivespaces.util.web.HttpClientHttpContentCopier;
 import interactivespaces.util.web.HttpContentCopier;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -59,6 +60,11 @@ public class ControllerContainerResourceDeploymentManager implements ContainerRe
   private final InteractiveSpacesEnvironment spaceEnvironment;
 
   /**
+   * The temporary directory for resource deployments.
+   */
+  private File deploymentTempDirectory;
+
+  /**
    * Construct a deployment manager.
    *
    * @param containerResourceManager
@@ -76,6 +82,8 @@ public class ControllerContainerResourceDeploymentManager implements ContainerRe
   public void startup() {
     contentCopier = new HttpClientHttpContentCopier();
     contentCopier.startup();
+
+    deploymentTempDirectory = spaceEnvironment.getFilesystem().getTempDirectory("interactivespaces/deployment");
   }
 
   @Override
@@ -135,7 +143,7 @@ public class ControllerContainerResourceDeploymentManager implements ContainerRe
     for (ContainerResourceDeploymentItem item : request.getItems()) {
       try {
         containerResourceManager.addResource(item.asContainerResource(ContainerResourceType.LIBRARY),
-            new HttpCopierResourceSource(item.getResourceSourceUri(), contentCopier));
+            new HttpCopierResourceSource(item.getResourceSourceUri(), contentCopier, deploymentTempDirectory));
       } catch (Throwable e) {
         success = false;
         detail = InteractiveSpacesExceptionUtils.getExceptionDetail(e);
