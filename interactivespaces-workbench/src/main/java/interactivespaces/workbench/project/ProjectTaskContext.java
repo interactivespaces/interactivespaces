@@ -17,6 +17,8 @@
 package interactivespaces.workbench.project;
 
 import interactivespaces.configuration.Configuration;
+import interactivespaces.util.io.CanonicalFileCollector;
+import interactivespaces.util.io.FileCollector;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.project.activity.type.ProjectType;
@@ -121,7 +123,7 @@ public class ProjectTaskContext implements ProjectContext {
   /**
    * Collection of dest to src file mappings, constructed during the build process.
    */
-  private final Map<File, File> sourceMap = Maps.newHashMap();
+  private final CanonicalFileCollector sourceMap = new CanonicalFileCollector();
 
   /**
    * The file support to use.
@@ -184,7 +186,7 @@ public class ProjectTaskContext implements ProjectContext {
   }
 
   @Override
-  public Map<File, File> getResourceSourceMap() {
+  public FileCollector getResourceFileCollector() {
     return sourceMap;
   }
 

@@ -33,17 +33,21 @@ import interactivespaces.time.TimeProvider;
 import interactivespaces.util.data.json.JsonMapper;
 import interactivespaces.util.data.json.StandardJsonMapper;
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
-import interactivespaces_msgs.GenericMessage;
 import org.apache.commons.logging.Log;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+
+import interactivespaces_msgs.GenericMessage;
 
 /**
  * A standalone message router that uses multicast.
@@ -135,7 +139,7 @@ public class StandaloneMessageRouter extends BaseRosMessageRouterActivityCompone
   /**
    * All topic inputs.
    */
-  private final Map<String, String> inputRoutesToChannels = Maps.newConcurrentMap();
+  private final Multimap<String, String> inputRoutesToChannels = ArrayListMultimap.create();
 
   /**
    * All topic outputs.
@@ -409,9 +413,11 @@ public class StandaloneMessageRouter extends BaseRosMessageRouterActivityCompone
       String channel = (String) messageObject.get("channel");
       writeOutputMessage(channel, genericMessage);
     } else {
-      String channel = inputRoutesToChannels.get(route);
-      if (channel != null) {
-        listener.onNewRoutableInputMessage(channel, genericMessage);
+      Collection<String> channels = inputRoutesToChannels.get(route);
+      if (channels != null) {
+        for (String channel : channels) {
+          listener.onNewRoutableInputMessage(channel, genericMessage);
+        }
       }
     }
   }
@@ -533,10 +539,10 @@ public class StandaloneMessageRouter extends BaseRosMessageRouterActivityCompone
 
   @Override
   public synchronized void registerInputChannelTopic(String inputChannelId, Set<String> topicNames) {
+    if (inputRoutesToChannels.values().contains(inputChannelId)) {
+      SimpleInteractiveSpacesException.throwFormattedException("Duplicate route entry for channel %s", inputChannelId);
+    }
     for (String topicName : topicNames) {
-      if (inputRoutesToChannels.containsKey(topicNames)) {
-        throw new SimpleInteractiveSpacesException("Input route already registered: " + inputChannelId);
-      }
       getComponentContext().getActivity().getLog()
           .warn(String.format("Registering input %s <-- %s", inputChannelId, topicNames));
       inputRoutesToChannels.put(topicName, inputChannelId);

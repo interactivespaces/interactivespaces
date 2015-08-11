@@ -94,7 +94,7 @@ public class AssemblyComponentProjectConstituent extends BaseContentProjectConst
     context.getLog().info(String.format("Extracting assembly '%s' into '%s'...",
         sourceZipFile.getAbsoluteFile(), outputDirectory.getAbsoluteFile()));
     fileSupport.directoryExists(outputDirectory);
-    fileSupport.unzip(sourceZipFile, outputDirectory, context.getResourceSourceMap());
+    fileSupport.unzip(sourceZipFile, outputDirectory, context.getResourceFileCollector());
   }
 
   @Override

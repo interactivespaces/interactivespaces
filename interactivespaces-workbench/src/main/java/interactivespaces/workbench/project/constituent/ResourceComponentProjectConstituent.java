@@ -157,13 +157,13 @@ public class ResourceComponentProjectConstituent extends BaseProjectConstituent 
 
       if (getSourceDirectory() != null) {
         File srcDir = context.getProjectTargetFile(baseDirectory, getSourceDirectory());
-        fileSupport.copyDirectory(srcDir, destDir, true, context.getResourceSourceMap());
+        fileSupport.copyDirectory(srcDir, destDir, true, context.getResourceFileCollector());
       } else {
         // There is a file to be copied.
         File srcFile = context.getProjectTargetFile(baseDirectory, getSourceFile());
         File destination = fileSupport.newFile(destDir, srcFile.getName());
         fileSupport.copyFile(srcFile, destination);
-        context.getResourceSourceMap().put(destination, srcFile);
+        context.getResourceFileCollector().put(destination, srcFile);
       }
     } else {
       // Have a dest file
@@ -172,7 +172,7 @@ public class ResourceComponentProjectConstituent extends BaseProjectConstituent 
       File srcFile = context.getProjectTargetFile(baseDirectory, getSourceFile());
       fileSupport.directoryExists(destFile.getParentFile());
       fileSupport.copyFile(srcFile, destFile);
-      context.getResourceSourceMap().put(destFile, srcFile);
+      context.getResourceFileCollector().put(destFile, srcFile);
     }
   }
 

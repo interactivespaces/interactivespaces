@@ -97,7 +97,7 @@ public class BundleContentProjectConstituent extends BaseContentProjectConstitue
         inputStream.close();
       }
 
-      context.getResourceSourceMap().put(outputFile, BUNDLE_SOURCE_MARKER_FILE);
+      context.getResourceFileCollector().put(outputFile, BUNDLE_SOURCE_MARKER_FILE);
     } catch (Exception e) {
       throw new SimpleInteractiveSpacesException("While processing bundle resource " + outputPath, e);
     } finally {

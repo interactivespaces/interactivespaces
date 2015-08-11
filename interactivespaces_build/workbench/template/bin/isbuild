@@ -115,13 +115,15 @@ if [ -f $RMAPFILE -a ! "$SUPPRESS_RESOURCE_MAP" ]; then
     DST=$STAGEDIR/$DPART
     SRC=${smap#*,}
     if [ "${DPART:0:1}" == "/" ]; then
-      # Absolute paths are not reachable, so mark as such
+      # Absolute paths are not reachable, so don't let them be edited.
       chmod a-w "$DPART"
     elif diff -q "$SRC" "$DST" > /dev/null; then
       # In this case, the source map is valid, so link to it.
       ln -sf "$SRC" "$DST"
     else
-      # Not valid for some reason, so mark as read-only. Ignore errors because some paths are wonky.
+      # Not absolute, but different than the local file, so don't let it be edited.
+      # Can happen, for example, when a resource comes from a zip file expansion.
+      # Ignore errors because some paths are wonky and cause failure on some platforms.
       chmod a-w "$DST" || true
     fi
   done

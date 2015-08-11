@@ -16,13 +16,13 @@
 
 package interactivespaces.workbench.project;
 
+import interactivespaces.util.io.FileCollector;
 import interactivespaces.workbench.project.activity.type.ProjectType;
 import interactivespaces.workbench.tasks.WorkbenchTaskContext;
 
 import org.apache.commons.logging.Log;
 
 import java.io.File;
-import java.util.Map;
 
 /**
  * Interface for managing a project context, used for creating or building.
@@ -81,7 +81,7 @@ public interface ProjectContext {
    * @return mutable resource source map, stored as {dest, source} key/value
    *         pairs
    */
-  Map<File, File> getResourceSourceMap();
+  FileCollector getResourceFileCollector();
 
   /**
    * Get the context log.

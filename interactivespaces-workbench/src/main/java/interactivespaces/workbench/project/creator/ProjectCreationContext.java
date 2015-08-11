@@ -16,6 +16,7 @@
 
 package interactivespaces.workbench.project.creator;
 
+import interactivespaces.util.io.FileCollector;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.ProjectContext;
 import interactivespaces.workbench.project.activity.type.ProjectType;
@@ -222,7 +223,7 @@ public class ProjectCreationContext implements ProjectContext {
   }
 
   @Override
-  public Map<File, File> getResourceSourceMap() {
+  public FileCollector getResourceFileCollector() {
     throw new UnsupportedOperationException("getResourceSourceMap not supported for creation context");
   }
 

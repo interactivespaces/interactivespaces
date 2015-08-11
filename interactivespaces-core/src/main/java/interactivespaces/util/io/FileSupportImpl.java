@@ -42,7 +42,6 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -147,7 +146,7 @@ public class FileSupportImpl implements FileSupport {
   }
 
   @Override
-  public void unzip(File source, File baseLocation, Map<File, File> extractMap) {
+  public void unzip(File source, File baseLocation, FileCollector fileCollector) {
     java.util.zip.ZipFile zipFile = null;
     try {
       zipFile = new java.util.zip.ZipFile(source);
@@ -169,8 +168,8 @@ public class FileSupportImpl implements FileSupport {
           }
 
           copyInputStream(zipFile.getInputStream(entry), new BufferedOutputStream(new FileOutputStream(file)));
-          if (extractMap != null) {
-            extractMap.put(file, source);
+          if (fileCollector != null) {
+            fileCollector.put(file, source);
           }
         }
       }
@@ -204,13 +203,13 @@ public class FileSupportImpl implements FileSupport {
   }
 
   @Override
-  public void copyDirectory(File sourceDir, File destDir, boolean overwrite, Map<File, File> fileMap) {
-    copyDirectory(sourceDir, null, destDir, overwrite, fileMap);
+  public void copyDirectory(File sourceDir, File destDir, boolean overwrite, FileCollector fileCollector) {
+    copyDirectory(sourceDir, null, destDir, overwrite, fileCollector);
   }
 
   @Override
   public void
-      copyDirectory(File sourceDir, FileFilter filter, File destDir, boolean overwrite, Map<File, File> fileMap) {
+      copyDirectory(File sourceDir, FileFilter filter, File destDir, boolean overwrite, FileCollector fileCollector) {
     directoryExists(destDir);
 
     File[] sourceFiles = listFiles(sourceDir);
@@ -226,11 +225,11 @@ public class FileSupportImpl implements FileSupport {
       try {
         File dst = new File(destDir, src.getName());
         if (isDirectory(src)) {
-          copyDirectory(src, filter, dst, overwrite, fileMap);
+          copyDirectory(src, filter, dst, overwrite, fileCollector);
         } else {
           if (!exists(dst) || overwrite) {
-            if (fileMap != null) {
-              fileMap.put(dst, src);
+            if (fileCollector != null) {
+              fileCollector.put(dst, src);
             }
             copyFile(src, dst);
           }

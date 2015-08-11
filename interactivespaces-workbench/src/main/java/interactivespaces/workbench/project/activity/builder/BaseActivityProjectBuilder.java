@@ -86,7 +86,7 @@ public class BaseActivityProjectBuilder extends BaseProjectBuilder<ActivityProje
     File activityDirectory =
         fileSupport.newFile(project.getBaseDirectory(), ActivityProject.SRC_MAIN_RESOURCES_ACTIVITY);
     if (fileSupport.exists(activityDirectory)) {
-      fileSupport.copyDirectory(activityDirectory, stagingDirectory, true, context.getResourceSourceMap());
+      fileSupport.copyDirectory(activityDirectory, stagingDirectory, true, context.getResourceFileCollector());
     }
   }
 

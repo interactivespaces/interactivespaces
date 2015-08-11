@@ -131,7 +131,7 @@ public abstract class BaseProjectBuilder<T extends Project> implements ProjectBu
 
     String stagingPrefix = stagingDirectory.getAbsolutePath() + File.separatorChar;
 
-    for (Map.Entry<File, File> sourceEntry : context.getResourceSourceMap().entrySet()) {
+    for (Map.Entry<File, File> sourceEntry : context.getResourceFileCollector().entrySet()) {
       Map<String, String> stringMap = Maps.newHashMapWithExpectedSize(1);
       String destPath = sourceEntry.getKey().getAbsolutePath();
       if (destPath.startsWith(stagingPrefix)) {

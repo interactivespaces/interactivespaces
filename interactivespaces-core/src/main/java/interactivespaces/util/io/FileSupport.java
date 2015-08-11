@@ -30,7 +30,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.List;
-import java.util.Map;
 import java.util.zip.ZipOutputStream;
 
 /**
@@ -84,10 +83,10 @@ public interface FileSupport {
    *          the source zip file
    * @param baseLocation
    *          where the contents will be written
-   * @param extractMap
-   *          if not {@code null}, add extracted files to map, with dest (key) and source (value)
+   * @param fileCollector
+ *          if not {@code null}, add extracted files to map, with dest (key) and source (value)
    */
-  void unzip(File source, File baseLocation, Map<File, File> extractMap);
+  void unzip(File source, File baseLocation, FileCollector fileCollector);
 
   /**
    * Place the contents of a directory into a zip file.
@@ -154,10 +153,10 @@ public interface FileSupport {
    *          the destination directory (which will be created if necessary)
    * @param overwrite
    *          {@code true} if should overwrite files if already in the destination folder
-   * @param copyMap
-   *          if not {@code null}, add copied files to map, with dest (key) and source (value)
+   * @param fileCollector
+   *          if not {@code null}, used to collect copied files
    */
-  void copyDirectory(File sourceDir, File destDir, boolean overwrite, Map<File, File> copyMap);
+  void copyDirectory(File sourceDir, File destDir, boolean overwrite, FileCollector fileCollector);
 
   /**
    * Copy the contents of the source directory to the destination directory.
@@ -176,10 +175,10 @@ public interface FileSupport {
    *          the destination directory (which will be created if necessary)
    * @param overwrite
    *          {@code true} if should overwrite files if already in the destination folder
-   * @param copyMap
-   *          if not {@code null}, add copied files to map, with dest (key) and source (value)
+   * @param fileCollector
+   *          if not {@code null}, used to collect copied files
    */
-  void copyDirectory(File sourceDir, FileFilter filter, File destDir, boolean overwrite, Map<File, File> copyMap);
+  void copyDirectory(File sourceDir, FileFilter filter, File destDir, boolean overwrite, FileCollector fileCollector);
 
   /**
    * Copy an input stream to an output file.
