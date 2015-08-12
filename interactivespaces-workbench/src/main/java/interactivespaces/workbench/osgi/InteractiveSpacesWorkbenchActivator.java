@@ -197,6 +197,9 @@ public class InteractiveSpacesWorkbenchActivator implements BundleActivator {
 
   /**
    * Shut the workbench down.
+   *
+   * @param success
+   *          {@code true} if should exit with a success status
    */
   private void shutdownWorkbench(boolean success) {
     try {
