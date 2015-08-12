@@ -24,7 +24,6 @@ import interactivespaces.system.core.logging.LoggingProvider;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
 import interactivespaces.workbench.ui.WorkbenchUi;
 
-import org.apache.commons.lang.SystemUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -98,7 +97,7 @@ public class InteractiveSpacesWorkbenchActivator implements BundleActivator {
     bundleContext.addBundleListener(myBundleListener);
 
     try {
-      prepareWorkkbenchEnvironment();
+      prepareWorkbenchEnvironment();
     } catch (Exception e) {
       loggingProvider.getLog().error("Could not run workbench", e);
     }
@@ -137,9 +136,9 @@ public class InteractiveSpacesWorkbenchActivator implements BundleActivator {
   }
 
   /**
-   * prepare the workbench environment.
+   * Prepare the workbench environment.
    */
-  public void prepareWorkkbenchEnvironment() {
+  public void prepareWorkbenchEnvironment() {
 
     spaceEnvironment = new SimpleInteractiveSpacesEnvironment();
     spaceEnvironment.setLog(loggingProvider.getLog());
@@ -147,10 +146,6 @@ public class InteractiveSpacesWorkbenchActivator implements BundleActivator {
     spaceEnvironment.setExecutorService(executorService);
     SimpleConfiguration configuration = SimpleConfiguration.newConfiguration();
     configuration.setValues(configurationProvider.getInitialConfiguration());
-
-    // TODO(keith): Hide this more deeply in bootstrap.
-    String platformOs = SystemUtils.IS_OS_LINUX ? "linux" : "osx";
-    configuration.setValue("interactivespaces.platform.os", platformOs);
 
     spaceEnvironment.setSystemConfiguration(configuration);
   }
@@ -184,25 +179,34 @@ public class InteractiveSpacesWorkbenchActivator implements BundleActivator {
 
     InteractiveSpacesWorkbench workbench = new InteractiveSpacesWorkbench(spaceEnvironment, systemClassLoader);
 
-    final List<String> commandLineArguments = containerCustomizerProvider.getCommandLineArguments();
-    if (!commandLineArguments.isEmpty()) {
+    List<String> commandLineArguments = containerCustomizerProvider.getCommandLineArguments();
+    if (commandLineArguments.size() == 1
+        && InteractiveSpacesWorkbench.COMMAND_LINE_FLAG_GUI.equals(commandLineArguments.get(0))) {
+      ui = new WorkbenchUi(workbench);
+    } else if (!commandLineArguments.isEmpty()) {
       boolean success = false;
       try {
         success = workbench.doCommands(commandLineArguments);
       } finally {
-        try {
-          bundleContext.getBundle(0).stop();
-        } catch (BundleException e) {
-          loggingProvider.getLog().error("Error stopping container", e);
-          success = false;
-        }
-
-        if (!success) {
-          System.exit(-1);
-        }
+        shutdownWorkbench(success);
       }
     } else {
-      ui = new WorkbenchUi(workbench);
+      shutdownWorkbench(true);
     }
+  }
+
+  /**
+   * Shut the workbench down.
+   */
+  private void shutdownWorkbench(boolean success) {
+    try {
+      // Try and shut down politely.
+      bundleContext.getBundle(0).stop();
+    } catch (BundleException e) {
+      loggingProvider.getLog().error("Error stopping container", e);
+    }
+
+    // Make sure exit with a value saying whether we failed or not.
+    System.exit(success ? 0 : -1);
   }
 }

@@ -60,6 +60,11 @@ import java.util.List;
 public class InteractiveSpacesWorkbench {
 
   /**
+   * Command line flag to request the workbench GUI.
+   */
+  public static final String COMMAND_LINE_FLAG_GUI = "--gui";
+
+  /**
    * Command line flag for specifying a source directory.
    */
   public static final String COMMAND_LINE_FLAG_SOURCEDIR = "--sourcedir";
