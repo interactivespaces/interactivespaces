@@ -109,7 +109,11 @@ ${liveactivity.description?html}
 </tr>
 <tr>
 <th>Activity</th>
-<td><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/activity/${liveactivity.activity.id}/view.html', event)">${liveactivity.activity.name?html} - ${liveactivity.activity.version}</a></td>
+<td>
+  <a class="uglylink" onclick="return ugly.changePage('/interactivespaces/activity/${liveactivity.activity.id}/view.html', event)">
+    ${liveactivity.activity.name?html} (${liveactivity.activity.identifyingName} - ${liveactivity.activity.version})
+  </a>
+</td>
 </tr>
 <th>Controller</th>
 <td><#if liveactivity.controller?has_content>

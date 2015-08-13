@@ -39,6 +39,7 @@
   <tr>
     <th></th>
     <th>Name</th>
+    <th>Identifying Name</th>
     <th>Version</th>
     <th>Last Uploaded</th>
     <th>Last Started</th>
@@ -49,6 +50,7 @@
     <tr class="${trCss}">
       <td><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/activity/${activity.id}/view.html', event);">View</a></td>
       <td>${activity.name?html}</td>
+      <td>${activity.identifyingName?html}</td>
       <td>${activity.version}</td>
       <td>${activity.lastUploadDate?datetime}</td>
       <td><#if activity.lastStartDate??>${activity.lastStartDate?datetime}</#if></td>

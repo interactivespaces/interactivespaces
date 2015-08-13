@@ -41,7 +41,12 @@ $('${"#liveactivity-info-${liveactivity.uuid}"}')
 <p><a class="uglylink" onclick="return ugly.changePage('/interactivespaces/space/${space.id}/view.html', event);">Back to main space page</a></p>
 
 <table>
-<tr><th>Live Activity</th><th>Status</th><th>Up to date?</th></td>
+<tr>
+  <th>Live Activity</th>
+  <th>Status</th>
+  <th>Up to date?</th>
+</tr>
+
 <#list liveActivityGroups as liveActivityGroup>
 <tr style="background-color: #e0e0e0; font-weight: bold"><td colspan="3">Live Activity Group: <a class="uglylink" onclick="return ugly.changePage('/interactivespaces/liveactivitygroup/${liveActivityGroup.id}/view.html', event);">${liveActivityGroup.name?html}</a></td></tr>
 <#list liveActivityGroup.liveActivities as liveactivity>
@@ -91,7 +96,7 @@ Activated from ${liveactivity.active.numberLiveActivityGroupActivated} groups
 </span>
 </#if>
 </td>
-    </tr>
+</tr>
 </#list>
 </#list>
 </table>

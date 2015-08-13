@@ -103,7 +103,11 @@ ${liveactivitygroup.description?html}
 
 <#if liveactivities?has_content>
 <table>
-<tr><th>Live Activity</th><th>Status</th><th>Up To Date?</th></tr>
+<tr>
+  <th>Live Activity</th>
+  <th>Status</th>
+  <th>Up To Date?</th>
+</tr>
 <#list liveactivities as liveactivity>
 <#assign trCss = (liveactivity_index % 2 == 0)?string("even","odd")>
 <tr class="${trCss}">

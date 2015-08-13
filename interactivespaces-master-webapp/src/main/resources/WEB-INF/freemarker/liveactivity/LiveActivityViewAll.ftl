@@ -72,7 +72,12 @@ $('${"#liveactivity-info-${liveactivity.uuid}"}')
 </div>
 
 <table class="liveactivity-list">
-<tr><th>Name</th><th>Status</th><th></th><th>Up to date?</th></tr>
+<tr>
+  <th>Name</th>
+  <th>Status</th>
+  <th></th>
+  <th>Up to date?</th>
+</tr>
 
 <#list liveactivities as liveactivity>
   <#assign trCss = (liveactivity_index % 2 == 0)?string("even","odd")>
@@ -141,6 +146,6 @@ $('${"#liveactivity-info-${liveactivity.uuid}"}')
   </tr>
 </#list>
 </table>
-
+</div>
 </body>
 <html>
