@@ -38,7 +38,7 @@ import java.util.List;
  *
  * @author Keith M. Hughes
  */
-public class BasicMasterApiControllerManagerTest {
+public class StandardMasterApiControllerManagerTest {
 
   private StandardMasterApiSpaceControllerManager manager;
   private SpaceControllerRepository controllerRepository;
@@ -101,7 +101,7 @@ public class BasicMasterApiControllerManagerTest {
   public void testControllerTempClean() {
     String id = "1234";
     SpaceController controller = Mockito.mock(SpaceController.class);
-    Mockito.when(controllerRepository.getSpaceControllerById(id)).thenReturn(controller);
+    Mockito.when(controllerRepository.getSpaceControllerByTypedId(id)).thenReturn(controller);
 
     manager.cleanSpaceControllerTempData(id);
 
@@ -115,7 +115,7 @@ public class BasicMasterApiControllerManagerTest {
   public void testControllerTempCleanAll() {
     String id = "1234";
     SpaceController controller = Mockito.mock(SpaceController.class);
-    Mockito.when(controllerRepository.getSpaceControllerById(id)).thenReturn(controller);
+    Mockito.when(controllerRepository.getSpaceControllerByTypedId(id)).thenReturn(controller);
 
     manager.cleanSpaceControllerActivitiesTempData(id);
 
@@ -130,7 +130,7 @@ public class BasicMasterApiControllerManagerTest {
   public void testControllerPermanentClean() {
     String id = "1234";
     SpaceController controller = Mockito.mock(SpaceController.class);
-    Mockito.when(controllerRepository.getSpaceControllerById(id)).thenReturn(controller);
+    Mockito.when(controllerRepository.getSpaceControllerByTypedId(id)).thenReturn(controller);
 
     manager.cleanSpaceControllerPermanentData(id);
 
@@ -145,7 +145,7 @@ public class BasicMasterApiControllerManagerTest {
   public void testControllerPermanentCleanAll() {
     String id = "1234";
     SpaceController controller = Mockito.mock(SpaceController.class);
-    Mockito.when(controllerRepository.getSpaceControllerById(id)).thenReturn(controller);
+    Mockito.when(controllerRepository.getSpaceControllerByTypedId(id)).thenReturn(controller);
 
     manager.cleanSpaceControllerActivitiesPermanentData(id);
 

@@ -341,7 +341,7 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
 
   @Override
   public Map<String, Object> getLiveActivityView(String id) {
-    LiveActivity liveactivity = activityRepository.getLiveActivityById(id);
+    LiveActivity liveactivity = activityRepository.getLiveActivityByTypedId(id);
     if (liveactivity != null) {
       Map<String, Object> data = Maps.newHashMap();
 
@@ -355,7 +355,7 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
 
   @Override
   public Map<String, Object> getLiveActivityFullView(String id) {
-    LiveActivity liveActivity = activityRepository.getLiveActivityById(id);
+    LiveActivity liveActivity = activityRepository.getLiveActivityByTypedId(id);
     if (liveActivity != null) {
       Map<String, Object> responseData = Maps.newHashMap();
 
@@ -447,7 +447,7 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
 
   @Override
   public Map<String, Object> getLiveActivityConfiguration(String id) {
-    LiveActivity liveActivity = activityRepository.getLiveActivityById(id);
+    LiveActivity liveActivity = activityRepository.getLiveActivityByTypedId(id);
     if (liveActivity != null) {
       Map<String, String> data = Maps.newHashMap();
 
@@ -466,7 +466,7 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
 
   @Override
   public Map<String, Object> configureLiveActivity(String id, Map<String, String> map) {
-    LiveActivity liveActivity = activityRepository.getLiveActivityById(id);
+    LiveActivity liveActivity = activityRepository.getLiveActivityByTypedId(id);
     if (liveActivity != null) {
       if (saveLiveActivityConfiguration(liveActivity, map)) {
         activityRepository.saveLiveActivity(liveActivity);
@@ -589,7 +589,7 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
     Map<String, Object> metadataCommand = (Map<String, Object>) metadataCommandObj;
 
     try {
-      LiveActivity activity = activityRepository.getLiveActivityById(id);
+      LiveActivity activity = activityRepository.getLiveActivityByTypedId(id);
       if (activity == null) {
         return getNoSuchLiveActivityResponse(id);
       }

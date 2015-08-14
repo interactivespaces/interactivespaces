@@ -16,10 +16,12 @@
 
 package interactivespaces.master.server.services;
 
+import interactivespaces.InteractiveSpacesException;
 import interactivespaces.domain.basic.ConfigurationParameter;
 import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.domain.basic.SpaceControllerConfiguration;
 import interactivespaces.expression.FilterExpression;
+import interactivespaces.resource.TypedId;
 
 import java.util.List;
 
@@ -28,7 +30,7 @@ import java.util.List;
  *
  * @author Keith M. Hughes
  */
-public interface SpaceControllerRepository {
+public interface SpaceControllerRepository extends TypedIdRepository {
 
   /**
    * Create a new controller. It will not be saved in the repository.
@@ -108,6 +110,22 @@ public interface SpaceControllerRepository {
    * @return the controller with the given UUID or {@code null} if no such controller
    */
   SpaceController getSpaceControllerByUuid(String uuid);
+
+  /**
+   * Get a space controller by a typed id.
+   *
+   * <p>
+   * See {@link TypedId} for details.
+   *
+   * @param typedIdString
+   *          the typed ID
+   *
+   * @return the space controller with the given UUID or {@code null} if no such space controller
+   *
+   * @throws InteractiveSpacesException
+   *           the type of the typed ID is unknown
+   */
+  SpaceController getSpaceControllerByTypedId(String typedIdString) throws InteractiveSpacesException;
 
   /**
    * Save a controller in the repository.

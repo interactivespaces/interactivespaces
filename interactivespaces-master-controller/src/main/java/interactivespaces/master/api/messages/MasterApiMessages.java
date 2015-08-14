@@ -84,6 +84,11 @@ public class MasterApiMessages {
   public static final String MASTER_API_COMMAND_ACTIVITY_VIEW = MASTER_API_COMMAND_PREFIX_ACTIVITY + "/view";
 
   /**
+   * Web socket command for getting full view data for an activity.
+   */
+  public static final String MASTER_API_COMMAND_ACTIVITY_VIEW_FULL = MASTER_API_COMMAND_ACTIVITY_VIEW + "/FULL";
+
+  /**
    * Web socket command for updating all deployments of an activity.
    */
   public static final String MASTER_API_COMMAND_ACTIVITY_DEPLOY = MASTER_API_COMMAND_PREFIX_ACTIVITY + "/deploy";
@@ -114,6 +119,12 @@ public class MasterApiMessages {
    * Web socket command for getting view data for a live activity.
    */
   public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_VIEW = MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY + "/view";
+
+  /**
+   * Web socket command for getting full view data for a live activity.
+   */
+  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_VIEW_FULL = MASTER_API_COMMAND_LIVE_ACTIVITY_VIEW
+      + "/full";
 
   /**
    * Web socket command for creating a live activity.
@@ -223,6 +234,12 @@ public class MasterApiMessages {
       MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY_GROUP + "/view";
 
   /**
+   * Web socket command for getting full view data for a live activity group.
+   */
+  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_VIEW_FULL =
+      MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_VIEW + "/full";
+
+  /**
    * Web socket command for deploying a live activity group.
    */
   public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_DEPLOY =
@@ -298,6 +315,11 @@ public class MasterApiMessages {
   public static final String MASTER_API_COMMAND_SPACE_VIEW = MASTER_API_COMMAND_PREFIX_SPACE + "/view";
 
   /**
+   * Web socket command for getting full view data for a space.
+   */
+  public static final String MASTER_API_COMMAND_SPACE_VIEW_FULL = MASTER_API_COMMAND_SPACE_VIEW + "/full";
+
+  /**
    * Web socket command for deploying a space.
    */
   public static final String MASTER_API_COMMAND_SPACE_DEPLOY = MASTER_API_COMMAND_PREFIX_SPACE + "/deploy";
@@ -358,6 +380,12 @@ public class MasterApiMessages {
    */
   public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_VIEW = MASTER_API_COMMAND_PREFIX_SPACE_CONTROLLER
       + "/view";
+
+  /**
+   * Web socket command for getting full view data for a space controller.
+   */
+  public static final String MASTER_API_COMMAND_SPACE_CONTROLLER_VIEW_FULL = MASTER_API_COMMAND_SPACE_CONTROLLER_VIEW
+      + "/full";
 
   /**
    * Web socket command for configuring a space controller.

@@ -28,6 +28,7 @@ import interactivespaces.domain.basic.pojo.SimpleLiveActivity;
 import interactivespaces.domain.space.Space;
 import interactivespaces.expression.FilterExpression;
 import interactivespaces.master.server.services.ActivityRepository;
+import interactivespaces.master.server.services.BaseActivityRepository;
 import interactivespaces.master.server.services.internal.jpa.domain.JpaActivity;
 import interactivespaces.master.server.services.internal.jpa.domain.JpaActivityConfiguration;
 import interactivespaces.master.server.services.internal.jpa.domain.JpaActivityConfigurationParameter;
@@ -50,7 +51,7 @@ import java.util.Map;
  *
  * @author Keith M. Hughes
  */
-public class JpaActivityRepository implements ActivityRepository {
+public class JpaActivityRepository extends BaseActivityRepository {
 
   /**
    * The UUID generator to use.
@@ -198,6 +199,19 @@ public class JpaActivityRepository implements ActivityRepository {
   }
 
   @Override
+  public LiveActivity getLiveActivityByUuid(String uuid) {
+    Map<String, String> params = Maps.newHashMap();
+    params.put("uuid", uuid);
+    @SuppressWarnings("unchecked")
+    List<LiveActivity> results = template.findByNamedQueryAndNamedParams("liveActivityByUuid", params);
+    if (!results.isEmpty()) {
+      return results.get(0);
+    } else {
+      return null;
+    }
+  }
+
+  @Override
   public List<LiveActivity> getLiveActivitiesByController(SpaceController controller) {
     Map<String, String> params = Maps.newHashMap();
     params.put("controller_id", controller.getId());
@@ -231,19 +245,6 @@ public class JpaActivityRepository implements ActivityRepository {
     @SuppressWarnings("unchecked")
     List<Long> results = template.findByNamedQueryAndNamedParams("countLiveActivityByActivity", params);
     return results.get(0);
-  }
-
-  @Override
-  public LiveActivity getLiveActivityByUuid(String uuid) {
-    Map<String, String> params = Maps.newHashMap();
-    params.put("uuid", uuid);
-    @SuppressWarnings("unchecked")
-    List<LiveActivity> results = template.findByNamedQueryAndNamedParams("liveActivityByUuid", params);
-    if (!results.isEmpty()) {
-      return results.get(0);
-    } else {
-      return null;
-    }
   }
 
   @Override

@@ -177,6 +177,13 @@ public class StandardMasterWebsocketManager extends BaseMasterApiManager impleme
         return masterApiActivityManager.getActivityView(getEntityId(commandArgs));
       }
     });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_ACTIVITY_VIEW_FULL) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiActivityManager.getActivityFullView(getEntityId(commandArgs));
+      }
+    });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(MasterApiMessages.MASTER_API_COMMAND_ACTIVITY_DEPLOY) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
@@ -219,6 +226,13 @@ public class StandardMasterWebsocketManager extends BaseMasterApiManager impleme
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
         return masterApiActivityManager.getLiveActivityView(getEntityId(commandArgs));
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_VIEW_FULL) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiActivityManager.getLiveActivityFullView(getEntityId(commandArgs));
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
@@ -353,6 +367,13 @@ public class StandardMasterWebsocketManager extends BaseMasterApiManager impleme
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_VIEW_FULL) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiActivityManager.getLiveActivityGroupFullView(getEntityId(commandArgs));
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
         MasterApiMessages.MASTER_API_COMMAND_LIVE_ACTIVITY_GROUP_DEPLOY) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
@@ -444,6 +465,12 @@ public class StandardMasterWebsocketManager extends BaseMasterApiManager impleme
         return masterApiActivityManager.getSpaceView(getEntityId(commandArgs));
       }
     });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(MasterApiMessages.MASTER_API_COMMAND_SPACE_VIEW_FULL) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiActivityManager.getSpaceFullView(getEntityId(commandArgs));
+      }
+    });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(MasterApiMessages.MASTER_API_COMMAND_SPACE_DEPLOY) {
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
@@ -523,6 +550,13 @@ public class StandardMasterWebsocketManager extends BaseMasterApiManager impleme
       @Override
       public Map<String, Object> execute(Map<String, Object> commandArgs) {
         return masterApiSpaceControllerManager.getSpaceControllerView(getEntityId(commandArgs));
+      }
+    });
+    registerMasterApiHandler(new MasterApiWebSocketCommandHandler(
+        MasterApiMessages.MASTER_API_COMMAND_SPACE_CONTROLLER_VIEW_FULL) {
+      @Override
+      public Map<String, Object> execute(Map<String, Object> commandArgs) {
+        return masterApiSpaceControllerManager.getSpaceControllerFullView(getEntityId(commandArgs));
       }
     });
     registerMasterApiHandler(new MasterApiWebSocketCommandHandler(

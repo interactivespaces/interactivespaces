@@ -21,6 +21,7 @@ import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.domain.basic.SpaceControllerConfiguration;
 import interactivespaces.expression.FilterExpression;
 import interactivespaces.master.server.services.ActivityRepository;
+import interactivespaces.master.server.services.BaseSpaceControllerRepository;
 import interactivespaces.master.server.services.SpaceControllerRepository;
 import interactivespaces.master.server.services.internal.jpa.domain.JpaSpaceController;
 import interactivespaces.master.server.services.internal.jpa.domain.JpaSpaceControllerConfiguration;
@@ -40,7 +41,7 @@ import java.util.Map;
  *
  * @author Keith M. Hughes
  */
-public class JpaSpaceControllerRepository implements SpaceControllerRepository {
+public class JpaSpaceControllerRepository extends BaseSpaceControllerRepository {
 
   /**
    * The repository for activity entities.

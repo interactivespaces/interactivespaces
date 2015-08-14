@@ -126,7 +126,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
   @Override
   public Map<String, Object> getSpaceControllerFullView(String id) {
-    SpaceController controller = spaceControllerRepository.getSpaceControllerById(id);
+    SpaceController controller = spaceControllerRepository.getSpaceControllerByTypedId(id);
     if (controller != null) {
       Map<String, Object> responseData = Maps.newHashMap();
 
@@ -151,7 +151,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
   @Override
   public Map<String, Object> getSpaceControllerView(String id) {
-    SpaceController controller = spaceControllerRepository.getSpaceControllerById(id);
+    SpaceController controller = spaceControllerRepository.getSpaceControllerByTypedId(id);
     if (controller != null) {
       Map<String, Object> controllerData = Maps.newHashMap();
 
@@ -165,7 +165,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
   @Override
   public Map<String, Object> getSpaceControllerConfiguration(String id) {
-    SpaceController spaceController = spaceControllerRepository.getSpaceControllerById(id);
+    SpaceController spaceController = spaceControllerRepository.getSpaceControllerByTypedId(id);
     if (spaceController != null) {
       Map<String, String> data = Maps.newHashMap();
 
@@ -184,7 +184,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
   @Override
   public Map<String, Object> setSpaceControllerConfiguration(String id, Map<String, String> map) {
-    SpaceController spaceController = spaceControllerRepository.getSpaceControllerById(id);
+    SpaceController spaceController = spaceControllerRepository.getSpaceControllerByTypedId(id);
     if (spaceController != null) {
       if (saveSpaceControllerConfiguration(spaceController, map)) {
         spaceControllerRepository.saveSpaceController(spaceController);
@@ -198,7 +198,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
   @Override
   public Map<String, Object> configureSpaceController(String id) {
-    SpaceController spaceController = spaceControllerRepository.getSpaceControllerById(id);
+    SpaceController spaceController = spaceControllerRepository.getSpaceControllerByTypedId(id);
     if (spaceController != null) {
       activeSpaceControllerManager.configureSpaceController(spaceController);
 
@@ -318,7 +318,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
     Map<String, Object> metadataCommand = (Map<String, Object>) metadataCommandObj;
 
     try {
-      SpaceController spaceController = spaceControllerRepository.getSpaceControllerById(id);
+      SpaceController spaceController = spaceControllerRepository.getSpaceControllerByTypedId(id);
       if (spaceController == null) {
         return getNoSuchSpaceControllerResponse(id);
       }
@@ -444,7 +444,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
   @Override
   public Map<String, Object> shutdownSpaceControllers(List<String> ids) {
     for (String id : ids) {
-      SpaceController controller = spaceControllerRepository.getSpaceControllerById(id);
+      SpaceController controller = spaceControllerRepository.getSpaceControllerByTypedId(id);
       if (controller != null) {
         try {
           activeSpaceControllerManager.shutdownSpaceController(controller);
@@ -465,7 +465,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
   @Override
   public Map<String, Object> connectToSpaceControllers(List<String> ids) {
     for (String id : ids) {
-      SpaceController controller = spaceControllerRepository.getSpaceControllerById(id);
+      SpaceController controller = spaceControllerRepository.getSpaceControllerByTypedId(id);
       if (controller != null) {
         try {
           activeSpaceControllerManager.connectSpaceController(controller);
@@ -486,7 +486,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
   @Override
   public Map<String, Object> disconnectFromSpaceControllers(List<String> ids) {
     for (String id : ids) {
-      SpaceController controller = spaceControllerRepository.getSpaceControllerById(id);
+      SpaceController controller = spaceControllerRepository.getSpaceControllerByTypedId(id);
       if (controller != null) {
         try {
           activeSpaceControllerManager.disconnectSpaceController(controller);
@@ -523,7 +523,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
   @Override
   public Map<String, Object> statusSpaceControllers(List<String> ids) {
     for (String id : ids) {
-      SpaceController controller = spaceControllerRepository.getSpaceControllerById(id);
+      SpaceController controller = spaceControllerRepository.getSpaceControllerByTypedId(id);
       if (controller != null) {
         activeSpaceControllerManager.statusSpaceController(controller);
       } else {
@@ -538,7 +538,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
   @Override
   public Map<String, Object> cleanSpaceControllerTempData(String id) {
-    SpaceController controller = spaceControllerRepository.getSpaceControllerById(id);
+    SpaceController controller = spaceControllerRepository.getSpaceControllerByTypedId(id);
     if (controller != null) {
       activeSpaceControllerManager.cleanSpaceControllerTempData(controller);
 
@@ -565,7 +565,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
   @Override
   public Map<String, Object> cleanSpaceControllerPermanentData(String id) {
-    SpaceController controller = spaceControllerRepository.getSpaceControllerById(id);
+    SpaceController controller = spaceControllerRepository.getSpaceControllerByTypedId(id);
     if (controller != null) {
       activeSpaceControllerManager.cleanSpaceControllerPermanentData(controller);
 
@@ -592,7 +592,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
   @Override
   public Map<String, Object> cleanSpaceControllerActivitiesTempData(String id) {
-    SpaceController controller = spaceControllerRepository.getSpaceControllerById(id);
+    SpaceController controller = spaceControllerRepository.getSpaceControllerByTypedId(id);
     if (controller != null) {
       activeSpaceControllerManager.cleanSpaceControllerActivitiesTempData(controller);
 
@@ -619,7 +619,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
   @Override
   public Map<String, Object> cleanSpaceControllerActivitiesPermanentData(String id) {
-    SpaceController controller = spaceControllerRepository.getSpaceControllerById(id);
+    SpaceController controller = spaceControllerRepository.getSpaceControllerByTypedId(id);
     if (controller != null) {
       activeSpaceControllerManager.cleanSpaceControllerActivitiesPermanentData(controller);
 
@@ -646,7 +646,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
   @Override
   public Map<String, Object> captureDataSpaceController(String id) {
-    SpaceController controller = spaceControllerRepository.getSpaceControllerById(id);
+    SpaceController controller = spaceControllerRepository.getSpaceControllerByTypedId(id);
     if (controller != null) {
       activeSpaceControllerManager.captureSpaceControllerDataBundle(controller);
 
@@ -658,7 +658,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
   @Override
   public Map<String, Object> restoreDataSpaceController(String id) {
-    SpaceController controller = spaceControllerRepository.getSpaceControllerById(id);
+    SpaceController controller = spaceControllerRepository.getSpaceControllerByTypedId(id);
     if (controller != null) {
       activeSpaceControllerManager.restoreSpaceControllerDataBundle(controller);
 
@@ -702,7 +702,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
   @Override
   public Map<String, Object> shutdownAllActivities(String id) {
-    SpaceController controller = spaceControllerRepository.getSpaceControllerById(id);
+    SpaceController controller = spaceControllerRepository.getSpaceControllerByTypedId(id);
     if (controller != null) {
       activeSpaceControllerManager.shutdownAllActivities(controller);
 
@@ -729,7 +729,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
 
   @Override
   public Map<String, Object> deployAllActivityInstancesSpaceController(String id) {
-    SpaceController controller = spaceControllerRepository.getSpaceControllerById(id);
+    SpaceController controller = spaceControllerRepository.getSpaceControllerByTypedId(id);
     if (controller != null) {
       deployAllActivitysForController(controller);
 

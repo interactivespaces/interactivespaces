@@ -16,6 +16,7 @@
 
 package interactivespaces.master.server.services;
 
+import interactivespaces.InteractiveSpacesException;
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.ActivityConfiguration;
 import interactivespaces.domain.basic.ActivityDependency;
@@ -26,6 +27,7 @@ import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.domain.basic.pojo.SimpleLiveActivity;
 import interactivespaces.domain.space.Space;
 import interactivespaces.expression.FilterExpression;
+import interactivespaces.resource.TypedId;
 
 import java.util.List;
 
@@ -34,7 +36,7 @@ import java.util.List;
  *
  * @author Keith M. Hughes
  */
-public interface ActivityRepository {
+public interface ActivityRepository extends TypedIdRepository {
 
   /**
    * Create a new activity.
@@ -179,6 +181,32 @@ public interface ActivityRepository {
   LiveActivity getLiveActivityById(String id);
 
   /**
+   * Get a activity by its UUID.
+   *
+   * @param uuid
+   *          the UUID of the desired activity
+   *
+   * @return the activity with the given UUID or {@code null} if no such activity
+   */
+  LiveActivity getLiveActivityByUuid(String uuid);
+
+  /**
+   * Get a live activity by a typed id.
+   *
+   * <p>
+   * See {@link TypedId} for details.
+   *
+   * @param typedIdString
+   *          the typed ID
+   *
+   * @return the activity with the given UUID or {@code null} if no such activity
+   *
+   * @throws InteractiveSpacesException
+   *           the type of the typed ID is unknown
+   */
+  LiveActivity getLiveActivityByTypedId(String typedIdString) throws InteractiveSpacesException;
+
+  /**
    * Get all live activities on a given controller.
    *
    * @param controller
@@ -217,16 +245,6 @@ public interface ActivityRepository {
    * @return the number of all live activities which use the activity
    */
   long getNumberLiveActivitiesByActivity(Activity activity);
-
-  /**
-   * Get a activity by its UUID.
-   *
-   * @param uuid
-   *          the UUID of the desired activity
-   *
-   * @return the activity with the given UUID or {@code null} if no such activity
-   */
-  LiveActivity getLiveActivityByUuid(String uuid);
 
   /**
    * Save a activity in the repository.

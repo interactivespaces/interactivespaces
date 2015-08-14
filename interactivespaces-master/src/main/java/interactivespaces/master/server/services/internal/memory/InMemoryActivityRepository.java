@@ -31,7 +31,7 @@ import interactivespaces.domain.basic.pojo.SimpleLiveActivity;
 import interactivespaces.domain.basic.pojo.SimpleLiveActivityGroup;
 import interactivespaces.domain.space.Space;
 import interactivespaces.expression.FilterExpression;
-import interactivespaces.master.server.services.ActivityRepository;
+import interactivespaces.master.server.services.BaseActivityRepository;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -47,7 +47,7 @@ import java.util.Map;
  *
  * @author Keith M. Hughes
  */
-public class InMemoryActivityRepository implements ActivityRepository {
+public class InMemoryActivityRepository extends BaseActivityRepository {
 
   /**
    * A map of activities keyed by their ID.
