@@ -86,7 +86,7 @@ public class MasterApiMessages {
   /**
    * Web socket command for getting full view data for an activity.
    */
-  public static final String MASTER_API_COMMAND_ACTIVITY_VIEW_FULL = MASTER_API_COMMAND_ACTIVITY_VIEW + "/FULL";
+  public static final String MASTER_API_COMMAND_ACTIVITY_VIEW_FULL = MASTER_API_COMMAND_ACTIVITY_VIEW + "/full";
 
   /**
    * Web socket command for updating all deployments of an activity.

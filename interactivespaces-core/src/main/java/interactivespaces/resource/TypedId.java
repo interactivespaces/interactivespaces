@@ -34,7 +34,7 @@ public class TypedId {
    * @param separator
    *          the separator between the type and the ID
    * @param defaultType
-   *          the default type if no sepaator
+   *          the default type if no separator
    * @param typedIdString
    *          the string to be parsed
    *
