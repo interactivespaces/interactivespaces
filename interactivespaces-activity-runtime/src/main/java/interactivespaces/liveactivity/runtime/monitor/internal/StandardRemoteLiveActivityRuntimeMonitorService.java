@@ -61,13 +61,18 @@ public class StandardRemoteLiveActivityRuntimeMonitorService implements RemoteLi
    */
   private List<LiveActivityRuntimeMonitorPlugin> plugins = Lists.newCopyOnWriteArrayList();
 
+  /**
+   * The index plugin.
+   */
+  private IndexLiveActivityRuntimeMonitorPlugin indexPlugin = new IndexLiveActivityRuntimeMonitorPlugin();
+
   @Override
   public void startup() {
     spaceEnvironment = liveActivityRuntime.getSpaceEnvironment();
 
     Configuration systemConfiguration = spaceEnvironment.getSystemConfiguration();
-    boolean enabled = systemConfiguration
-        .getPropertyBoolean(CONFIGURE_MONITOR_ENABLE, CONFIGURE_MONITOR_ENABLE_DEFAULT);
+    boolean enabled =
+        systemConfiguration.getPropertyBoolean(CONFIGURE_MONITOR_ENABLE, CONFIGURE_MONITOR_ENABLE_DEFAULT);
 
     if (!enabled) {
       spaceEnvironment.getLog().warn("Live activity runtime monitor server disabled");
@@ -84,6 +89,7 @@ public class StandardRemoteLiveActivityRuntimeMonitorService implements RemoteLi
     spaceEnvironment.getLog().info("Live activity runtime monitor server running on port " + webServer.getPort());
 
     addBasePlugins();
+    addPlugin(indexPlugin, false);
   }
 
   @Override
@@ -92,30 +98,63 @@ public class StandardRemoteLiveActivityRuntimeMonitorService implements RemoteLi
       return;
     }
 
+    shutdownPlugin(indexPlugin);
+
     for (LiveActivityRuntimeMonitorPlugin plugin : plugins) {
-      try {
-        plugin.shutdown();
-      } catch (Throwable e) {
-        liveActivityRuntime.getSpaceEnvironment().getLog()
-            .error(String.format("Could not shut down live activity monitor plugin %s", plugin.getUrlPrefix()), e);
-      }
+      shutdownPlugin(plugin);
     }
+
     webServer.shutdown();
+  }
+
+  /**
+   * Shut down a plugin.
+   *
+   * @param plugin
+   *          the plugin to shut down
+   */
+  private void shutdownPlugin(LiveActivityRuntimeMonitorPlugin plugin) {
+    try {
+      plugin.shutdown();
+    } catch (Throwable e) {
+      liveActivityRuntime.getSpaceEnvironment().getLog()
+          .error(String.format("Could not shut down live activity monitor plugin %s", plugin.getUrlPrefix()), e);
+    }
   }
 
   @Override
   public void addPlugin(LiveActivityRuntimeMonitorPlugin plugin) {
+    addPlugin(plugin, true);
+  }
+
+  /**
+   * Add a plugin to the monitor.
+   *
+   * @param plugin
+   *          the plugin to add
+   * @param addToPlugins
+   *          {@code true} if should be added to the list of plugins
+   */
+  private void addPlugin(LiveActivityRuntimeMonitorPlugin plugin, boolean addToPlugins) {
     if (webServer == null) {
       return;
     }
 
     try {
       plugin.startup(this, webServer);
-      plugins.add(plugin);
+
+      if (addToPlugins) {
+        plugins.add(plugin);
+      }
     } catch (Throwable e) {
       liveActivityRuntime.getSpaceEnvironment().getLog()
           .error(String.format("Could not start up live activity monitor plugin %s", plugin.getUrlPrefix()), e);
     }
+  }
+
+  @Override
+  public List<LiveActivityRuntimeMonitorPlugin> getPlugins() {
+    return Lists.newArrayList(plugins);
   }
 
   @Override

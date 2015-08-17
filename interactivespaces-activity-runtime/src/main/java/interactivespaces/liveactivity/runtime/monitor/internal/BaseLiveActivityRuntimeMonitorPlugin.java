@@ -38,7 +38,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * A base implementation of a runtme monitor plugin.
+ * A base implementation of a runtime monitor plugin.
  *
  * @author Keith M. Hughes
  */
@@ -47,7 +47,7 @@ public abstract class BaseLiveActivityRuntimeMonitorPlugin implements LiveActivi
   /**
    * The title for the web page for the remote monitoring.
    */
-  private static final String MONITOR_WEB_PAGE_TITLE = "Live Activity RuntimeController Remote Monitoring";
+  private static final String MONITOR_WEB_PAGE_TITLE = "Interactive Spaces Live Activity Runtime Remote Monitoring";
 
   /**
    * The directory entry for going up one level in the directory hierarchy.
@@ -172,7 +172,7 @@ public abstract class BaseLiveActivityRuntimeMonitorPlugin implements LiveActivi
    * @return the output stream for the response
    *
    * @throws IOException
-   *           an error occured while beginning the response
+   *           an error occurred while beginning the response
    */
   protected OutputStream startWebResponse(HttpResponse response, boolean isPlain) throws IOException {
     OutputStream outputStream = response.getOutputStream();
@@ -182,7 +182,7 @@ public abstract class BaseLiveActivityRuntimeMonitorPlugin implements LiveActivi
     } else {
       StringBuilder output = new StringBuilder();
 
-      output.append("<!DOCTYPE html>").append(MONITOR_WEB_PAGE_TITLE).append("</title>").append("</head>")
+      output.append("<!DOCTYPE html><title>").append(MONITOR_WEB_PAGE_TITLE).append("</title>").append("</head>")
           .append("<body>");
 
       outputStream.write(output.toString().getBytes());
@@ -206,7 +206,9 @@ public abstract class BaseLiveActivityRuntimeMonitorPlugin implements LiveActivi
     String controllerName =
         monitorService.getLiveActivityRuntime().getSpaceEnvironment().getSystemConfiguration()
             .getPropertyString(SpaceController.CONFIGURATION_CONTROLLER_NAME);
-    outputStream.write(String.format("<h1 class='controller-header'>Runtime: %s</h1>", controllerName).getBytes());
+    outputStream.write(String.format(
+        "<h1 class='controller-header'><a href='/'>Interactive Spaces Live Activity Runtime: %s</a></h1>",
+        controllerName).getBytes());
     if (subHeader != null) {
       outputStream.write(String.format("<h2>%s</h2>", subHeader).getBytes());
     }

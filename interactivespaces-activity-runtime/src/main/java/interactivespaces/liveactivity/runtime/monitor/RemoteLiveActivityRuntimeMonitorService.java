@@ -19,6 +19,8 @@ package interactivespaces.liveactivity.runtime.monitor;
 import interactivespaces.liveactivity.runtime.LiveActivityRuntime;
 import interactivespaces.util.resource.ManagedResource;
 
+import java.util.List;
+
 /**
  * The remote debug service for a live activity runtime.
  *
@@ -53,6 +55,13 @@ public interface RemoteLiveActivityRuntimeMonitorService extends ManagedResource
    *          the plugin to add
    */
   void addPlugin(LiveActivityRuntimeMonitorPlugin plugin);
+
+  /**
+   * Get the plugins in the monitor.
+   *
+   * @return the plugins.
+   */
+  List<LiveActivityRuntimeMonitorPlugin> getPlugins();
 
   /**
    * Set the live activity runtime to be debugged.

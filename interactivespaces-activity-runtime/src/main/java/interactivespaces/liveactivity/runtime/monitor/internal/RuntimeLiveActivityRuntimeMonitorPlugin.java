@@ -17,12 +17,17 @@
 package interactivespaces.liveactivity.runtime.monitor.internal;
 
 import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.liveactivity.runtime.monitor.PluginFunctionalityDescriptor;
 import interactivespaces.service.web.server.HttpRequest;
 import interactivespaces.service.web.server.HttpResponse;
 import interactivespaces.system.InteractiveSpacesFilesystem;
 
+import com.google.common.collect.Lists;
+
 import java.io.File;
 import java.io.OutputStream;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * The runtime monitor plugin for looking at the runtime itself.
@@ -72,9 +77,20 @@ public class RuntimeLiveActivityRuntimeMonitorPlugin extends BaseLiveActivityRun
    */
   private static final int PATH_COMPONENTS_POSITION_PATH_BEGIN = 2;
 
+  /**
+   * The functionality descriptors for this plugin.
+   */
+  private List<PluginFunctionalityDescriptor> functionalityDescriptors = Collections.unmodifiableList(Lists
+      .newArrayList(new PluginFunctionalityDescriptor(URL_PREFIX_RUNTIME_FILESYSTEM, "Runtime Filesystem")));
+
   @Override
   public String getUrlPrefix() {
     return URL_PREFIX_RUNTIME;
+  }
+
+  @Override
+  public List<PluginFunctionalityDescriptor> getFunctionalityDescriptors() {
+    return functionalityDescriptors;
   }
 
   @Override

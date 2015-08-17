@@ -18,6 +18,7 @@ package interactivespaces.liveactivity.runtime.monitor.internal;
 
 import interactivespaces.configuration.Configuration;
 import interactivespaces.liveactivity.runtime.LiveActivityRuntime;
+import interactivespaces.liveactivity.runtime.monitor.PluginFunctionalityDescriptor;
 import interactivespaces.service.web.server.HttpRequest;
 import interactivespaces.service.web.server.HttpResponse;
 import interactivespaces.system.InteractiveSpacesEnvironment;
@@ -27,10 +28,14 @@ import interactivespaces.util.process.NativeApplicationDescription;
 import interactivespaces.util.process.NativeApplicationRunnerCollection;
 import interactivespaces.util.process.StandardNativeApplicationRunnerCollection;
 
+import com.google.common.collect.Lists;
+
 import java.io.File;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 /**
  * The runtime monitor plugin that performs screenshots.
@@ -104,6 +109,12 @@ public class ScreenshotLiveActivityRuntimeMonitorPlugin extends BaseLiveActivity
   private LiveActivityRuntime liveActivityRuntime;
 
   /**
+   * The functionality descriptors for this plugin.
+   */
+  private List<PluginFunctionalityDescriptor> functionalityDescriptors = Collections.unmodifiableList(Lists
+      .newArrayList(new PluginFunctionalityDescriptor(WEB_REQUEST_SCREENSHOT_PREFIX, "Machine Screenshot")));
+
+  /**
    * File support to use.
    */
   private FileSupport fileSupport = FileSupportImpl.INSTANCE;
@@ -132,6 +143,11 @@ public class ScreenshotLiveActivityRuntimeMonitorPlugin extends BaseLiveActivity
   @Override
   public String getUrlPrefix() {
     return WEB_REQUEST_SCREENSHOT_PREFIX;
+  }
+
+  @Override
+  public List<PluginFunctionalityDescriptor> getFunctionalityDescriptors() {
+    return functionalityDescriptors;
   }
 
   @Override

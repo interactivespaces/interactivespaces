@@ -18,6 +18,8 @@ package interactivespaces.liveactivity.runtime.monitor;
 
 import interactivespaces.service.web.server.WebServer;
 
+import java.util.List;
+
 /**
  * A monitor for placing in the live activity runtime monitoring system.
  *
@@ -47,4 +49,10 @@ public interface LiveActivityRuntimeMonitorPlugin {
    */
   String getUrlPrefix();
 
+  /**
+   * Get the functionality descriptors for the plugin.
+   *
+   * @return the functionality descriptors
+   */
+  List<PluginFunctionalityDescriptor> getFunctionalityDescriptors();
 }

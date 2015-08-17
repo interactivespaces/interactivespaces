@@ -21,13 +21,18 @@ import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.liveactivity.runtime.InternalLiveActivityFilesystem;
 import interactivespaces.liveactivity.runtime.LiveActivityStorageManager;
 import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
+import interactivespaces.liveactivity.runtime.monitor.PluginFunctionalityDescriptor;
 import interactivespaces.service.web.HttpConstants;
 import interactivespaces.service.web.server.HttpRequest;
 import interactivespaces.service.web.server.HttpResponse;
 
+import com.google.common.collect.Lists;
+
 import java.io.File;
 import java.io.OutputStream;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * A runtime monitor plugin for looking at live activity information.
@@ -92,9 +97,20 @@ public class LiveActivityLiveActivityRuntimeMonitorPlugin extends BaseLiveActivi
    */
   private static final int PATH_COMPONENTS_POSITION_PATH_BEGIN = 2;
 
+  /**
+   * The functionality descriptors for this plugin.
+   */
+  private List<PluginFunctionalityDescriptor> functionalityDescriptors = Collections.unmodifiableList(Lists
+      .newArrayList(new PluginFunctionalityDescriptor(URL_PREFIX_ACTIVITY, "Activities")));
+
   @Override
   public String getUrlPrefix() {
     return URL_PREFIX_ACTIVITY;
+  }
+
+  @Override
+  public List<PluginFunctionalityDescriptor> getFunctionalityDescriptors() {
+    return functionalityDescriptors;
   }
 
   @Override
@@ -120,7 +136,11 @@ public class LiveActivityLiveActivityRuntimeMonitorPlugin extends BaseLiveActivi
   private void writeActivityListPage(HttpResponse response) throws Throwable {
     OutputStream outputStream = startWebResponse(response, false);
     addCommonPageHeader(outputStream, "Activity listing");
-    outputActivityEntries(outputStream);
+
+    StringBuilder builder = new StringBuilder();
+    outputActivityEntries(builder);
+
+    outputStream.write(builder.toString().getBytes());
 
     endWebResponse(outputStream, false);
   }
@@ -128,39 +148,38 @@ public class LiveActivityLiveActivityRuntimeMonitorPlugin extends BaseLiveActivi
   /**
    * Output all activity entries.
    *
-   * @param outputStream
-   *          the stream to output the listing on
-   *
-   * @throws Throwable
-   *           an exception happened while processing
+   * @param builder
+   *          the output builder for the response
    */
-  private void outputActivityEntries(OutputStream outputStream) throws Throwable {
+  private void outputActivityEntries(StringBuilder builder) {
     Collection<InstalledLiveActivity> activities =
         getMonitorService().getLiveActivityRuntime().getAllInstalledLiveActivities();
+    builder.append("<table>");
     for (InstalledLiveActivity activity : activities) {
-      writeActivityEntry(outputStream, activity);
+      writeActivityEntry(builder, activity);
     }
+    builder.append("</table>");
   }
 
   /**
    * Write out an individual activity entry.
    *
-   * @param outputStream
-   *          the output stream for the response
+   * @param builder
+   *          the output builder for the response
    * @param activity
    *          the activity information
-   *
-   * @throws Throwable
-   *           an exception happened while processing
    */
-  private void writeActivityEntry(OutputStream outputStream, InstalledLiveActivity activity) throws Throwable {
+  private void writeActivityEntry(StringBuilder builder, InstalledLiveActivity activity) {
+    String uuid = activity.getUuid();
+    String link = URL_PREFIX_ACTIVITY_FILESYSTEM + uuid;
 
     String name = getFormattedActivityName(activity);
-    String uuid = activity.getUuid();
-    String label = String.format("<span class='uuid'>%s</span> <span class='name'>%s</span>", uuid, name);
-    String link = URL_PREFIX_ACTIVITY_FILESYSTEM + uuid;
-    String line = String.format("<a class='activity-entry' href='%s'>%s</a><br>", link, label);
-    outputStream.write(line.getBytes());
+
+    builder.append("<tr><td class='uuid'>");
+    addLink(builder, link, uuid);
+    builder.append("</td> <td class='name'>");
+    addLink(builder, link, name);
+    builder.append("</td></tr>");
   }
 
   /**
