@@ -16,6 +16,7 @@
 
 package interactivespaces.controller.runtime.internal.osgi;
 
+import interactivespaces.configuration.Configuration;
 import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.resource.deployment.ContainerResourceDeploymentManager;
 import interactivespaces.controller.resource.deployment.ControllerContainerResourceDeploymentManager;
@@ -60,6 +61,11 @@ import org.ros.osgi.common.RosEnvironment;
  * @author Keith M. Hughes
  */
 public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleActivator {
+
+  /**
+   * The default value for enabling the remote monitoring.
+   */
+  private static final String CONFIGURATION_NAME_MONITOR_ENABLE_DEFAULT_CONTROLLER = "true";
 
   /**
    * OSGi service tracker for the interactive spaces control.
@@ -117,6 +123,10 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
    * register the space controller itself..
    */
   private void activateStandardSpaceController() {
+    Configuration systemConfiguration = spaceEnvironment.getSystemConfiguration();
+    systemConfiguration.setValue(RemoteLiveActivityRuntimeMonitorService.CONFIGURATION_NAME_MONITOR_ENABLE_DEFAULT,
+        CONFIGURATION_NAME_MONITOR_ENABLE_DEFAULT_CONTROLLER);
+
     InteractiveSpacesSystemControl spaceSystemControl = interactiveSpacesSystemControlTracker.getMyService();
     RosEnvironment rosEnvironment = rosEnvironmentTracker.getMyService();
     ExpressionEvaluatorFactory expressionEvaluatorFactory = expressionEvaluatorFactoryTracker.getMyService();

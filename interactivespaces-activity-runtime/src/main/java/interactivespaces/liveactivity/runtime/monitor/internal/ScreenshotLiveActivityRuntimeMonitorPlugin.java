@@ -22,6 +22,7 @@ import interactivespaces.liveactivity.runtime.monitor.PluginFunctionalityDescrip
 import interactivespaces.service.web.server.HttpRequest;
 import interactivespaces.service.web.server.HttpResponse;
 import interactivespaces.system.InteractiveSpacesEnvironment;
+import interactivespaces.system.core.configuration.CoreConfiguration;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.util.process.NativeApplicationDescription;
@@ -31,7 +32,6 @@ import interactivespaces.util.process.StandardNativeApplicationRunnerCollection;
 import com.google.common.collect.Lists;
 
 import java.io.File;
-import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
@@ -43,6 +43,16 @@ import java.util.List;
  * @author Keith M. Hughes
  */
 public class ScreenshotLiveActivityRuntimeMonitorPlugin extends BaseLiveActivityRuntimeMonitorPlugin {
+
+  /**
+   * The prefix of the default executable name for screenshots. It will have the operating system tacked onto the end.
+   */
+  public static final String SCREENSHOT_EXECUTABLE_PREFIX_DEFAULT = "screenshot.";
+
+  /**
+   * The sub folder in the controller library folders where the default screenshot scripts are kept.
+   */
+  public static final String LIBRARY_NATIVE_FOLDER = "native";
 
   /**
    * The filename prefix for the screenshot file.
@@ -68,15 +78,8 @@ public class ScreenshotLiveActivityRuntimeMonitorPlugin extends BaseLiveActivity
    * Configuration property giving the location of the application executable relative to the application installation
    * directory.
    */
-  public static final String CONFIGURATION_SCREENSHOT_EXECUTABLE =
-      "space.activityruntime.monitor.screenshot.executable";
-
-  /**
-   * Configuration property giving the flags for the application executable relative to the application installation
-   * directory.
-   */
-  public static final String CONFIGURATION_SCREENSHOT_EXECUTABLE_FLAGS =
-      "space.activityruntime.monitor.screenshot.executable.flags";
+  public static final String CONFIGURATION_SCREENSHOT_EXECUTABLE_PREFIX =
+      "space.activityruntime.monitor.screenshot.executable.";
 
   /**
    * Configuration property for how long to wait when taking a screenshot.
@@ -92,11 +95,6 @@ public class ScreenshotLiveActivityRuntimeMonitorPlugin extends BaseLiveActivity
    * The screenshot executable.
    */
   private String screenshotExecutable;
-
-  /**
-   * The executable flags for the screenshot executable. {@code 0} is used for the file for the screenshot.
-   */
-  private MessageFormat screenshotExecutableFlags;
 
   /**
    * How long to sleep for screenshots.
@@ -125,15 +123,21 @@ public class ScreenshotLiveActivityRuntimeMonitorPlugin extends BaseLiveActivity
     InteractiveSpacesEnvironment spaceEnvironment = liveActivityRuntime.getSpaceEnvironment();
     Configuration configuration = spaceEnvironment.getSystemConfiguration();
 
-    screenshotExecutable = configuration.getPropertyString(CONFIGURATION_SCREENSHOT_EXECUTABLE);
+    String platformOs = configuration.getPropertyString(CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_PLATFORM_OS);
+    String screenShotExecutableDefault =
+        fileSupport.newFile(
+            getMonitorService().getLiveActivityRuntime().getSpaceEnvironment().getFilesystem()
+                .getLibraryDirectory(LIBRARY_NATIVE_FOLDER), SCREENSHOT_EXECUTABLE_PREFIX_DEFAULT + platformOs)
+            .getAbsolutePath();
+    screenshotExecutable =
+        configuration.getPropertyString(CONFIGURATION_SCREENSHOT_EXECUTABLE_PREFIX + platformOs,
+            screenShotExecutableDefault);
 
     screenshotSleepTime =
         configuration.getPropertyInteger(CONFIGURATION_SCREENSHOT_DELAY, CONFIGURATION_DEFAULT_SCREENSHOT_DELAY);
-    screenshotExecutable = "/usr/bin/gnome-screenshot";
-    screenshotExecutableFlags = new MessageFormat("-f {0}");
 
     if (screenshotExecutable != null) {
-      File executableFile = new File(screenshotExecutable);
+      File executableFile = fileSupport.newFile(screenshotExecutable);
       if (!executableFile.canExecute()) {
         executableFile.setExecutable(true);
       }
@@ -178,7 +182,7 @@ public class ScreenshotLiveActivityRuntimeMonitorPlugin extends BaseLiveActivity
 
     // Make sure the filename is appropriately escaped for any spaces in the file path.
     String escapedFilepath = screenshotFile.getAbsolutePath().replaceAll("\\s", "\\\\$1");
-    description.parseArguments(screenshotExecutableFlags.format(new Object[] { escapedFilepath }));
+    description.parseArguments(escapedFilepath);
 
     NativeApplicationRunnerCollection runnerCollection =
         new StandardNativeApplicationRunnerCollection(liveActivityRuntime.getSpaceEnvironment(), liveActivityRuntime

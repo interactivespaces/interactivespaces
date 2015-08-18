@@ -71,9 +71,11 @@ public class StandardRemoteLiveActivityRuntimeMonitorService implements RemoteLi
     spaceEnvironment = liveActivityRuntime.getSpaceEnvironment();
 
     Configuration systemConfiguration = spaceEnvironment.getSystemConfiguration();
-    boolean enabled =
-        systemConfiguration.getPropertyBoolean(CONFIGURE_MONITOR_ENABLE, CONFIGURE_MONITOR_ENABLE_DEFAULT);
+    boolean enabledDefault =
+        systemConfiguration.getPropertyBoolean(CONFIGURATION_NAME_MONITOR_ENABLE_DEFAULT,
+            CONFIGURATION_VALUE_MONITOR_ENABLE_DEFAULT);
 
+    boolean enabled = systemConfiguration.getPropertyBoolean(CONFIGURATION_NAME_MONITOR_ENABLE, enabledDefault);
     if (!enabled) {
       spaceEnvironment.getLog().warn("Live activity runtime monitor server disabled");
       return;

@@ -19,6 +19,7 @@ package interactivespaces.liveactivity.runtime.standalone.osgi;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.controller.SpaceController;
 import interactivespaces.liveactivity.runtime.StandardLiveActivityRuntimeComponentFactory;
+import interactivespaces.liveactivity.runtime.monitor.RemoteLiveActivityRuntimeMonitorService;
 import interactivespaces.liveactivity.runtime.osgi.OsgiServiceRegistrationLiveActivityRuntimeListener;
 import interactivespaces.liveactivity.runtime.standalone.development.DevelopmentStandaloneLiveActivityRuntime;
 import interactivespaces.osgi.service.InteractiveSpacesServiceOsgiBundleActivator;
@@ -35,6 +36,11 @@ import org.apache.commons.logging.Log;
  * @author Trevor Pering
  */
 public class StandaloneBundleActivator extends InteractiveSpacesServiceOsgiBundleActivator {
+
+  /**
+   * The default value for enabling the remote monitoring.
+   */
+  private static final String CONFIGURATION_NAME_MONITOR_ENABLE_DEFAULT_STANDALONE = "false";
 
   /**
    * OSGi service tracker for the interactive spaces control.
@@ -73,6 +79,9 @@ public class StandaloneBundleActivator extends InteractiveSpacesServiceOsgiBundl
     getLog().info("Standalone are go!");
 
     Configuration systemConfiguration = spaceEnvironment.getSystemConfiguration();
+    systemConfiguration.setValue(RemoteLiveActivityRuntimeMonitorService.CONFIGURATION_NAME_MONITOR_ENABLE_DEFAULT,
+        CONFIGURATION_NAME_MONITOR_ENABLE_DEFAULT_STANDALONE);
+
     String controllerMode =
         systemConfiguration.getPropertyString(SpaceController.CONFIGURATION_INTERACTIVESPACES_CONTROLLER_MODE, null);
     if (!DevelopmentStandaloneLiveActivityRuntime.CONFIGURATION_VALUE_CONTROLLER_MODE_STANDALONE

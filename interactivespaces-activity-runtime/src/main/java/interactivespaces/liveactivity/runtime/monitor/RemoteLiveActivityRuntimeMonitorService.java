@@ -31,12 +31,17 @@ public interface RemoteLiveActivityRuntimeMonitorService extends ManagedResource
   /**
    * The configuration property name for enabling the monitor.
    */
-  String CONFIGURE_MONITOR_ENABLE = "space.activityruntime.monitor.enable";
+  String CONFIGURATION_NAME_MONITOR_ENABLE = "space.activityruntime.monitor.enable";
+
+  /**
+   * The configuration property name for enabling the monitor.
+   */
+  String CONFIGURATION_NAME_MONITOR_ENABLE_DEFAULT = "space.activityruntime.monitor.enable.default";
 
   /**
    * The configuration default for enabling the monitor.
    */
-  boolean CONFIGURE_MONITOR_ENABLE_DEFAULT = false;
+  boolean CONFIGURATION_VALUE_MONITOR_ENABLE_DEFAULT = false;
 
   /**
    * The configuration property name for the monitor webserver port.
