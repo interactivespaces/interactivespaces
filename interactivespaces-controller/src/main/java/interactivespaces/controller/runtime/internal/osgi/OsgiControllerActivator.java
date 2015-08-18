@@ -65,7 +65,7 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
   /**
    * The default value for enabling the remote monitoring.
    */
-  private static final String CONFIGURATION_NAME_MONITOR_ENABLE_DEFAULT_CONTROLLER = "true";
+  private static final String CONFIGURATION_VALUE_MONITOR_ENABLE_DEFAULT_CONTROLLER = "true";
 
   /**
    * OSGi service tracker for the interactive spaces control.
@@ -125,7 +125,7 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
   private void activateStandardSpaceController() {
     Configuration systemConfiguration = spaceEnvironment.getSystemConfiguration();
     systemConfiguration.setValue(RemoteLiveActivityRuntimeMonitorService.CONFIGURATION_NAME_MONITOR_ENABLE_DEFAULT,
-        CONFIGURATION_NAME_MONITOR_ENABLE_DEFAULT_CONTROLLER);
+        CONFIGURATION_VALUE_MONITOR_ENABLE_DEFAULT_CONTROLLER);
 
     InteractiveSpacesSystemControl spaceSystemControl = interactiveSpacesSystemControlTracker.getMyService();
     RosEnvironment rosEnvironment = rosEnvironmentTracker.getMyService();

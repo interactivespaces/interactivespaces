@@ -2,8 +2,8 @@
 
 OUTFILE=$1
 
-rm -f $OUTFILE
+rm -f "${OUTFILE}"
 
-export DISPLAY=${DISPLAY:-:0}
+export DISPLAY="${DISPLAY:-:0}"
 
-xwd -root | convert xwd:- $OUTFILE
+xwd -root | convert xwd:- "${OUTFILE}"

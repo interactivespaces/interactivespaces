@@ -40,7 +40,7 @@ public class StandaloneBundleActivator extends InteractiveSpacesServiceOsgiBundl
   /**
    * The default value for enabling the remote monitoring.
    */
-  private static final String CONFIGURATION_NAME_MONITOR_ENABLE_DEFAULT_STANDALONE = "false";
+  private static final String CONFIGURATION_VALUE_MONITOR_ENABLE_DEFAULT_STANDALONE = "false";
 
   /**
    * OSGi service tracker for the interactive spaces control.
@@ -80,7 +80,7 @@ public class StandaloneBundleActivator extends InteractiveSpacesServiceOsgiBundl
 
     Configuration systemConfiguration = spaceEnvironment.getSystemConfiguration();
     systemConfiguration.setValue(RemoteLiveActivityRuntimeMonitorService.CONFIGURATION_NAME_MONITOR_ENABLE_DEFAULT,
-        CONFIGURATION_NAME_MONITOR_ENABLE_DEFAULT_STANDALONE);
+        CONFIGURATION_VALUE_MONITOR_ENABLE_DEFAULT_STANDALONE);
 
     String controllerMode =
         systemConfiguration.getPropertyString(SpaceController.CONFIGURATION_INTERACTIVESPACES_CONTROLLER_MODE, null);

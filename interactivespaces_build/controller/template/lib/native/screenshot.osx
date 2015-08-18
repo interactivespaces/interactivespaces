@@ -4,7 +4,7 @@ OUTSUFFIX=$1
 
 OUTFILES=
 for display in 0 1 2 3; do
-  OUTFILES="$OUTFILES disp${display}-$OUTSUFFIX"
+  OUTFILES="${OUTFILES} disp${display}-${OUTSUFFIX}"
 done
 
-screencapture -C $OUTFILES
+screencapture -C "${OUTFILES}"
