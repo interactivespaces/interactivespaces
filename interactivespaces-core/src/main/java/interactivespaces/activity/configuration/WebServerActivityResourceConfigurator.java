@@ -49,6 +49,11 @@ public class WebServerActivityResourceConfigurator implements ActivityResourceCo
   public static final String CONFIGURATION_SUFFIX_WEBAPP_CONTENT_LOCATION = ".content.location";
 
   /**
+   * Configuration property suffix for enabling cross origin content.
+   */
+  public static final String CONFIGURATION_SUFFIX_WEBAPP_ENABLE_CROSS_ORIGIN = ".enable.cross.origin";
+
+  /**
    * Configuration property suffix for whether the server is secure or not.
    */
   public static final String CONFIGURATION_SUFFIX_WEBAPP_WEB_SERVER_SECURE = ".web.server.secure";
@@ -72,6 +77,11 @@ public class WebServerActivityResourceConfigurator implements ActivityResourceCo
    * Host identifier to use if not specified in configuration.
    */
   public static final String WEB_SERVER_DEFAULT_HOST = "localhost";
+
+  /**
+   * Cross-origin enable if not specified in configuration.
+   */
+  public static final boolean WEB_SERVER_DEFAULT_ENABLE_CROSS_ORIGIN = true;
 
   /**
    * The base URL that this web server works with (hostname and port).
@@ -107,6 +117,11 @@ public class WebServerActivityResourceConfigurator implements ActivityResourceCo
    * The full URL for the web server's initial page.
    */
   private String webInitialPage;
+
+  /**
+   * The cross origin policy for this server.
+   */
+  private boolean crossOriginAllowed;
 
   @Override
   public void configure(String resourceName, Activity activity, WebServer webServer) {
@@ -154,6 +169,10 @@ public class WebServerActivityResourceConfigurator implements ActivityResourceCo
     boolean debugMode =
         configuration.getPropertyBoolean(WebActivityConfiguration.CONFIGURATION_WEBAPP_DEBUG, false);
     webServer.setDebugMode(debugMode);
+
+    crossOriginAllowed =
+        configuration.getPropertyBoolean(configurationPrefix + CONFIGURATION_SUFFIX_WEBAPP_ENABLE_CROSS_ORIGIN,
+            WEB_SERVER_DEFAULT_ENABLE_CROSS_ORIGIN);
 
     String webServerHost =
         configuration.getPropertyString(InteractiveSpacesEnvironment.CONFIGURATION_HOST_ADDRESS,
@@ -261,6 +280,13 @@ public class WebServerActivityResourceConfigurator implements ActivityResourceCo
    */
   public String getWebInitialPage() {
     return webInitialPage;
+  }
+
+  /**
+   * @return {@code true} if cross origin content should be allowed.
+   */
+  public boolean getCrossOriginAllowed() {
+    return crossOriginAllowed;
   }
 
 }

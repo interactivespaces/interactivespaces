@@ -17,14 +17,13 @@
 package interactivespaces.activity.component.web;
 
 import interactivespaces.activity.Activity;
-import interactivespaces.activity.component.ActivityComponent;
 import interactivespaces.activity.component.ActivityComponentContext;
 import interactivespaces.activity.component.BaseActivityComponent;
 import interactivespaces.activity.configuration.WebServerActivityResourceConfigurator;
 import interactivespaces.activity.impl.StatusDetail;
 import interactivespaces.configuration.Configuration;
+import interactivespaces.service.web.HttpConstants;
 import interactivespaces.service.web.WebSocketConnection;
-import interactivespaces.service.web.WebSocketHandler;
 import interactivespaces.service.web.server.HttpDynamicPostRequestHandler;
 import interactivespaces.service.web.server.HttpDynamicRequestHandler;
 import interactivespaces.service.web.server.HttpFileUploadListener;
@@ -38,7 +37,9 @@ import com.google.common.collect.Lists;
 import org.apache.commons.logging.Log;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -106,7 +107,7 @@ public class BasicWebServerActivityComponent extends BaseActivityComponent imple
     configurator.configure(null, activity, webServer);
 
     for (StaticContent content : staticContent) {
-      webServer.addStaticContentHandler(content.getUriPrefix(), content.getBaseDir());
+      addStaticContentHandler(content.getUriPrefix(), content.getBaseDir());
     }
 
     for (DynamicContent<HttpDynamicRequestHandler> content : dynamicGetContent) {
@@ -192,8 +193,8 @@ public class BasicWebServerActivityComponent extends BaseActivityComponent imple
   }
 
   @Override
-  public WebServerActivityComponent
-      setWebSocketHandlerFactory(WebServerWebSocketHandlerFactory webSocketHandlerFactory) {
+  public WebServerActivityComponent setWebSocketHandlerFactory(
+      WebServerWebSocketHandlerFactory webSocketHandlerFactory) {
     this.webSocketHandlerFactory = webSocketHandlerFactory;
 
     if (webServer != null) {
@@ -217,12 +218,28 @@ public class BasicWebServerActivityComponent extends BaseActivityComponent imple
   @Override
   public WebServerActivityComponent addStaticContent(String uriPrefix, File baseDir) {
     if (webServer != null) {
-      webServer.addStaticContentHandler(uriPrefix, baseDir);
+      addStaticContentHandler(uriPrefix, baseDir);
     } else {
       staticContent.add(new StaticContent(uriPrefix, baseDir));
     }
 
     return this;
+  }
+
+  /**
+   * Add a static content handler that has the access control allow origin header set.
+   *
+   * @param uriPrefix
+   *          the URI prefix for this particular content
+   * @param baseDir
+   *          the base directory where the content will be found
+   */
+  private void addStaticContentHandler(String uriPrefix, File baseDir) {
+    Map<String, String> accessControlMap = Collections.singletonMap(HttpConstants.ACCESS_CONTROL_ALLOW_ORIGIN,
+        HttpConstants.ACCESS_CONTROL_ORIGIN_WILDCARD);
+    Map<String, String> header = configurator.getCrossOriginAllowed()
+        ? accessControlMap : HttpConstants.EMPTY_HEADER_MAP;
+    webServer.addStaticContentHandler(uriPrefix, baseDir, header);
   }
 
   @Override

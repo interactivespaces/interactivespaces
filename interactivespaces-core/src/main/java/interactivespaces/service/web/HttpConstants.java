@@ -16,12 +16,22 @@
 
 package interactivespaces.service.web;
 
+import com.google.common.collect.ImmutableMap;
+
+import java.util.Map;
+
 /**
  * Useful web constants.
  *
  * @author Keith M. Hughes
  */
-public class HttpConstants {
+public final class HttpConstants {
+
+  /**
+   * Hidden constructor for utility class.
+   */
+  private HttpConstants() {
+  }
 
   /**
    * The separator between URL path components.
@@ -47,4 +57,19 @@ public class HttpConstants {
    * The separator for a URL query string between a name and its value.
    */
   public static final String URL_QUERY_NAME_VALUE_SEPARATOR = "=";
+
+  /**
+   * Empty map used when represending to additional headers.
+   */
+  public static final Map<String, String> EMPTY_HEADER_MAP = ImmutableMap.of();
+
+  /**
+   * Header key for origin access.
+   */
+  public static final String ACCESS_CONTROL_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
+
+  /**
+   * Origin value for all origins.
+   */
+  public static final String ACCESS_CONTROL_ORIGIN_WILDCARD = "*";
 }

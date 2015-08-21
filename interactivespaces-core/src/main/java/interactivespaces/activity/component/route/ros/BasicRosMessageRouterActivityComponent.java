@@ -143,7 +143,8 @@ public class BasicRosMessageRouterActivityComponent<T> extends BaseRosMessageRou
    * @param messageListener
    *          the listener for message events
    */
-  public BasicRosMessageRouterActivityComponent(String rosMessageType, RoutableInputMessageListener<T> messageListener) {
+  public BasicRosMessageRouterActivityComponent(String rosMessageType,
+      RoutableInputMessageListener<T> messageListener) {
     this.rosMessageType = rosMessageType;
     this.messageListener = messageListener;
   }
@@ -290,16 +291,16 @@ public class BasicRosMessageRouterActivityComponent<T> extends BaseRosMessageRou
       long start = timeProvider.getCurrentTime();
       String handlerInvocationId = newHandlerInvocationId();
       Log log = getComponentContext().getActivity().getLog();
-      if (log.isDebugEnabled()) {
-        log.debug(String.format("Entering ROS route message handler invocation %s", handlerInvocationId));
+      if (log.isTraceEnabled()) {
+        log.trace(String.format("Entering ROS route message handler invocation %s", handlerInvocationId));
       }
 
       // Send the message out to the listener.
       messageListener.onNewRoutableInputMessage(channelId, message);
 
-      if (log.isDebugEnabled()) {
-        log.debug(String.format("Exiting ROS route message handler invocation %s in %d msecs", handlerInvocationId,
-            timeProvider.getCurrentTime() - start));
+      if (log.isTraceEnabled()) {
+        log.trace(String.format("Exiting ROS route message handler invocation %s after %dms",
+            handlerInvocationId, timeProvider.getCurrentTime() - start));
       }
     } catch (Throwable e) {
       handleError(String.format("Error after receiving routing message for channel %s", channelId), e);
