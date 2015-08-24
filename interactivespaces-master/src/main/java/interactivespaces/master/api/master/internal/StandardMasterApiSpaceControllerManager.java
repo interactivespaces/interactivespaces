@@ -771,9 +771,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
     Activity activity = activityRepository.getActivityById(id);
     if (activity != null) {
       for (LiveActivity liveActivity : activityRepository.getLiveActivitiesByActivity(activity)) {
-        if (liveActivity.isOutOfDate()) {
-          activeSpaceControllerManager.deployLiveActivity(liveActivity);
-        }
+        activeSpaceControllerManager.deployLiveActivity(liveActivity);
       }
 
       return MasterApiMessageSupport.getSimpleSuccessResponse();

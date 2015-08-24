@@ -1188,7 +1188,7 @@ public class StandardActiveSpaceControllerManager implements InternalActiveSpace
 
       activeLiveActivity.setRuntimeState(newState, newStateDetail);
 
-      if (newState.equals(ActivityState.READY)) {
+      if (!newState.isRunning()) {
         activeLiveActivity.clearRunningStateModel();
       }
     }

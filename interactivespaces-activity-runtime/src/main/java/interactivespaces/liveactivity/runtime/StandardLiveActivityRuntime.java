@@ -690,6 +690,9 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
     // If went from not running to running we need to watch the activity
     if (!oldStatus.getState().isRunning() && newState.isRunning()) {
       liveActivityRunnerSampler.startSamplingRunner(getLiveActivityRunnerByUuid(activity.getUuid()));
+    } else if (newState == ActivityState.STARTUP_FAILURE) {
+      // If the activity went from a not running state and tried to transition to a not running state
+      getLiveActivityRunnerByUuid(activity.getUuid()).getActivityWrapper().done();
     }
 
     publishActivityStatus(activity.getUuid(), newStatus);
@@ -914,16 +917,33 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
    * The activity installer is signaling a removal.
    *
    * @param uuid
-   *          UUID of the installed activity.
+   *          UUID of the installed activity
    * @param result
    *          result of the removal
    */
   private void handleActivityRemove(String uuid, RemoveActivityResult result) {
     getSpaceEnvironment().getLog().info(String.format("Removed activity %s", uuid));
 
-    if (result == RemoveActivityResult.DOESNT_EXIST) {
+    if (result == RemoveActivityResult.SUCCESS) {
+      removeLiveActivityRunner(uuid);
+    } else if (result == RemoveActivityResult.DOESNT_EXIST) {
       ActivityStatus status = new ActivityStatus(ActivityState.DOESNT_EXIST, "Activity does not exist");
       publishActivityStatus(uuid, status);
+    }
+  }
+
+  /**
+   * Remove a live activity runner from the known runners.
+   *
+   * <p>
+   * Does nothing if the runner was not there.
+   *
+   * @param uuid
+   *        UUID for the live activity
+   */
+  private void removeLiveActivityRunner(String uuid) {
+    synchronized (liveActivityRunners) {
+      liveActivityRunners.remove(uuid);
     }
   }
 
