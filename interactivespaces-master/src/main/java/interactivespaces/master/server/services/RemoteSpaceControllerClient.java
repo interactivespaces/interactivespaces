@@ -40,8 +40,8 @@ public interface RemoteSpaceControllerClient extends ManagedResource {
    *
    * <p>
    * All operations which affect a controller, such as
-   * {@link #shutdownAllActivities(ActiveSpaceController) and
-   * {@link #activateActivity(ActiveLiveActivity) all will autoconnect to a
+   * {@link #shutdownSpacecontrollerAllActivities(ActiveSpaceController) and
+   * {@link #activateLiveActivity(ActiveLiveActivity) all will autoconnect to a
    * controller if necessary.
    *
    * <p>
@@ -52,7 +52,7 @@ public interface RemoteSpaceControllerClient extends ManagedResource {
    * @param controller
    *        the controller to connect to
    */
-  void connect(ActiveSpaceController controller);
+  void connectToSpaceController(ActiveSpaceController controller);
 
   /**
    * Disconnect from the given controller.
@@ -60,7 +60,7 @@ public interface RemoteSpaceControllerClient extends ManagedResource {
    * @param controller
    *          the controller to disconnect from
    */
-  void disconnect(ActiveSpaceController controller);
+  void disconnectFromSpaceController(ActiveSpaceController controller);
 
   /**
    * Request the shutdown of a controller.
@@ -68,7 +68,7 @@ public interface RemoteSpaceControllerClient extends ManagedResource {
    * @param controller
    *          the controller to shut down
    */
-  void requestShutdown(ActiveSpaceController controller);
+  void requestSpaceControllerShutdown(ActiveSpaceController controller);
 
   /**
    * Request the status of a controller.
@@ -76,7 +76,7 @@ public interface RemoteSpaceControllerClient extends ManagedResource {
    * @param controller
    *          the controller to get the status from
    */
-  void requestStatus(ActiveSpaceController controller);
+  void requestSpaceControllerStatus(ActiveSpaceController controller);
 
   /**
    * Request the shut down of all activities running on a controller.
@@ -84,7 +84,7 @@ public interface RemoteSpaceControllerClient extends ManagedResource {
    * @param controller
    *          the controller containing the activities to stop running
    */
-  void shutdownAllActivities(ActiveSpaceController controller);
+  void shutdownSpacecontrollerAllActivities(ActiveSpaceController controller);
 
   /**
    * Configure the space controller.
@@ -100,7 +100,7 @@ public interface RemoteSpaceControllerClient extends ManagedResource {
    * @param controller
    *          controller to clean
    */
-  void cleanControllerTempData(ActiveSpaceController controller);
+  void cleanSpaceControllerTempData(ActiveSpaceController controller);
 
   /**
    * Clean the permanent data folder for the controller.
@@ -108,7 +108,7 @@ public interface RemoteSpaceControllerClient extends ManagedResource {
    * @param controller
    *          controller to clean
    */
-  void cleanControllerPermanentData(ActiveSpaceController controller);
+  void cleanSpaceControllerPermanentData(ActiveSpaceController controller);
 
   /**
    * Clean the temp data folder for all live activities on the controller.
@@ -116,7 +116,7 @@ public interface RemoteSpaceControllerClient extends ManagedResource {
    * @param controller
    *          controller to clean
    */
-  void cleanControllerActivitiesTempData(ActiveSpaceController controller);
+  void cleanSpaceControllerActivitiesTempData(ActiveSpaceController controller);
 
   /**
    * Clean the permanent data folder for all live activities on the controller.
@@ -124,7 +124,7 @@ public interface RemoteSpaceControllerClient extends ManagedResource {
    * @param controller
    *          controller to clean
    */
-  void cleanControllerActivitiesPermanentData(ActiveSpaceController controller);
+  void cleanSpaceControllerActivitiesPermanentData(ActiveSpaceController controller);
 
   /**
    * Capture the data bundle for the given controller.
@@ -132,7 +132,7 @@ public interface RemoteSpaceControllerClient extends ManagedResource {
    * @param controller
    *          controller for which to capture the data bundle
    */
-  void captureControllerDataBundle(ActiveSpaceController controller);
+  void captureSpaceControllerDataBundle(ActiveSpaceController controller);
 
   /**
    * Restore the data bundle for the given controller.
@@ -140,7 +140,7 @@ public interface RemoteSpaceControllerClient extends ManagedResource {
    * @param controller
    *          controller for which to capture the data bundle
    */
-  void restoreControllerDataBundle(ActiveSpaceController controller);
+  void restoreSpaceControllerDataBundle(ActiveSpaceController controller);
 
   /**
    * Deploy an activity to its controller.
@@ -150,7 +150,7 @@ public interface RemoteSpaceControllerClient extends ManagedResource {
    * @param request
    *          the deployment request
    */
-  void deployActivity(ActiveLiveActivity liveActivity, LiveActivityDeploymentRequest request);
+  void deployLiveActivity(ActiveLiveActivity liveActivity, LiveActivityDeploymentRequest request);
 
   /**
    * Query a controller about a resource deployment.
@@ -160,7 +160,8 @@ public interface RemoteSpaceControllerClient extends ManagedResource {
    * @param query
    *          the query
    */
-  void queryResourceDeployment(ActiveSpaceController controller, ContainerResourceDeploymentQueryRequest query);
+  void querySpaceControllerResourceDeployment(ActiveSpaceController controller,
+      ContainerResourceDeploymentQueryRequest query);
 
   /**
    * Commit a resource deployment to a controller.
@@ -170,7 +171,8 @@ public interface RemoteSpaceControllerClient extends ManagedResource {
    * @param request
    *          the commit request
    */
-  void commitResourceDeployment(ActiveSpaceController controller, ContainerResourceDeploymentCommitRequest request);
+  void commitSpaceControllerResourceDeployment(ActiveSpaceController controller,
+      ContainerResourceDeploymentCommitRequest request);
 
   /**
    * Delete a live activity from its controller.
@@ -196,7 +198,7 @@ public interface RemoteSpaceControllerClient extends ManagedResource {
    * @param activity
    *          the activity to start
    */
-  void startupActivity(ActiveLiveActivity activity);
+  void startupLiveActivity(ActiveLiveActivity activity);
 
   /**
    * Activate an activity on its controller.
@@ -204,7 +206,7 @@ public interface RemoteSpaceControllerClient extends ManagedResource {
    * @param activity
    *          the activity to activate
    */
-  void activateActivity(ActiveLiveActivity activity);
+  void activateLiveActivity(ActiveLiveActivity activity);
 
   /**
    * Deactivate an activity on its controller.
@@ -212,7 +214,7 @@ public interface RemoteSpaceControllerClient extends ManagedResource {
    * @param activity
    *          the activity to deactivate
    */
-  void deactivateActivity(ActiveLiveActivity activity);
+  void deactivateLiveActivity(ActiveLiveActivity activity);
 
   /**
    * Shut an activity down on its controller.
@@ -220,7 +222,7 @@ public interface RemoteSpaceControllerClient extends ManagedResource {
    * @param activity
    *          the activity to shut down
    */
-  void shutdownActivity(ActiveLiveActivity activity);
+  void shutdownLiveActivity(ActiveLiveActivity activity);
 
   /**
    * Get the status of an activity on its controller.
@@ -228,7 +230,7 @@ public interface RemoteSpaceControllerClient extends ManagedResource {
    * @param activity
    *          the activity to get the status from
    */
-  void statusActivity(ActiveLiveActivity activity);
+  void statusLiveActivity(ActiveLiveActivity activity);
 
   /**
    * Clean the permanent data for an activity on its controller.
@@ -236,7 +238,7 @@ public interface RemoteSpaceControllerClient extends ManagedResource {
    * @param activity
    *          the activity to clean
    */
-  void cleanActivityPermanentData(ActiveLiveActivity activity);
+  void cleanLiveActivityPermanentData(ActiveLiveActivity activity);
 
   /**
    * Clean the temp data for an activity on its controller.
@@ -244,7 +246,7 @@ public interface RemoteSpaceControllerClient extends ManagedResource {
    * @param activity
    *          the activity to clean
    */
-  void cleanActivityTempData(ActiveLiveActivity activity);
+  void cleanLiveActivityTempData(ActiveLiveActivity activity);
 
   /**
    * Add in a new event listener for events from the client.

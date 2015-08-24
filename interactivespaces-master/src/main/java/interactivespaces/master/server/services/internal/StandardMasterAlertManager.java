@@ -73,6 +73,11 @@ public class StandardMasterAlertManager implements MasterAlertManager {
     }
 
     @Override
+    public void onSpaceControllerConnectFailed(ActiveSpaceController controller, long waitedTime) {
+      handleSpaceControllerConnectFailed(controller, waitedTime);
+    }
+
+    @Override
     public void onSpaceControllerDisconnectAttempted(ActiveSpaceController controller) {
       handleSpaceControllerDisconnectAttempted(controller);
     }
@@ -174,6 +179,18 @@ public class StandardMasterAlertManager implements MasterAlertManager {
   }
 
   /**
+   * Handle a connection failure to a space controller.
+   *
+   * @param activeSpaceController
+   *          the space controller
+   * @param waitedTime
+   *          the time waited for the space controller connection, in milliseconds
+   */
+  private void handleSpaceControllerConnectFailed(ActiveSpaceController activeSpaceController, long waitedTime) {
+    disconnectAndRaiseAlert(activeSpaceController, waitedTime);
+  }
+
+  /**
    * Handle a disconnection attempt to a space controller.
    *
    * @param activeSpaceController
@@ -214,7 +231,7 @@ public class StandardMasterAlertManager implements MasterAlertManager {
     removeSpaceControllerWatcher(activeSpaceController);
 
     // Shutdown comms to the controller.
-    disconnectSpaceController(activeSpaceController);
+    disconnectSpaceController(activeSpaceController, false);
 
     // State is now unknown
     activeSpaceController.setState(SpaceControllerState.UNKNOWN);
@@ -234,8 +251,43 @@ public class StandardMasterAlertManager implements MasterAlertManager {
         String.format("Lost heartbeat for space controller for %d msec: %s", timeSinceLastHeartbeat,
             activeSpaceController.getDisplayName()));
 
+    disconnectAndRaiseAlert(activeSpaceController, timeSinceLastHeartbeat);
+  }
+
+  /**
+   * Disconnect from a space controller that has lost its connection and raise an alert.
+   *
+   * @param activeSpaceController
+   *          the space controller
+   * @param timeSinceLastHeartbeat
+   *          the time since the last connection acknowledgement
+   */
+  private void disconnectAndRaiseAlert(final ActiveSpaceController activeSpaceController,
+      final long timeSinceLastHeartbeat) {
+    disconnectSpaceController(activeSpaceController, true);
+
     // TODO: Move alerting into an alerting system separate from a business logic manager that decides that an alert is
     // needed
+
+    // Shouldn't block the thread with alert which could take time depending on what is being contacted, e.g. email
+    // server.
+    spaceEnvironment.getExecutorService().execute(new Runnable() {
+      @Override
+      public void run() {
+        raiseHeartbeatLostAlert(activeSpaceController, timeSinceLastHeartbeat);
+      }
+    });
+  }
+
+  /**
+   * Raise the heartbeat alert.
+   *
+   * @param activeSpaceController
+   *          the space controller
+   * @param timeSinceLastHeartbeat
+   *          how late the heartbeat is, in milliseconds
+   */
+  private void raiseHeartbeatLostAlert(ActiveSpaceController activeSpaceController, long timeSinceLastHeartbeat) {
     try {
       alertService.raiseAlert(ALERT_TYPE_CONTROLLER_TIMEOUT, activeSpaceController.getSpaceController().getUuid(),
           createAlertMessage(activeSpaceController, timeSinceLastHeartbeat));
@@ -243,8 +295,6 @@ public class StandardMasterAlertManager implements MasterAlertManager {
       spaceEnvironment.getLog().error(
           String.format("Lost heartbeat alert for space controller: %s", activeSpaceController.getDisplayName()), e);
     }
-
-    disconnectSpaceController(activeSpaceController);
   }
 
   /**
@@ -252,10 +302,12 @@ public class StandardMasterAlertManager implements MasterAlertManager {
    *
    * @param activeSpaceController
    *          the space controller to be disconnected from
+   * @param fromError
+   *          {@code true} if the disconnect comes from an error
    */
-  private void disconnectSpaceController(ActiveSpaceController activeSpaceController) {
+  private void disconnectSpaceController(ActiveSpaceController activeSpaceController, boolean fromError) {
     try {
-      activeSpaceControllerManager.disconnectSpaceController(activeSpaceController.getSpaceController());
+      activeSpaceControllerManager.disconnectSpaceController(activeSpaceController.getSpaceController(), fromError);
     } catch (Throwable e) {
       spaceEnvironment.getLog().error(
           String.format("Lost heartbeat disconnect for space controller: %s", activeSpaceController.getDisplayName()),

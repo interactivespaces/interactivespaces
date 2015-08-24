@@ -279,7 +279,7 @@ public class ActiveLiveActivity {
    * Nothing will happen if it is not activated.
    */
   public synchronized void status() {
-    remoteControllerClient.statusActivity(this);
+    remoteControllerClient.statusLiveActivity(this);
   }
 
   /**
@@ -466,7 +466,7 @@ public class ActiveLiveActivity {
 
     markLastStartDate();
 
-    remoteControllerClient.startupActivity(this);
+    remoteControllerClient.startupLiveActivity(this);
   }
 
   /**
@@ -478,7 +478,7 @@ public class ActiveLiveActivity {
     // Necessary because ACTIVATE implicitly triggers STARTUP on the controller.
     markLastStartDate();
 
-    remoteControllerClient.activateActivity(this);
+    remoteControllerClient.activateLiveActivity(this);
   }
 
   /**
@@ -486,7 +486,7 @@ public class ActiveLiveActivity {
    */
   private void attemptRemoteDeactivation() {
     setRuntimeState(ActivityState.DEACTIVATE_ATTEMPT, null);
-    remoteControllerClient.deactivateActivity(this);
+    remoteControllerClient.deactivateLiveActivity(this);
   }
 
   /**
@@ -494,7 +494,7 @@ public class ActiveLiveActivity {
    */
   private void attemptRemoteShutdown() {
     setRuntimeState(ActivityState.SHUTDOWN_ATTEMPT, null);
-    remoteControllerClient.shutdownActivity(this);
+    remoteControllerClient.shutdownLiveActivity(this);
   }
 
   /**

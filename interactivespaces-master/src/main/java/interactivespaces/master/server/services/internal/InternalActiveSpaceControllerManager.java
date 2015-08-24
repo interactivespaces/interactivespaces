@@ -46,7 +46,7 @@ public interface InternalActiveSpaceControllerManager extends ActiveSpaceControl
    * @param activeLiveActivity
    *          the active live activity to deploy
    */
-  void deployActiveActivity(ActiveLiveActivity activeLiveActivity);
+  void deployActiveLiveActivity(ActiveLiveActivity activeLiveActivity);
 
   /**
    * Delete a active activity.
@@ -54,7 +54,7 @@ public interface InternalActiveSpaceControllerManager extends ActiveSpaceControl
    * @param activeLiveActivity
    *          the active live activity to delete
    */
-  void deleteActiveActivity(ActiveLiveActivity activeLiveActivity);
+  void deleteActiveLiveActivity(ActiveLiveActivity activeLiveActivity);
 
   /**
    * Configure a active activity.

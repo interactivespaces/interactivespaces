@@ -36,6 +36,11 @@ public abstract class BaseMasterEventListener implements MasterEventListener {
   }
 
   @Override
+  public void onSpaceControllerConnectFailed(ActiveSpaceController controller, long waitedTime) {
+    // Default is do nothing.
+  }
+
+  @Override
   public void onSpaceControllerDisconnectAttempted(ActiveSpaceController controller) {
     // Default is do nothing.
   }

@@ -138,7 +138,7 @@ public class StandardContainerResourceDeploymentManager implements ContainerReso
               resource.getVersion())));
     }
 
-    remoteSpaceControllerClient.commitResourceDeployment(controller, commitRequest);
+    remoteSpaceControllerClient.commitSpaceControllerResourceDeployment(controller, commitRequest);
   }
 
   /**

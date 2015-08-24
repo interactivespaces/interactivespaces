@@ -17,6 +17,8 @@
 package interactivespaces.system.internal.osgi;
 
 import interactivespaces.configuration.Configuration;
+import interactivespaces.logging.ExtendedLog;
+import interactivespaces.logging.StandardExtendedLog;
 import interactivespaces.service.ServiceRegistry;
 import interactivespaces.service.SimpleServiceRegistry;
 import interactivespaces.system.InteractiveSpacesEnvironment;
@@ -83,6 +85,11 @@ public class RosOsgiInteractiveSpacesEnvironment implements InteractiveSpacesEnv
    */
   private LoggingProvider loggingProvider;
 
+  /**
+   * The extended logger.
+   */
+  private ExtendedLog log;
+
   @Override
   public Configuration getSystemConfiguration() {
     return systemConfiguration;
@@ -105,11 +112,17 @@ public class RosOsgiInteractiveSpacesEnvironment implements InteractiveSpacesEnv
 
   @Override
   public Log getLog() {
-    return loggingProvider.getLog();
+    return log;
+  }
+
+  @Override
+  public ExtendedLog getExtendedLog() {
+    return log;
   }
 
   @Override
   public Log getLog(String logName, String level, String filename) {
+    // TODO(keith): make this generate extended logs, though they will need to be in a map.
     return loggingProvider.getLog(logName, level, filename);
   }
 
@@ -180,5 +193,7 @@ public class RosOsgiInteractiveSpacesEnvironment implements InteractiveSpacesEnv
   @Override
   public void setLoggingProvider(LoggingProvider loggingProvider) {
     this.loggingProvider = loggingProvider;
+
+    log = new StandardExtendedLog(loggingProvider.getLog());
   }
 }

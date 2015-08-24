@@ -86,7 +86,7 @@ public class ActiveLiveActivityTest extends BaseSpaceTest {
 
     assertActiveActivityState(activeLiveActivity, true, 0, false, 0, ActivityState.STARTUP_ATTEMPT,
         ActivityState.UNKNOWN);
-    Mockito.verify(remoteControllerClient, Mockito.times(1)).startupActivity(activeLiveActivity);
+    Mockito.verify(remoteControllerClient, Mockito.times(1)).startupLiveActivity(activeLiveActivity);
   }
 
   /**
@@ -99,8 +99,8 @@ public class ActiveLiveActivityTest extends BaseSpaceTest {
 
     assertActiveActivityState(activeLiveActivity, false, 0, false, 0,
         ActivityState.SHUTDOWN_ATTEMPT, ActivityState.UNKNOWN);
-    Mockito.verify(remoteControllerClient, Mockito.times(1)).startupActivity(activeLiveActivity);
-    Mockito.verify(remoteControllerClient, Mockito.times(1)).shutdownActivity(activeLiveActivity);
+    Mockito.verify(remoteControllerClient, Mockito.times(1)).startupLiveActivity(activeLiveActivity);
+    Mockito.verify(remoteControllerClient, Mockito.times(1)).shutdownLiveActivity(activeLiveActivity);
   }
 
   /**
@@ -112,7 +112,7 @@ public class ActiveLiveActivityTest extends BaseSpaceTest {
 
     assertActiveActivityState(activeLiveActivity, true, 0, true, 0, ActivityState.ACTIVATE_ATTEMPT,
         ActivityState.UNKNOWN);
-    Mockito.verify(remoteControllerClient, Mockito.times(1)).activateActivity(activeLiveActivity);
+    Mockito.verify(remoteControllerClient, Mockito.times(1)).activateLiveActivity(activeLiveActivity);
   }
 
   /**
@@ -125,8 +125,8 @@ public class ActiveLiveActivityTest extends BaseSpaceTest {
 
     assertActiveActivityState(activeLiveActivity, false, 0, false, 0,
         ActivityState.SHUTDOWN_ATTEMPT, ActivityState.UNKNOWN);
-    Mockito.verify(remoteControllerClient, Mockito.times(1)).activateActivity(activeLiveActivity);
-    Mockito.verify(remoteControllerClient, Mockito.times(1)).shutdownActivity(activeLiveActivity);
+    Mockito.verify(remoteControllerClient, Mockito.times(1)).activateLiveActivity(activeLiveActivity);
+    Mockito.verify(remoteControllerClient, Mockito.times(1)).shutdownLiveActivity(activeLiveActivity);
   }
 
   /**
@@ -138,7 +138,7 @@ public class ActiveLiveActivityTest extends BaseSpaceTest {
 
     assertActiveActivityState(activeLiveActivity, false, 1, false, 0,
         ActivityState.STARTUP_ATTEMPT, ActivityState.UNKNOWN);
-    Mockito.verify(remoteControllerClient, Mockito.times(1)).startupActivity(activeLiveActivity);
+    Mockito.verify(remoteControllerClient, Mockito.times(1)).startupLiveActivity(activeLiveActivity);
   }
 
   /**
@@ -151,7 +151,7 @@ public class ActiveLiveActivityTest extends BaseSpaceTest {
 
     assertActiveActivityState(activeLiveActivity, false, 2, false, 0,
         ActivityState.STARTUP_ATTEMPT, ActivityState.UNKNOWN);
-    Mockito.verify(remoteControllerClient, Mockito.times(1)).startupActivity(activeLiveActivity);
+    Mockito.verify(remoteControllerClient, Mockito.times(1)).startupLiveActivity(activeLiveActivity);
   }
 
   /**
@@ -165,7 +165,7 @@ public class ActiveLiveActivityTest extends BaseSpaceTest {
 
     assertActiveActivityState(activeLiveActivity, false, 1, false, 0,
         ActivityState.STARTUP_ATTEMPT, ActivityState.UNKNOWN);
-    Mockito.verify(remoteControllerClient, Mockito.times(0)).shutdownActivity(activeLiveActivity);
+    Mockito.verify(remoteControllerClient, Mockito.times(0)).shutdownLiveActivity(activeLiveActivity);
   }
 
   /**
@@ -180,7 +180,7 @@ public class ActiveLiveActivityTest extends BaseSpaceTest {
 
     assertActiveActivityState(activeLiveActivity, false, 0, false, 0,
         ActivityState.SHUTDOWN_ATTEMPT, ActivityState.UNKNOWN);
-    Mockito.verify(remoteControllerClient, Mockito.times(1)).shutdownActivity(activeLiveActivity);
+    Mockito.verify(remoteControllerClient, Mockito.times(1)).shutdownLiveActivity(activeLiveActivity);
   }
 
   /**
@@ -192,8 +192,8 @@ public class ActiveLiveActivityTest extends BaseSpaceTest {
 
     assertActiveActivityState(activeLiveActivity, false, 1, false, 1,
         ActivityState.ACTIVATE_ATTEMPT, ActivityState.UNKNOWN);
-    Mockito.verify(remoteControllerClient, Mockito.times(0)).startupActivity(activeLiveActivity);
-    Mockito.verify(remoteControllerClient, Mockito.times(1)).activateActivity(activeLiveActivity);
+    Mockito.verify(remoteControllerClient, Mockito.times(0)).startupLiveActivity(activeLiveActivity);
+    Mockito.verify(remoteControllerClient, Mockito.times(1)).activateLiveActivity(activeLiveActivity);
   }
 
   /**
@@ -208,7 +208,7 @@ public class ActiveLiveActivityTest extends BaseSpaceTest {
 
     assertActiveActivityState(activeLiveActivity, false, 2, false, 1,
         ActivityState.ACTIVATE_ATTEMPT, ActivityState.UNKNOWN);
-    Mockito.verify(remoteControllerClient, Mockito.times(0)).deactivateActivity(activeLiveActivity);
+    Mockito.verify(remoteControllerClient, Mockito.times(0)).deactivateLiveActivity(activeLiveActivity);
   }
 
   /**
@@ -224,7 +224,7 @@ public class ActiveLiveActivityTest extends BaseSpaceTest {
 
     assertActiveActivityState(activeLiveActivity, false, 2, false, 0,
         ActivityState.DEACTIVATE_ATTEMPT, ActivityState.UNKNOWN);
-    Mockito.verify(remoteControllerClient, Mockito.times(1)).deactivateActivity(activeLiveActivity);
+    Mockito.verify(remoteControllerClient, Mockito.times(1)).deactivateLiveActivity(activeLiveActivity);
   }
 
   /**

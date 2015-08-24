@@ -18,6 +18,8 @@ package interactivespaces.system;
 
 import interactivespaces.configuration.Configuration;
 import interactivespaces.configuration.SimpleConfiguration;
+import interactivespaces.logging.ExtendedLog;
+import interactivespaces.logging.StandardExtendedLog;
 import interactivespaces.service.ServiceRegistry;
 import interactivespaces.service.SimpleServiceRegistry;
 import interactivespaces.time.SettableTimeProvider;
@@ -56,7 +58,7 @@ public final class StandaloneInteractiveSpacesEnvironment implements Interactive
 
     environment.systemConfiguration = SimpleConfiguration.newConfiguration();
     environment.executorService = Executors.newScheduledThreadPool(NUM_THREADS_IN_POOL);
-    environment.log = new Jdk14Logger("test.interactive.spaces");
+    environment.log = new StandardExtendedLog(new Jdk14Logger("test.interactive.spaces"));
     environment.serviceRegistry = new SimpleServiceRegistry(environment);
     environment.timeProvider = new SettableTimeProvider();
     environment.managedResources = new ManagedResources(environment.log);
@@ -78,7 +80,7 @@ public final class StandaloneInteractiveSpacesEnvironment implements Interactive
   /**
    * The log for the system.
    */
-  private Log log;
+  private ExtendedLog log;
 
   /**
    * The executor service.
@@ -128,6 +130,11 @@ public final class StandaloneInteractiveSpacesEnvironment implements Interactive
 
   @Override
   public Log getLog() {
+    return log;
+  }
+
+  @Override
+  public ExtendedLog getExtendedLog() {
     return log;
   }
 
@@ -200,7 +207,7 @@ public final class StandaloneInteractiveSpacesEnvironment implements Interactive
    *          the logger to use
    */
   public void setLog(Log log) {
-    this.log = log;
+    this.log = new StandardExtendedLog(log);
   }
 
   /**

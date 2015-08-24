@@ -28,11 +28,13 @@ import interactivespaces.container.control.message.container.resource.deployment
 import interactivespaces.container.control.message.container.resource.deployment.ContainerResourceDeploymentQueryRequest;
 import interactivespaces.container.control.message.container.resource.deployment.ContainerResourceDeploymentQueryResponse;
 import interactivespaces.container.controller.common.ros.RosSpaceControllerSupport;
+import interactivespaces.controller.SpaceControllerState;
 import interactivespaces.controller.SpaceControllerStatus;
 import interactivespaces.controller.client.master.RemoteActivityDeploymentManager;
 import interactivespaces.domain.basic.ActivityConfiguration;
 import interactivespaces.domain.basic.ConfigurationParameter;
 import interactivespaces.domain.basic.SpaceControllerConfiguration;
+import interactivespaces.logging.ExtendedLog;
 import interactivespaces.master.server.services.ActiveLiveActivity;
 import interactivespaces.master.server.services.ActiveSpaceController;
 import interactivespaces.master.server.services.RemoteSpaceControllerClient;
@@ -59,7 +61,6 @@ import interactivespaces_msgs.LiveActivityDeployRequestMessage;
 import interactivespaces_msgs.LiveActivityDeployResponseMessage;
 import interactivespaces_msgs.LiveActivityRuntimeRequest;
 import interactivespaces_msgs.LiveActivityRuntimeStatus;
-import org.apache.commons.logging.Log;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.ros.message.MessageDeserializer;
 import org.ros.message.MessageFactory;
@@ -135,7 +136,7 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
   /**
    * Logger for the controller.
    */
-  private Log log;
+  private ExtendedLog log;
 
   /**
    * ROS message serializer for a live activity runtime request.
@@ -264,29 +265,29 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
   }
 
   @Override
-  public void connect(ActiveSpaceController controller) {
+  public void connectToSpaceController(ActiveSpaceController controller) {
     getCommunicator(controller, true);
   }
 
   @Override
-  public void disconnect(ActiveSpaceController controller) {
+  public void disconnectFromSpaceController(ActiveSpaceController controller) {
     shutdownCommunicator(controller);
   }
 
   @Override
-  public void requestShutdown(ActiveSpaceController controller) {
+  public void requestSpaceControllerShutdown(ActiveSpaceController controller) {
     sendControllerRequest(controller, ControllerRequest.OPERATION_CONTROLLER_SHUTDOWN_CONTROLLER);
 
     // Heartbeat is shut down once controller acknowledges shutdown.
   }
 
   @Override
-  public void requestStatus(ActiveSpaceController controller) {
+  public void requestSpaceControllerStatus(ActiveSpaceController controller) {
     sendControllerRequest(controller, ControllerRequest.OPERATION_CONTROLLER_STATUS);
   }
 
   @Override
-  public void shutdownAllActivities(ActiveSpaceController controller) {
+  public void shutdownSpacecontrollerAllActivities(ActiveSpaceController controller) {
     sendControllerRequest(controller, ControllerRequest.OPERATION_CONTROLLER_SHUTDOWN_ACTIVITIES);
   }
 
@@ -311,17 +312,17 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
 
     ChannelBuffer serialize = configurationRequestSerializer.serialize(request);
 
-    sendControllerRequest(controller, ControllerRequest.OPERATION_CONTROLLER_CONFIGURE, serialize);
+    sendSpaceControllerRequest(controller, ControllerRequest.OPERATION_CONTROLLER_CONFIGURE, serialize);
   }
 
   @Override
-  public void deployActivity(ActiveLiveActivity liveActivity, LiveActivityDeploymentRequest request) {
+  public void deployLiveActivity(ActiveLiveActivity liveActivity, LiveActivityDeploymentRequest request) {
     LiveActivityDeployRequestMessage rosRequest =
         rosMessageFactory.newFromType(LiveActivityDeployRequestMessage._TYPE);
 
     RosLiveActivityDeploymentMessageTranslator.serializeActivityDeploymentRequest(request, rosRequest);
 
-    sendControllerRequest(liveActivity.getActiveController(),
+    sendSpaceControllerRequest(liveActivity.getActiveController(),
         ControllerRequest.OPERATION_CONTROLLER_DEPLOY_LIVE_ACTIVITY,
         liveActivityDeployRequestSerializer.serialize(rosRequest));
   }
@@ -333,60 +334,61 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
 
     RosLiveActivityDeleteMessageTranslator.serializeLiveActivityDeleteRequest(request, rosMessage);
 
-    sendControllerRequest(liveActivity.getActiveController(),
+    sendSpaceControllerRequest(liveActivity.getActiveController(),
         ControllerRequest.OPERATION_CONTROLLER_DELETE_LIVE_ACTIVITY,
         liveActivityDeleteRequestSerializer.serialize(rosMessage));
   }
 
   @Override
-  public void queryResourceDeployment(ActiveSpaceController controller, ContainerResourceDeploymentQueryRequest query) {
+  public void querySpaceControllerResourceDeployment(ActiveSpaceController controller,
+      ContainerResourceDeploymentQueryRequest query) {
     ContainerResourceQueryRequestMessage rosMessage =
         rosMessageFactory.newFromType(ContainerResourceQueryRequestMessage._TYPE);
 
     RosLiveActivityDeploymentMessageTranslator.serializeResourceDeploymentQuery(query, rosMessage, rosMessageFactory);
 
-    sendControllerRequest(controller, ControllerRequest.OPERATION_CONTROLLER_RESOURCE_QUERY,
+    sendSpaceControllerRequest(controller, ControllerRequest.OPERATION_CONTROLLER_RESOURCE_QUERY,
         containerResourceQueryRequestSerializer.serialize(rosMessage));
   }
 
   @Override
-  public void commitResourceDeployment(ActiveSpaceController controller,
+  public void commitSpaceControllerResourceDeployment(ActiveSpaceController controller,
       ContainerResourceDeploymentCommitRequest request) {
     ContainerResourceCommitRequestMessage rosMessage =
         rosMessageFactory.newFromType(ContainerResourceCommitRequestMessage._TYPE);
     RosLiveActivityDeploymentMessageTranslator.serializeResourceDeploymentCommit(request, rosMessage,
         rosMessageFactory);
     ChannelBuffer payload = containerResourceCommitRequestSerializer.serialize(rosMessage);
-    sendControllerRequest(controller, ControllerRequest.OPERATION_CONTROLLER_RESOURCE_COMMIT, payload);
+    sendSpaceControllerRequest(controller, ControllerRequest.OPERATION_CONTROLLER_RESOURCE_COMMIT, payload);
   }
 
   @Override
-  public void cleanControllerTempData(ActiveSpaceController controller) {
+  public void cleanSpaceControllerTempData(ActiveSpaceController controller) {
     sendControllerRequest(controller, ControllerRequest.OPERATION_CONTROLLER_CLEAN_DATA_TMP);
   }
 
   @Override
-  public void cleanControllerPermanentData(ActiveSpaceController controller) {
+  public void cleanSpaceControllerPermanentData(ActiveSpaceController controller) {
     sendControllerRequest(controller, ControllerRequest.OPERATION_CONTROLLER_CLEAN_DATA_PERMANENT);
   }
 
   @Override
-  public void cleanControllerActivitiesTempData(ActiveSpaceController controller) {
+  public void cleanSpaceControllerActivitiesTempData(ActiveSpaceController controller) {
     sendControllerRequest(controller, ControllerRequest.OPERATION_CONTROLLER_CLEAN_DATA_TMP_ACTIVITIES);
   }
 
   @Override
-  public void cleanControllerActivitiesPermanentData(ActiveSpaceController controller) {
+  public void cleanSpaceControllerActivitiesPermanentData(ActiveSpaceController controller) {
     sendControllerRequest(controller, ControllerRequest.OPERATION_CONTROLLER_CLEAN_DATA_PERMANENT_ACTIVITIES);
   }
 
   @Override
-  public void captureControllerDataBundle(ActiveSpaceController controller) {
+  public void captureSpaceControllerDataBundle(ActiveSpaceController controller) {
     masterDataBundleManager.captureControllerDataBundle(controller);
   }
 
   @Override
-  public void restoreControllerDataBundle(ActiveSpaceController controller) {
+  public void restoreSpaceControllerDataBundle(ActiveSpaceController controller) {
     masterDataBundleManager.restoreControllerDataBundle(controller);
   }
 
@@ -411,42 +413,43 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
 
     ChannelBuffer serialize = configurationRequestSerializer.serialize(request);
 
-    sendActivityRuntimeRequest(activity, LiveActivityRuntimeRequest.OPERATION_LIVE_ACTIVITY_CONFIGURE, serialize);
+    sendLiveActivityRuntimeRequest(activity, LiveActivityRuntimeRequest.OPERATION_LIVE_ACTIVITY_CONFIGURE, serialize);
   }
 
   @Override
-  public void startupActivity(ActiveLiveActivity activity) {
-    sendActivityRuntimeRequest(activity, LiveActivityRuntimeRequest.OPERATION_LIVE_ACTIVITY_STARTUP, null);
+  public void startupLiveActivity(ActiveLiveActivity activity) {
+    sendLiveActivityRuntimeRequest(activity, LiveActivityRuntimeRequest.OPERATION_LIVE_ACTIVITY_STARTUP, null);
   }
 
   @Override
-  public void activateActivity(ActiveLiveActivity activity) {
-    sendActivityRuntimeRequest(activity, LiveActivityRuntimeRequest.OPERATION_LIVE_ACTIVITY_ACTIVATE, null);
+  public void activateLiveActivity(ActiveLiveActivity activity) {
+    sendLiveActivityRuntimeRequest(activity, LiveActivityRuntimeRequest.OPERATION_LIVE_ACTIVITY_ACTIVATE, null);
   }
 
   @Override
-  public void deactivateActivity(ActiveLiveActivity activity) {
-    sendActivityRuntimeRequest(activity, LiveActivityRuntimeRequest.OPERATION_LIVE_ACTIVITY_DEACTIVATE, null);
+  public void deactivateLiveActivity(ActiveLiveActivity activity) {
+    sendLiveActivityRuntimeRequest(activity, LiveActivityRuntimeRequest.OPERATION_LIVE_ACTIVITY_DEACTIVATE, null);
   }
 
   @Override
-  public void shutdownActivity(ActiveLiveActivity activity) {
-    sendActivityRuntimeRequest(activity, LiveActivityRuntimeRequest.OPERATION_LIVE_ACTIVITY_SHUTDOWN, null);
+  public void shutdownLiveActivity(ActiveLiveActivity activity) {
+    sendLiveActivityRuntimeRequest(activity, LiveActivityRuntimeRequest.OPERATION_LIVE_ACTIVITY_SHUTDOWN, null);
   }
 
   @Override
-  public void statusActivity(ActiveLiveActivity activity) {
-    sendActivityRuntimeRequest(activity, LiveActivityRuntimeRequest.OPERATION_LIVE_ACTIVITY_STATUS, null);
+  public void statusLiveActivity(ActiveLiveActivity activity) {
+    sendLiveActivityRuntimeRequest(activity, LiveActivityRuntimeRequest.OPERATION_LIVE_ACTIVITY_STATUS, null);
   }
 
   @Override
-  public void cleanActivityPermanentData(ActiveLiveActivity activity) {
-    sendActivityRuntimeRequest(activity, LiveActivityRuntimeRequest.OPERATION_LIVE_ACTIVITY_CLEAN_DATA_PERMANENT, null);
+  public void cleanLiveActivityPermanentData(ActiveLiveActivity activity) {
+    sendLiveActivityRuntimeRequest(activity, LiveActivityRuntimeRequest.OPERATION_LIVE_ACTIVITY_CLEAN_DATA_PERMANENT,
+        null);
   }
 
   @Override
-  public void cleanActivityTempData(ActiveLiveActivity activity) {
-    sendActivityRuntimeRequest(activity, LiveActivityRuntimeRequest.OPERATION_LIVE_ACTIVITY_CLEAN_DATA_TMP, null);
+  public void cleanLiveActivityTempData(ActiveLiveActivity activity) {
+    sendLiveActivityRuntimeRequest(activity, LiveActivityRuntimeRequest.OPERATION_LIVE_ACTIVITY_CLEAN_DATA_TMP, null);
   }
 
   @Override
@@ -469,7 +472,7 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
    *          the operation requested
    */
   private void sendControllerRequest(ActiveSpaceController controller, int operation) {
-    sendControllerRequest(controller, operation, null);
+    sendSpaceControllerRequest(controller, operation, null);
   }
 
   /**
@@ -485,7 +488,7 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
    * @param payload
    *          any data to be sent with the request (can be {@code null})
    */
-  void sendControllerRequest(ActiveSpaceController controller, int operation, ChannelBuffer payload) {
+  void sendSpaceControllerRequest(ActiveSpaceController controller, int operation, ChannelBuffer payload) {
     ControllerRequest request = rosMessageFactory.newFromType(ControllerRequest._TYPE);
     request.setOperation(operation);
 
@@ -511,7 +514,7 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
    * @param payload
    *          the data to send
    */
-  private void sendActivityRuntimeRequest(ActiveLiveActivity activity, int operation, ChannelBuffer payload) {
+  private void sendLiveActivityRuntimeRequest(ActiveLiveActivity activity, int operation, ChannelBuffer payload) {
     LiveActivityRuntimeRequest request = rosMessageFactory.newFromType(LiveActivityRuntimeRequest._TYPE);
     request.setLiveActivityUuid(activity.getLiveActivity().getUuid());
 
@@ -521,7 +524,7 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
 
     request.setOperation(operation);
 
-    sendControllerRequest(activity.getActiveController(),
+    sendSpaceControllerRequest(activity.getActiveController(),
         ControllerRequest.OPERATION_CONTROLLER_LIVE_ACTIVITY_RUNTIME_REQUEST,
         liveActivityRuntimeRequestSerializer.serialize(request));
   }
@@ -788,6 +791,7 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
       SpaceControllerCommunicator communicator = controllerCommunicators.get(remoteNode);
 
       if (communicator == null) {
+        controller.setState(SpaceControllerState.CONNECT_ATTEMPT);
         communicator = new SpaceControllerCommunicator(controller);
         communicator.startup(masterRosContext.getMasterNode(), remoteNode, controllerStatusListener);
         controllerCommunicators.put(remoteNode, communicator);
@@ -816,8 +820,8 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
 
     if (communicator != null) {
       communicator.shutdown();
-      log.info(String.format("Communicator for controller %s shutdown and removed", controller.getSpaceController()
-          .getUuid()));
+      log.formattedInfo("Communicator for controller %s shutdown and removed", controller.getSpaceController()
+          .getUuid());
     }
   }
 
@@ -837,7 +841,7 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
    * @param log
    *          the log to set
    */
-  public void setLog(Log log) {
+  public void setLog(ExtendedLog log) {
     this.log = log;
   }
 
@@ -932,8 +936,11 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
         if (publisherListener.awaitNewSubscriber(controllerConnectionTimeWait, TimeUnit.MILLISECONDS)) {
           controllerRequestPublisher.publish(request);
         } else {
-          SimpleInteractiveSpacesException.throwFormattedException("No connection to controller in %d milliseconds",
+          remoteControllerClientListeners.signalSpaceControllerConnectFailed(spaceController,
               controllerConnectionTimeWait);
+
+          throw SimpleInteractiveSpacesException.newFormattedException(
+              "No connection to space controller in %d milliseconds", controllerConnectionTimeWait);
         }
       } catch (InterruptedException e) {
         // TODO(keith): Decide what to do.

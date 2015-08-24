@@ -20,12 +20,11 @@ import interactivespaces.activity.ActivityState;
 import interactivespaces.container.control.message.activity.LiveActivityDeleteResponse;
 import interactivespaces.container.control.message.activity.LiveActivityDeploymentResponse;
 import interactivespaces.controller.SpaceControllerState;
+import interactivespaces.logging.ExtendedLog;
 import interactivespaces.master.server.services.ActiveSpaceController;
 import interactivespaces.master.server.services.RemoteSpaceControllerClientListener;
 
 import com.google.common.collect.Lists;
-
-import org.apache.commons.logging.Log;
 
 import java.util.List;
 
@@ -47,7 +46,7 @@ public class RemoteSpaceControllerClientListenerCollection {
   /**
    * Logger for this helper.
    */
-  private final Log log;
+  private final ExtendedLog log;
 
   /**
    * Construct a helper.
@@ -55,7 +54,7 @@ public class RemoteSpaceControllerClientListenerCollection {
    * @param log
    *          the logger to use
    */
-  public RemoteSpaceControllerClientListenerCollection(Log log) {
+  public RemoteSpaceControllerClientListenerCollection(ExtendedLog log) {
     this.log = log;
   }
 
@@ -93,8 +92,25 @@ public class RemoteSpaceControllerClientListenerCollection {
       try {
         listener.onSpaceControllerConnectAttempted(controller);
       } catch (Throwable e) {
-        log.error(String.format("Error handling space controller connect event for %s", controller.getDisplayName()),
-            e);
+        log.formattedError(e, "Error handling space controller connect event for %s", controller.getDisplayName());
+      }
+    }
+  }
+
+  /**
+   * Signal a space controller connection failed.
+   *
+   * @param controller
+   *          the controller being disconnected from
+   * @param timeToWait
+   *          the time waited for the space controller connection, in milliseconds
+   */
+  public void signalSpaceControllerConnectFailed(ActiveSpaceController controller, long waitedTime) {
+    for (RemoteSpaceControllerClientListener listener : listeners) {
+      try {
+        listener.onSpaceControllerConnectFailed(controller, waitedTime);
+      } catch (Throwable e) {
+        log.formattedError(e, "Error handling space controller connect event for %s", controller.getDisplayName());
       }
     }
   }
@@ -110,8 +126,7 @@ public class RemoteSpaceControllerClientListenerCollection {
       try {
         listener.onSpaceControllerDisconnectAttempted(controller);
       } catch (Throwable e) {
-        log.error(
-            String.format("Error handling space controller disconnect event for %s", controller.getDisplayName()), e);
+        log.formattedError(e, "Error handling space controller disconnect event for %s", controller.getDisplayName());
       }
     }
   }
@@ -129,8 +144,8 @@ public class RemoteSpaceControllerClientListenerCollection {
       try {
         listener.onSpaceControllerHeartbeat(uuid, timestamp);
       } catch (Throwable e) {
-        log.error(String.format("Error handling space controller heartbeat event for UUID %s and timestamp %d", uuid,
-            timestamp), e);
+        log.formattedError(e, "Error handling space controller heartbeat event for UUID %s and timestamp %d", uuid,
+            timestamp);
       }
     }
   }
@@ -148,9 +163,8 @@ public class RemoteSpaceControllerClientListenerCollection {
       try {
         listener.onSpaceControllerStatusChange(uuid, state);
       } catch (Throwable e) {
-        log.error(
-            String.format("Error handling space controller status change event for UUID %s and state %s", uuid, state),
-            e);
+        log.formattedError(e, "Error handling space controller status change event for UUID %s and state %s", uuid,
+            state);
       }
     }
   }
@@ -166,8 +180,7 @@ public class RemoteSpaceControllerClientListenerCollection {
       try {
         listener.onSpaceControllerShutdown(uuid);
       } catch (Throwable e) {
-        log.error(
-            String.format("Error handling space controller shutdown event for UUID %s", uuid), e);
+        log.formattedError(e, "Error handling space controller shutdown event for UUID %s", uuid);
       }
     }
   }
@@ -185,8 +198,8 @@ public class RemoteSpaceControllerClientListenerCollection {
       try {
         listener.onLiveActivityDeployment(uuid, result);
       } catch (Throwable e) {
-        log.error(String.format("Error handling space controller deployment status event for UUID %s and result %s",
-            uuid, result), e);
+        log.formattedError(e, "Error handling space controller deployment status event for UUID %s and result %s",
+            uuid, result);
       }
     }
   }
@@ -204,8 +217,7 @@ public class RemoteSpaceControllerClientListenerCollection {
       try {
         listener.onLiveActivityDelete(uuid, result);
       } catch (Throwable e) {
-        log.error(String.format("Error handling live activity delete event for UUID %s and result %s", uuid, result),
-            e);
+        log.formattedError(e, "Error handling live activity delete event for UUID %s and result %s", uuid, result);
       }
     }
   }
@@ -225,9 +237,8 @@ public class RemoteSpaceControllerClientListenerCollection {
       try {
         listener.onLiveActivityRuntimeStateChange(uuid, newRuntimeState, newRuntimeStateDetail);
       } catch (Throwable e) {
-        log.error(String.format(
-            "Error handling live activity state change event for UUID %s and new runtime state %s", uuid,
-            newRuntimeState), e);
+        log.formattedError(e, "Error handling live activity state change event for UUID %s and new runtime state %s",
+            uuid, newRuntimeState);
       }
     }
   }
@@ -245,8 +256,7 @@ public class RemoteSpaceControllerClientListenerCollection {
       try {
         listener.onDataBundleStateChange(uuid, status);
       } catch (Throwable e) {
-        log.error(
-            String.format("Error handling live activity data bundle event for UUID %s and status %s", uuid, status), e);
+        log.formattedError(e, "Error handling live activity data bundle event for UUID %s and status %s", uuid, status);
       }
     }
   }

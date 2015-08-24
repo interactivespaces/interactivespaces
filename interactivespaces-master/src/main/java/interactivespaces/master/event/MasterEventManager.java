@@ -64,7 +64,8 @@ public interface MasterEventManager {
    * @param newState
    *          new state of the remote activity
    */
-  void signalLiveActivityStateChange(ActiveLiveActivity liveActivity, ActivityState oldState, ActivityState newState);
+  void signalLiveActivityRuntmeStateChange(ActiveLiveActivity liveActivity, ActivityState oldState,
+      ActivityState newState);
 
   /**
    * Send the live activity deletion message to all listeners.
@@ -143,4 +144,14 @@ public interface MasterEventManager {
    *          the space controller
    */
   void signalSpaceControllerConnectAttempted(ActiveSpaceController controller);
+
+  /**
+   * Signal a space controller connection failure.
+   *
+   * @param controller
+   *          the space controller
+   * @param waitedTime
+   *          the time waited for the space controller connection, in milliseconds
+   */
+  void signalSpaceControllerConnectFailed(ActiveSpaceController controller, long waitedTime);
 }

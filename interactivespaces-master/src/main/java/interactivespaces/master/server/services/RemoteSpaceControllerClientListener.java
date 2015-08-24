@@ -38,6 +38,16 @@ public interface RemoteSpaceControllerClientListener {
   void onSpaceControllerConnectAttempted(ActiveSpaceController controller);
 
   /**
+   * A space controller connection has failed.
+   *
+   * @param controller
+   *          the controller being connected to
+   * @param timeToWait
+   *          the time waited for the space controller connection, in milliseconds
+   */
+  void onSpaceControllerConnectFailed(ActiveSpaceController controller, long timeToWait);
+
+  /**
    * A space controller disconnection is being attempted.
    *
    * @param controller

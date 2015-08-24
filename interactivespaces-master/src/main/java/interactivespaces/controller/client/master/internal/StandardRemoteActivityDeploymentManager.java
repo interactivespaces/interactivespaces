@@ -284,7 +284,8 @@ public class StandardRemoteActivityDeploymentManager implements RemoteActivityDe
       } else {
         // Has dependencies so must query them.
         updateDeploymentStatus(request, MasterActivityDeploymentRequestStatus.QUERYING_DEPENDENCIES);
-        remoteSpaceControllerClient.queryResourceDeployment(request.getLiveActivity().getActiveController(), query);
+        remoteSpaceControllerClient.querySpaceControllerResourceDeployment(request.getLiveActivity()
+            .getActiveController(), query);
       }
     } else {
       // No dependencies so can start.
@@ -313,7 +314,7 @@ public class StandardRemoteActivityDeploymentManager implements RemoteActivityDe
    */
   private void deployActivity(MasterActivityDeploymentRequest request) {
     updateDeploymentStatus(request, MasterActivityDeploymentRequestStatus.DEPLOYING_ACTIVITY);
-    remoteSpaceControllerClient.deployActivity(request.getLiveActivity(), request);
+    remoteSpaceControllerClient.deployLiveActivity(request.getLiveActivity(), request);
   }
 
   /**

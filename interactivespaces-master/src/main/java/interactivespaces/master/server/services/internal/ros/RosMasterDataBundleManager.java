@@ -76,7 +76,7 @@ public class RosMasterDataBundleManager extends StandardMasterDataBundleManager 
     request.setTransferUri(destinationUri);
 
     ChannelBuffer serialize = controllerDataRequestMessageSerializer.serialize(request);
-    rosRemoteSpaceControllerClient.sendControllerRequest(controller,
+    rosRemoteSpaceControllerClient.sendSpaceControllerRequest(controller,
         ControllerRequest.OPERATION_CONTROLLER_CAPTURE_DATA, serialize);
   }
 
@@ -87,7 +87,7 @@ public class RosMasterDataBundleManager extends StandardMasterDataBundleManager 
     request.setTransferUri(sourceUri);
 
     ChannelBuffer serialize = controllerDataRequestMessageSerializer.serialize(request);
-    rosRemoteSpaceControllerClient.sendControllerRequest(controller,
+    rosRemoteSpaceControllerClient.sendSpaceControllerRequest(controller,
         ControllerRequest.OPERATION_CONTROLLER_RESTORE_DATA, serialize);
   }
 

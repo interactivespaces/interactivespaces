@@ -69,6 +69,19 @@ public class StandardMasterEventManager implements MasterEventManager {
   }
 
   @Override
+  public void signalSpaceControllerConnectFailed(ActiveSpaceController controller, long waitedTime) {
+    for (MasterEventListener listener : listeners) {
+      try {
+        listener.onSpaceControllerConnectFailed(controller, waitedTime);
+      } catch (Throwable e) {
+        log.error(String.format(
+            "Exception while processing space controller connection failure master event listener: %s",
+            controller.getDisplayName()), e);
+      }
+    }
+  }
+
+  @Override
   public void signalSpaceControllerDisconnectAttempted(ActiveSpaceController controller) {
     for (MasterEventListener listener : listeners) {
       try {
@@ -158,7 +171,7 @@ public class StandardMasterEventManager implements MasterEventManager {
   }
 
   @Override
-  public void signalLiveActivityStateChange(ActiveLiveActivity liveActivity, ActivityState oldState,
+  public void signalLiveActivityRuntmeStateChange(ActiveLiveActivity liveActivity, ActivityState oldState,
       ActivityState newState) {
     for (MasterEventListener listener : listeners) {
       try {

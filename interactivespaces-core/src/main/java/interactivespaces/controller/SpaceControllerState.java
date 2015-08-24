@@ -26,36 +26,83 @@ public enum SpaceControllerState {
   /**
    * Don't know the state.
    */
-  UNKNOWN("space.controller.state.unknown"),
+  UNKNOWN("space.controller.state.unknown", false, false),
 
   /**
-   * Attempting a connection to the controller
+   * Attempting a connection to the space controller.
    */
-  CONNECT_ATTEMPT("space.controller.state.connect.attempt"),
+  CONNECT_ATTEMPT("space.controller.state.connect.attempt", true, false),
 
   /**
-   * Unable to connect to the controller
+   * Unable to connect to the space controller.
    */
-  CONNECT_FAILURE("space.controller.state.connect.failure"),
+  CONNECT_FAILURE("space.controller.state.connect.failure", false, true),
 
   /**
-   * The controller is running
+   * The space controller is connected.
    */
-  RUNNING("space.controller.state.running");
+  RUNNING("space.controller.state.running", false, false),
+
+  /**
+   * The space controller's connection has been lost.
+   */
+  CONNECTION_LOST("space.controller.state.connection.lost", false, true);
 
   /**
    * Message ID for the description.
    */
   private String description;
 
-  SpaceControllerState(String description) {
+  /**
+   * {@code true} if this is a transitional state.
+   */
+  private boolean transitional;
+
+  /**
+   * {@code true} if this is an error state.
+   */
+  private boolean error;
+
+  /**
+   * Construct a new state.
+   *
+   * @param description
+   *          the key for the state description
+   * @param transitional
+   *          {@code true} if this is a transitional state
+   * @param error
+   *          {@code true} if this is an error state
+   */
+  SpaceControllerState(String description, boolean transitional, boolean error) {
     this.description = description;
+    this.transitional = transitional;
+    this.error = error;
   }
 
   /**
-   * @return the description
+   * Get the description key.
+   *
+   * @return the description key
    */
   public String getDescription() {
     return description;
+  }
+
+  /**
+   * Is this a transitional state?
+   *
+   * @return {@code true} if this is a transitional state
+   */
+  public boolean isTransitional() {
+    return transitional;
+  }
+
+  /**
+   * is this an error state?
+   *
+   * @return {@code true} if this is an error state
+   */
+  public boolean isError() {
+    return error;
   }
 }

@@ -17,6 +17,7 @@
 package interactivespaces.system;
 
 import interactivespaces.configuration.Configuration;
+import interactivespaces.logging.ExtendedLog;
 import interactivespaces.service.ServiceRegistry;
 import interactivespaces.system.core.configuration.CoreConfiguration;
 import interactivespaces.system.core.logging.LoggingProvider;
@@ -196,6 +197,13 @@ public interface InteractiveSpacesEnvironment {
    * @return the container's log
    */
   Log getLog();
+
+  /**
+   * Get the extended container log.
+   *
+   * @return the container's extended log
+   */
+  ExtendedLog getExtendedLog();
 
   /**
    * Get a named log at the given level with optional filename of an additional output log file.

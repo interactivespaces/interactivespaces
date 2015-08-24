@@ -17,6 +17,8 @@
 package interactivespaces.system;
 
 import interactivespaces.configuration.Configuration;
+import interactivespaces.logging.ExtendedLog;
+import interactivespaces.logging.StandardExtendedLog;
 import interactivespaces.service.ServiceRegistry;
 import interactivespaces.time.TimeProvider;
 
@@ -50,7 +52,7 @@ public class SimpleInteractiveSpacesEnvironment implements InteractiveSpacesEnvi
   /**
    * The log for the system.
    */
-  private Log log;
+  private ExtendedLog log;
 
   /**
    * The executor service.
@@ -89,6 +91,11 @@ public class SimpleInteractiveSpacesEnvironment implements InteractiveSpacesEnvi
 
   @Override
   public Log getLog() {
+    return log;
+  }
+
+  @Override
+  public ExtendedLog getExtendedLog() {
     return log;
   }
 
@@ -153,14 +160,18 @@ public class SimpleInteractiveSpacesEnvironment implements InteractiveSpacesEnvi
   }
 
   /**
+   * Set the logger.
+   *
    * @param log
    *          the log to set
    */
   public void setLog(Log log) {
-    this.log = log;
+    this.log = new StandardExtendedLog(log);
   }
 
   /**
+   * Set the executor service.
+   *
    * @param executorService
    *          the executorService to set
    */
@@ -169,6 +180,8 @@ public class SimpleInteractiveSpacesEnvironment implements InteractiveSpacesEnvi
   }
 
   /**
+   * Set the service registry.
+   *
    * @param serviceRegistry
    *          the service registry to set
    */
@@ -177,6 +190,8 @@ public class SimpleInteractiveSpacesEnvironment implements InteractiveSpacesEnvi
   }
 
   /**
+   * Set the time provider.
+   *
    * @param timeProvider
    *          the timeProvider to set
    */

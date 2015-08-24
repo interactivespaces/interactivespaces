@@ -397,7 +397,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
   public Map<String, Object> disconnectFromAllSpaceControllers() {
     for (SpaceController controller : getAllEnabledSpaceControllers()) {
       try {
-        activeSpaceControllerManager.disconnectSpaceController(controller);
+        activeSpaceControllerManager.disconnectSpaceController(controller, false);
       } catch (Throwable e) {
         spaceEnvironment
             .getLog()
@@ -489,7 +489,7 @@ public class StandardMasterApiSpaceControllerManager extends BaseMasterApiManage
       SpaceController controller = spaceControllerRepository.getSpaceControllerByTypedId(id);
       if (controller != null) {
         try {
-          activeSpaceControllerManager.disconnectSpaceController(controller);
+          activeSpaceControllerManager.disconnectSpaceController(controller, false);
         } catch (Throwable e) {
           spaceEnvironment.getLog()
               .error(

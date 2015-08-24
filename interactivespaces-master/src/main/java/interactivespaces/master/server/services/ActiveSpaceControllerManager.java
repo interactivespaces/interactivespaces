@@ -34,9 +34,8 @@ public interface ActiveSpaceControllerManager {
    * Connect to the specified controller.
    *
    * <p>
-   * Most functions here will automatically connect to a controller. This is
-   * useful if status updates are needed before doing anything else with the
-   * controller.
+   * Most functions here will automatically connect to a controller. This is useful if status updates are needed before
+   * doing anything else with the controller.
    *
    * @param controller
    *          the controller to connect to
@@ -47,14 +46,15 @@ public interface ActiveSpaceControllerManager {
    * Disconnect from the specified controller.
    *
    * <p>
-   * Most functions here will automatically connect to a controller. This is
-   * useful if status updates are needed before doing anything else with the
-   * controller.
+   * Most functions here will automatically connect to a controller. This is useful if status updates are needed before
+   * doing anything else with the controller.
    *
    * @param controller
    *          the controller to disconnect
+   * @param fromError
+   *          {@code true} if being disconnected because of an error
    */
-  void disconnectSpaceController(SpaceController controller);
+  void disconnectSpaceController(SpaceController controller, boolean fromError);
 
   /**
    * Restart a controller.
@@ -79,8 +79,7 @@ public interface ActiveSpaceControllerManager {
    * Request a status from a controller.
    *
    * <p>
-   * This will be a noop if the controller has never been connected or has been
-   * disconnected.
+   * This will be a noop if the controller has never been connected or has been disconnected.
    *
    * @param controller
    *          the controller
@@ -211,8 +210,7 @@ public interface ActiveSpaceControllerManager {
    * Shut down an activity on a controller.
    *
    * <p>
-   * The activity will be shut down even if it is running in several activity
-   * groups.
+   * The activity will be shut down even if it is running in several activity groups.
    *
    * @param activity
    *          the activity to shut down
@@ -287,9 +285,8 @@ public interface ActiveSpaceControllerManager {
    * Shut down an activity group on a controller.
    *
    * <p>
-   * The individual activities in the group will only be actually shut down if
-   * they have been shut down in all activity groups which started the activity
-   * up.
+   * The individual activities in the group will only be actually shut down if they have been shut down in all activity
+   * groups which started the activity up.
    *
    * @param activityGroup
    *          the activity group to shut down
@@ -333,8 +330,8 @@ public interface ActiveSpaceControllerManager {
   void configureSpace(Space space);
 
   /**
-   * Start the given space. This will start all required activities needed by
-   * the space. Child spaces will be started first.
+   * Start the given space. This will start all required activities needed by the space. Child spaces will be started
+   * first.
    *
    * @param space
    *          the space to start

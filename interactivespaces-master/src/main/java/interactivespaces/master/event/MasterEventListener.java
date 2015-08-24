@@ -39,6 +39,16 @@ public interface MasterEventListener {
   void onSpaceControllerConnectAttempted(ActiveSpaceController controller);
 
   /**
+   * A space controller connection failed.
+   *
+   * @param controller
+   *          the controller
+   * @param waitedTime
+   *          the time waited for the space controller connection, in milliseconds
+   */
+  void onSpaceControllerConnectFailed(ActiveSpaceController controller, long waitedTime);
+
+  /**
    * A space controller disconnection is being attempted.
    *
    * @param controller
@@ -63,7 +73,7 @@ public interface MasterEventListener {
    * @param controller
    *          the controller
    * @param timeSinceLastHeartbeat
-   *          the time since te last heartbeat that triggered the error, in milliseconds
+   *          the time since the last heartbeat that triggered the error, in milliseconds
    */
   void onSpaceControllerHeartbeatLost(ActiveSpaceController controller, long timeSinceLastHeartbeat);
 

@@ -31,7 +31,10 @@ import interactivespaces.time.SettableTimeProvider;
 import org.apache.commons.logging.Log;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * Unit tests for {@link StandardMasterAlertManager}.
@@ -52,6 +55,8 @@ public class StandardMasterAlertManagerTest {
 
   private ActiveSpaceControllerManager activeSpaceControllerManager;
 
+  private ScheduledExecutorService executorService;
+
   private Log log;
 
   @Before
@@ -59,6 +64,9 @@ public class StandardMasterAlertManagerTest {
     spaceEnvironment = Mockito.mock(InteractiveSpacesEnvironment.class);
     timeProvider = new SettableTimeProvider();
     when(spaceEnvironment.getTimeProvider()).thenReturn(timeProvider);
+
+    executorService = Mockito.mock(ScheduledExecutorService.class);
+    when(spaceEnvironment.getExecutorService()).thenReturn(executorService);
 
     log = Mockito.mock(Log.class);
     when(spaceEnvironment.getLog()).thenReturn(log);
@@ -155,7 +163,7 @@ public class StandardMasterAlertManagerTest {
   }
 
   /**
-   * Test that an alert is raised when an event comes in about a lost heartbeat.
+   * Test that an alert is raised when an event comes in about a lost heartbeat and that the controller is disconnected.
    */
   @Test
   public void testAlertManagerTriggerFromMasterEvent() {
@@ -169,9 +177,13 @@ public class StandardMasterAlertManagerTest {
 
     alertManager.getMasterEventListener().onSpaceControllerHeartbeatLost(active, 1000);
 
+    Mockito.verify(activeSpaceControllerManager, Mockito.times(1)).disconnectSpaceController(controller, true);
+
+    ArgumentCaptor<Runnable> argument = ArgumentCaptor.forClass(Runnable.class);
+    Mockito.verify(executorService).execute(argument.capture());
+    argument.getValue().run();
+
     Mockito.verify(alertService, Mockito.times(1)).raiseAlert(
         Mockito.eq(MasterAlertManager.ALERT_TYPE_CONTROLLER_TIMEOUT), Mockito.eq(uuid), Mockito.anyString());
-
-    Mockito.verify(activeSpaceControllerManager, Mockito.times(1)).disconnectSpaceController(controller);
   }
 }
