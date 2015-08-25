@@ -31,6 +31,7 @@ import fnmatch
 import itertools
 import pprint
 import logging
+import zipfile
 
 needed_libraries = []
 
@@ -109,7 +110,11 @@ Selection Flags:
                                     aware of.
                                     Live activities and activities can be inferred from this.
 
-    [PATH...]                       Provides a folder to search recursively for project
+    --zip | -Z                      Provides an activity zip file or path to search recursively 
+                                    for activity zip files. This is used to select pre-built
+                                    activities for upload without having to use --build.
+
+    --path | -P | [PATH...]         Provides a folder to search recursively for project
                                     files. If files are required and no paths are
                                     provided or no activities or live activities can be
                                     inferred, the current working directory will be used.
@@ -192,7 +197,7 @@ Examples:
     Install an Exhibit
 
         GROUP=`isdo --group-delete --group-create Example --lenient` && \\
-        isdo --upload /path/to/exhibit && \\
+        isdo --upload --path /path/to/exhibit && \\
         isdo -C C1 -A com.example.a -c A  -d --config a.conf  -ga -G $GROUP && \\
         isdo -C C1 -A com.example.b -c B1 -d --config b1.conf -ga -G $GROUP && \\
         isdo -C C2 -A com.example.b -c B2 -d --config b2.conf -ga -G $GROUP && \\
@@ -224,6 +229,7 @@ def parse_command_line(arguments):
   config.activities = []
   config.groups = []
   config.folders = []
+  config.zips = []
   config.controllers = []
   config.versions = []
   config.all = False
@@ -286,6 +292,9 @@ def parse_command_line(arguments):
 
     elif argument in ['--all']:
       config.all = True
+
+    elif argument in ['--zip', '-z']:
+      config.zips.append(arguments.pop(0))
 
     elif argument in ['--build', '-b']:
       config.commands[BuildCommand] = BuildCommand()
@@ -364,6 +373,8 @@ def parse_command_line(arguments):
       config.commands[ActivateCommand] = ActivateCommand()
       config.commands[ReactivateCommand] = None
 
+    elif argument in ['--path', '-P']:
+      config.folders.append(arguments.pop(0))
     else:
       config.folders.append(argument)
 
@@ -375,6 +386,7 @@ def parse_command_line(arguments):
   config.selected_controllers = {}
 
   config.project_folders = {}
+  config.built_files = {}
   config.states = None
   config.host_upload_url = "http://%s:%s/masterapi/activity/upload" % (config.host_name, config.host_port)
 
@@ -416,7 +428,7 @@ class AttrDict(dict):
     self.__dict__ = self
 
 
-class Command(object):
+class Command:
   """Base class for command steps."""
 
   def set_config(self, config, server_connection):
@@ -439,6 +451,10 @@ class Command(object):
   def validate_has_projects(self, fatal=True):
     if not self.config.folders:
       print_error('No files provided for command {}'.format(self.__class__.__name__), fatal=fatal)
+
+  def validate_has_builds(self, fatal=True):
+    if not self.config.built_files and not self.config.zip_generated:
+      print_error('No project zip files provided for command {}'.format(self.__class__.__name__), fatal=fatal)
 
   def validate_has_controller(self, fatal=True):
     if len(self.config.selected_controllers) != 1:
@@ -486,6 +502,7 @@ class BuildCommand(Command):
     for folder in self.config.project_folders.iterkeys():
       print_debug("Building %s" % folder)
       execute_command_line([isbuild, folder], debug=self.config.debug, indent="  ")
+      add_build_zip_to_uploads(folder + "/build")
 
 
 class SilentShutdownCommand(Command):
@@ -534,32 +551,28 @@ class UploadCommand(Command):
   """Uploads activities."""
 
   def validate(self, *args, **kwargs):
-    self.validate_has_projects()
+    self.validate_has_builds()
     self.config.activity_generated = True
 
   def requires_server(self):
     return False
 
   def execute(self, server_connection):
-    for (folder, activity) in self.config.project_folders.iteritems():
-      activity_zip = os.path.join(folder, 'build', activity + '*.zip')
-      for file in glob.glob(activity_zip):
-        print_verbose('  Uploading %s' % file)
-        with open(file, 'rb') as contents:
-          result = requests.post(self.config.host_upload_url, files={'file': contents})
-        if result.status_code >= 400:
-          print_fatal("Activity Upload Failed: %s\n%s" % (result.status_code, result.text))
+    for (activity_zip, activity) in self.config.built_files.iteritems():
+      print_verbose('  Uploading %s' % activity_zip)
+      with open(activity_zip, 'rb') as contents:
+        result = requests.post(self.config.host_upload_url, files={'file': contents})
+      if result.status_code >= 400:
+        print_fatal("Activity Upload Failed: %s\n%s" % (result.status_code, result.text))
+      else:
+        result_data = json.loads(result.text)
+        if result_data["result"] == "success":
+          activity_data = result_data["data"]
+          self.config.known_activities[activity_data["id"]] = activity_data
+          self.config.selected_activities[activity_data["id"]] = activity_data
+          print_debug('  Uploaded  %s - %s' % (file, activity_data["identifyingName"]))
         else:
-          result_data = json.loads(result.text)
-          if result_data["result"] == "success":
-            activity_data = result_data["data"]
-            self.config.known_activities[activity_data["id"]] = activity_data
-            self.config.selected_activities[activity_data["id"]] = activity_data
-            print_debug('  Uploaded  %s - %s' % (file, activity_data["identifyingName"]))
-          else:
-            print_fatal("Activity Upload Failed: %s" % result_data["reason"])
-
-
+          print_fatal("Activity Upload Failed: %s" % result_data["reason"])
 
 
 class CreateAndConfigCommand(Command):
@@ -835,11 +848,16 @@ class ListCommand(Command):
 
     for folder, activity_name in sorted(self.config.project_folders.iteritems()):
       activity = next((a for a in self.config.known_activities.itervalues() if a['identifyingName'] == activity_name),
-                      {'id': '???', 'name': activity_name})
-      self.write_folder(folder, [activity], remaining_activities, remaining_live_activities)
+                      {'id': '???', 'name': activity_name, 'version': '?.?.?'})
+      self.write_location(folder, [activity], remaining_activities, remaining_live_activities)
+
+    for file, activity_name in sorted(self.config.built_files.iteritems()):
+      activity = next((a for a in self.config.known_activities.itervalues() if a['identifyingName'] == activity_name),
+                      {'id': '???', 'name': activity_name, 'version': '?.?.?'})
+      self.write_location(file, [activity], remaining_activities, remaining_live_activities)
 
     if remaining_activities:
-      self.write_folder('[Unknown Project Folder]',
+      self.write_location('[Unknown Project Folder]',
                         [a for a in self.config.known_activities.itervalues() if a['id'] in remaining_activities],
                         remaining_activities, remaining_live_activities)
 
@@ -855,8 +873,8 @@ class ListCommand(Command):
                                                                 len(self.config.selected_live_activities)))
 
 
-  def write_folder(self, folder, activities, remaining_activities, remaining_live_activities):
-    print_output(folder)
+  def write_location(self, location, activities, remaining_activities, remaining_live_activities):
+    print_output(location)
     for activity in sorted(activities):
       self.write_activity(activity, remaining_activities, remaining_live_activities)
 
@@ -872,7 +890,7 @@ class ListCommand(Command):
     print_output("%s[%s] %s" % ((' ' * indent), live_activity['uuid'], live_activity['name']))
 
 
-class MasterConnection(object):
+class MasterConnection:
   """Handles websocket connection to master."""
 
   def __init__(self, config):
@@ -997,8 +1015,49 @@ class MasterConnection(object):
       self._lock.release()
 
 
+def get_activity_name(project_path):
+  """
+  Return the activity name given a path or file for a project.xml or activity.xml file.
+  """
+  tree = ElementTree.parse(project_path)
+  if tree.getroot().get('type') != 'assembly':
+    activity_node = tree.find('./identifyingName')
+    if activity_node is not None:
+      activity_name = activity_node.text.strip()
+    else:
+      activity_name = tree.find('./is:identifyingName', INTERACTIVE_SPACES_NAMESPACES).text.strip()
+    return activity_name
 
-class Runner(object):
+def walk_nogit(path):
+  """
+  Similar to os.walk(path) but it ignores .git directories.
+  """
+  for root, dirs, files in os.walk(path, followlinks=True):
+    if '.git' in dirs:
+      # os.walk uses the dirs collection to determine subsequent folder recursion.
+      dirs.remove('.git')
+
+    yield root, dirs, files
+
+def add_build_zip_to_uploads(zip):
+  """
+  Add the given zip file or folder (search for build zips recursively) to the uploads list.
+  """
+  def _process_zip(filename):
+    zf = zipfile.ZipFile(filename, 'r')
+    with zf.open('activity.xml') as activity_xml:
+      activity_name = get_activity_name(activity_xml)
+      config.built_files[filename] = activity_name
+
+  if not os.path.isdir(zip):
+    _process_zip(zip)
+  else:
+    for root, dirs, files in walk_nogit(zip):
+      for file in fnmatch.filter(files, '*.zip'):
+        _process_zip(os.path.join(root, file))
+
+
+class Runner:
   """Main script runner."""
 
   command_order = [ BuildCommand,
@@ -1025,50 +1084,56 @@ class Runner(object):
 
 
   def run(self, config):
-    self._find_projects(config)
+    Runner._find_projects(config)
 
-    server_connection = self._configure_commands(config)
+    server_connection = Runner._configure_commands(config)
 
-    self._execute_commands(config, server_connection)
+    Runner._execute_commands(config, server_connection)
 
     if server_connection:
       server_connection.shutdown()
 
-
-  def _configure_commands(self, config):
+  @staticmethod
+  def _configure_commands(config):
     server_connection = None
     count = 0
-    for command_name in Runner.command_order:
-      command = config.commands.get(command_name)
+    for command_type in Runner.command_order:
+      command = config.commands.get(command_type)
       if command:
         if command.requires_server() and not server_connection:
           server_connection = MasterConnection(config)
-          self._load_server_data(config, server_connection)
-          self._find_selections(config)
+          Runner._load_server_data(config, server_connection)
+          Runner._find_selections(config)
 
         count += 1
-        config.commands[command_name].set_config(config, server_connection)
+        config.commands[command_type].set_config(config, server_connection)
 
     if not count:
       print_help()
 
     return server_connection
 
-
-  def _execute_commands(self, config, server_connection):
-    for command_name in Runner.command_order:
-      command = config.commands.get(command_name)
+  @staticmethod
+  def _execute_commands(config, server_connection):
+    for command_type in Runner.command_order:
+      command = config.commands.get(command_type)
       if command:
         command.prep(server_connection)
 
-    for command_name in Runner.command_order:
-      command = config.commands.get(command_name)
+    for command_type in Runner.command_order:
+      command = config.commands.get(command_type)
       if command:
         print_verbose('Executing Command: %s' % command.__class__.__name__)
         command.execute(server_connection)
 
+        # Refresh our data if we just uploaded.
+        if server_connection is not None and command_type is UploadCommand:
+          Runner._load_server_data(config, server_connection)
+          Runner._find_selections(config)
 
-  def _load_server_data(self, config, server_connection):
+
+  @staticmethod
+  def _load_server_data(config, server_connection):
     request_id_controller = server_connection.send('/spacecontroller/all', wait_for_response=False)
     request_id_activity = server_connection.send('/activity/all', wait_for_response=False)
     request_id_liveactivity = server_connection.send('/liveactivity/all', wait_for_response=False)
@@ -1085,8 +1150,8 @@ class Runner(object):
     print_debug_list('Known Activities', config.known_activities, '{} - {} ({})', 'id', 'identifyingName', 'version')
     print_debug_list('Known Live Activities', config.known_live_activities, '{} - {}', 'uuid', 'name')
 
-
-  def _find_selections(self, config):
+  @staticmethod
+  def _find_selections(config):
     config.selected_live_activities = {}
     config.selected_activities = {}
     config.selected_controllers = {}
@@ -1118,10 +1183,10 @@ class Runner(object):
         config.all})
     print_debug_list('Explicitly Selected Live Activities', config.selected_live_activities, '{} - {}', 'uuid', 'name')
 
-    # Implicit Activities <-- Project Folders
+    # Implicit Activities <-- Built Zips
     if not config.selected_activities:
       config.selected_activities.update({a['id']: a for a in config.known_activities.itervalues() if \
-          a['identifyingName'] in config.project_folders.itervalues()})
+          a['identifyingName'] in config.built_files.itervalues()})
 
       print_debug_list('Implicitly Selected Activities (from project files)', config.selected_activities, '{} - {} ({})', 'id', 'identifyingName', 'version')
 
@@ -1157,12 +1222,10 @@ class Runner(object):
     if not config.selected_controllers and len(config.known_controllers) == 1:
       controller = next(iter(config.known_controllers.itervalues()))
       config.selected_controllers[controller['uuid']] = controller
-
       print_debug_list('Implicitly Selected Controllers (from lone controller)', config.selected_controllers, '{} - {}', 'uuid', 'name')
 
-  def _find_projects(self, config):
-    config.project_folders = {}
-
+  @staticmethod
+  def _find_projects(config):
     for folder in config.folders:
       if not os.path.isdir(folder):
         error = 'Path \'{}\' not found'.format(folder)
@@ -1171,23 +1234,16 @@ class Runner(object):
         else:
           print_fatal(error)
 
-      for root, dirs, files in os.walk(folder, followlinks=True):
-        if '.git' in dirs:
-          # os.walk uses the dirs collection to determine subsequent folder recursion.
-          dirs.remove('.git')
-
+      for root, dirs, files in walk_nogit(folder):
         if fnmatch.filter(files, 'project.xml'):
           path = os.path.join(root, 'project.xml')
           print_verbose('Loading ' + path)
+          activity_name = get_activity_name(path)
+          config.project_folders[os.path.abspath(root)] = activity_name
 
-          tree = ElementTree.parse(path)
-          if tree.getroot().get('type') != 'assembly':
-            activity_node = tree.find('./identifyingName')
-            if activity_node is not None:
-              activity_name = activity_node.text.strip()
-            else:
-              activity_name = tree.find('./is:identifyingName', INTERACTIVE_SPACES_NAMESPACES).text.strip()
-            config.project_folders[os.path.abspath(root)] = activity_name
+    # Add all pre-built zips to the upload list.
+    for zip in config.zips:
+      add_build_zip_to_uploads(zip)
 
 config = None
 
