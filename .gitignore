@@ -7,6 +7,7 @@ gradle.properties
 .gradle
 .islintignore
 .DS_Store
+.pydevproject
 *.iml
 interactivespaces_docs/src/main/sphinx/conf.py
 interactivespaces_docs/src/main/sphinx/interactivespaces.pyc

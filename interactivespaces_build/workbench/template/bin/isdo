@@ -24,7 +24,6 @@ import json
 import time
 import glob
 import errno
-import thread
 import threading
 import subprocess
 import xml.etree.ElementTree as ElementTree
@@ -891,7 +890,9 @@ class MasterConnection(object):
                                       on_close=self._on_close)
 
     self._lock.acquire()
-    thread.start_new_thread(self._run_forever, ())
+    t = threading.Thread(target=self._run_forever, args=())
+    t.daemon = True
+    t.start()
     self._lock.wait()
     self._lock.release()
 
@@ -1067,9 +1068,17 @@ class Runner(object):
 
 
   def _load_server_data(self, config, server_connection):
-    config.known_controllers     = {a['uuid']: a for a in server_connection.send('/spacecontroller/all')['data']}
-    config.known_activities      = {a['id']:   a for a in server_connection.send('/activity/all')['data']}
-    config.known_live_activities = {a['uuid']: a for a in server_connection.send('/liveactivity/all')['data']}
+    request_id_controller = server_connection.send('/spacecontroller/all', wait_for_response=False)
+    request_id_activity = server_connection.send('/activity/all', wait_for_response=False)
+    request_id_liveactivity = server_connection.send('/liveactivity/all', wait_for_response=False)
+    
+    info_controller = server_connection.wait_for_response(request_id_controller)
+    info_activity = server_connection.wait_for_response(request_id_activity)
+    info_liveactivity = server_connection.wait_for_response(request_id_liveactivity)
+    
+    config.known_controllers     = {a['uuid']: a for a in info_controller['data']}
+    config.known_activities      = {a['id']:   a for a in info_activity['data']}
+    config.known_live_activities = {a['uuid']: a for a in info_liveactivity['data']}
 
     print_debug_list('Known Controllers', config.known_controllers, '{} - {}', 'uuid', 'name')
     print_debug_list('Known Activities', config.known_activities, '{} - {} ({})', 'id', 'identifyingName', 'version')
@@ -1134,14 +1143,21 @@ class Runner(object):
 
       print_debug_list('Implicitly Selected Activities (from live activities)', config.selected_activities, '{} - {} ({})', 'id', 'identifyingName', 'version')
 
-    # Implicit Controllers <-- Activities
-    if not config.selected_controllers:
+    # Implicit Controllers <-- Live Activities
+    if not config.selected_controllers and config.selected_live_activities:
+      # Collect controllers based on which controllers contain the selected live activities.
       for live_activity in config.selected_live_activities:
         controller = config.known_controllers[config.known_live_activities[live_activity]['controller']['uuid']]
         config.selected_controllers[controller['uuid']] = controller
 
       print_debug_list('Implicitly Selected Controllers (from activities)', config.selected_controllers, '{} - {}', 'uuid', 'name')
 
+    # Implicit Controllers <-- lone controller
+    if not config.selected_controllers and len(config.known_controllers) == 1:
+      controller = next(iter(config.known_controllers.itervalues()))
+      config.selected_controllers[controller['uuid']] = controller
+      
+      print_debug_list('Implicitly Selected Controllers (from lone controller)', config.selected_controllers, '{} - {}', 'uuid', 'name')
 
   def _find_projects(self, config):
     config.project_folders = {}
