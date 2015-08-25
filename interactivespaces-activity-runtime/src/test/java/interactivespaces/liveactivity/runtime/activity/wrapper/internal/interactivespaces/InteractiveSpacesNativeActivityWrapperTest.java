@@ -94,7 +94,7 @@ public class InteractiveSpacesNativeActivityWrapperTest {
 
     Class expectedActivityClass = Activity1.class;
     Bundle activityBundle = mock(Bundle.class);
-    when(bundleLoader.loadLiveActivityBundle(executableFile1)).thenReturn(activityBundle);
+    when(bundleLoader.loadLiveActivityBundle(liveActivity, executableFile1)).thenReturn(activityBundle);
     when(activityBundle.loadClass(className)).thenReturn(expectedActivityClass);
 
     Activity activity = wrapper.newInstance();
@@ -103,7 +103,7 @@ public class InteractiveSpacesNativeActivityWrapperTest {
 
     wrapper.done();
 
-    verify(bundleLoader).dismissLiveActivityBundle(activityBundle);
+    verify(bundleLoader).dismissLiveActivityBundle(liveActivity);
   }
 
   public static class Activity1 extends BaseActivity {

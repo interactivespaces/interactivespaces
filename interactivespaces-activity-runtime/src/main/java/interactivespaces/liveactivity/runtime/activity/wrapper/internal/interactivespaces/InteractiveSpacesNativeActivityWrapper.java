@@ -90,7 +90,7 @@ public class InteractiveSpacesNativeActivityWrapper extends BaseActivityWrapper 
   @Override
   public synchronized Activity newInstance() {
     File executableFile = getActivityExecutable(activityFilesystem, configuration);
-    activityBundle = bundleLoader.loadLiveActivityBundle(executableFile);
+    activityBundle = bundleLoader.loadLiveActivityBundle(liveActivity, executableFile);
 
     String className = configuration.getRequiredPropertyString(CONFIGURATION_APPLICATION_JAVA_CLASS);
 
@@ -112,7 +112,7 @@ public class InteractiveSpacesNativeActivityWrapper extends BaseActivityWrapper 
   @Override
   public synchronized void done() {
     if (activityBundle != null) {
-      bundleLoader.dismissLiveActivityBundle(activityBundle);
+      bundleLoader.dismissLiveActivityBundle(liveActivity);
     }
   }
 

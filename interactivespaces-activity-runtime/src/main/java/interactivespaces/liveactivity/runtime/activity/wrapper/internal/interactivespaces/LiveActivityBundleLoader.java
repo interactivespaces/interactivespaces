@@ -16,6 +16,8 @@
 
 package interactivespaces.liveactivity.runtime.activity.wrapper.internal.interactivespaces;
 
+import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
+
 import org.osgi.framework.Bundle;
 
 import java.io.File;
@@ -32,20 +34,22 @@ import java.io.File;
 public interface LiveActivityBundleLoader {
 
   /**
-   * Get the OSGi bundle for a live activity..
+   * Get the OSGi bundle for a live activity.
    *
+   * @param liveActivity
+   *          the live activity
    * @param bundleFile
-   *          the bundle file
+   *          the bundle file for the live activity
    *
    * @return the OSGi bundle
    */
-  Bundle loadLiveActivityBundle(File bundleFile);
+  Bundle loadLiveActivityBundle(InstalledLiveActivity liveActivity, File bundleFile);
 
   /**
    * Dismiss an activity bundle.
    *
-   * @param activityBundle
-   *          the activity bundle
+   * @param liveActivity
+   *          the live activity
    */
-  void dismissLiveActivityBundle(Bundle activityBundle);
+  void dismissLiveActivityBundle(InstalledLiveActivity liveActivity);
 }
