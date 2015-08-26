@@ -53,6 +53,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import org.apache.commons.logging.Log;
+
 import java.io.File;
 import java.util.Date;
 import java.util.Map;
@@ -966,6 +968,11 @@ public class StandardMasterWebsocketManager extends BaseMasterApiManager impleme
   public void handleWebSocketReceive(String connectionId, Object data) {
     Map<String, Object> message = (Map<String, Object>) data;
 
+    Log log = spaceEnvironment.getLog();
+    if (log.isDebugEnabled()) {
+      log.debug(String.format("Master API websocket received request %s", message));
+    }
+
     String command = (String) message.get(MasterApiMessages.MASTER_API_MESSAGE_ENVELOPE_TYPE);
     Map<String, Object> commandArgs =
         (Map<String, Object>) message.get(MasterApiMessages.MASTER_API_MESSAGE_ENVELOPE_DATA);
@@ -981,7 +988,7 @@ public class StandardMasterWebsocketManager extends BaseMasterApiManager impleme
             MasterApiMessages.MASTER_API_MESSAGE_TYPE_COMMAND_RESPONSE);
         potentiallyAddRequestId(responseMessage, requestId);
 
-        webSocketHandlerFactory.sendJson(connectionId, responseMessage);
+        sendResponseMessage(connectionId, responseMessage, log);
       } else {
         executeWithCommandHandler(connectionId, command, commandArgs, requestId);
       }
@@ -994,12 +1001,30 @@ public class StandardMasterWebsocketManager extends BaseMasterApiManager impleme
       potentiallyAddRequestId(responseMessage, requestId);
 
       try {
-        webSocketHandlerFactory.sendJson(connectionId, responseMessage);
+        sendResponseMessage(connectionId, responseMessage, log);
       } catch (Throwable e1) {
         spaceEnvironment.getLog().error(
             String.format("Error while responding to failure of Master API websocket command %s", command), e1);
       }
     }
+  }
+
+  /**
+   * Send the response message back to the client.
+   *
+   * @param connectionId
+   *          the connection ID for the remote client
+   * @param responseMessage
+   *          the response message
+   * @param log
+   *          the logger
+   */
+  private void sendResponseMessage(String connectionId, Map<String, Object> responseMessage, Log log) {
+    if (log.isDebugEnabled()) {
+      log.debug(String.format("Master API websocket responding with %s", responseMessage));
+    }
+
+    webSocketHandlerFactory.sendJson(connectionId, responseMessage);
   }
 
   /**
@@ -1023,7 +1048,8 @@ public class StandardMasterWebsocketManager extends BaseMasterApiManager impleme
       responseMessage.put(MasterApiMessages.MASTER_API_MESSAGE_ENVELOPE_TYPE,
           MasterApiMessages.MASTER_API_MESSAGE_TYPE_COMMAND_RESPONSE);
       potentiallyAddRequestId(responseMessage, requestId);
-      webSocketHandlerFactory.sendJson(connectionId, responseMessage);
+
+      sendResponseMessage(connectionId, responseMessage, spaceEnvironment.getLog());
     } else {
       spaceEnvironment.getLog()
           .error(String.format("Master API websocket connection got unknown command %s", command));

@@ -6,6 +6,7 @@ package interactivespaces.util.concurrency;
 import interactivespaces.util.events.EventDelay;
 import interactivespaces.util.events.EventFrequency;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import org.apache.commons.logging.Log;
@@ -91,7 +92,8 @@ public class SimpleManagedCommands implements ManagedCommands {
   public synchronized ManagedCommand scheduleAtFixedRate(Runnable command, long initialDelay, long period,
       TimeUnit unit, boolean allowTerminate) {
     SimpleManagedCommand managedCommand = new SimpleManagedCommand(command, this, true, allowTerminate, log);
-    managedCommand.setFuture(executorService.scheduleAtFixedRate(managedCommand.getTask(), initialDelay, period, unit));
+    managedCommand
+        .setFuture(executorService.scheduleAtFixedRate(managedCommand.getTask(), initialDelay, period, unit));
 
     managedCommands.add(managedCommand);
 
@@ -124,8 +126,8 @@ public class SimpleManagedCommands implements ManagedCommands {
   public synchronized ManagedCommand scheduleWithFixedDelay(Runnable command, long initialDelay, long delay,
       TimeUnit unit, boolean allowTerminate) {
     SimpleManagedCommand managedCommand = new SimpleManagedCommand(command, this, true, allowTerminate, log);
-    managedCommand
-        .setFuture(executorService.scheduleWithFixedDelay(managedCommand.getTask(), initialDelay, delay, unit));
+    managedCommand.setFuture(executorService.scheduleWithFixedDelay(managedCommand.getTask(), initialDelay, delay,
+        unit));
 
     managedCommands.add(managedCommand);
 
@@ -136,7 +138,9 @@ public class SimpleManagedCommands implements ManagedCommands {
    * Shut down all executing commands or commands which haven't started yet.
    */
   public synchronized void shutdownAll() {
-    for (ManagedCommand managedCommand : managedCommands) {
+    // Copied into an array list so that shutdowns of individual commands do not cause a concurrent modification
+    // exception in the set.
+    for (ManagedCommand managedCommand : Lists.newArrayList(managedCommands)) {
       managedCommand.cancel();
     }
     managedCommands.clear();
