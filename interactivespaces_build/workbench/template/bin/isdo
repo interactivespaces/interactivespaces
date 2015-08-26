@@ -129,10 +129,11 @@ Command Flags:
 
     --create <NAME>                 Creates a new live activity. Name is required. The new
                                     live activity UUID is written to stdout. Requires a
-                                    single activity and --controller flag.  --version
-                                    is optional (defaults to highest version). After
-                                    this command, if live activities have not been specified,
-                                    only the newly created live activity will be inferred.
+                                    single activity and controller.  --version is required if
+                                    there is more than one version of the activity installed.
+                                    After  this command, if live activities have not been
+                                    specified, only the newly created live activity will be
+                                    inferred.
 
     --deploy | -d                   Pushes the latest activity and configuration to
                                     controllers. Implies --shutdown. Requires live activities.
@@ -1071,11 +1072,11 @@ class Runner(object):
     request_id_controller = server_connection.send('/spacecontroller/all', wait_for_response=False)
     request_id_activity = server_connection.send('/activity/all', wait_for_response=False)
     request_id_liveactivity = server_connection.send('/liveactivity/all', wait_for_response=False)
-    
+
     info_controller = server_connection.wait_for_response(request_id_controller)
     info_activity = server_connection.wait_for_response(request_id_activity)
     info_liveactivity = server_connection.wait_for_response(request_id_liveactivity)
-    
+
     config.known_controllers     = {a['uuid']: a for a in info_controller['data']}
     config.known_activities      = {a['id']:   a for a in info_activity['data']}
     config.known_live_activities = {a['uuid']: a for a in info_liveactivity['data']}
@@ -1156,7 +1157,7 @@ class Runner(object):
     if not config.selected_controllers and len(config.known_controllers) == 1:
       controller = next(iter(config.known_controllers.itervalues()))
       config.selected_controllers[controller['uuid']] = controller
-      
+
       print_debug_list('Implicitly Selected Controllers (from lone controller)', config.selected_controllers, '{} - {}', 'uuid', 'name')
 
   def _find_projects(self, config):
