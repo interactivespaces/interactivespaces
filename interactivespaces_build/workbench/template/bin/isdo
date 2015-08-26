@@ -900,6 +900,7 @@ class MasterConnection:
     self._config = config
     self._lock = threading.Condition()
     self._closing = False
+    self._failed = False
     self._responses = {}
     self._next_id = 0
     self._ws = websocket.WebSocketApp(url,
@@ -943,6 +944,8 @@ class MasterConnection:
       print_verbose('<-- {%s}' % parsed_message.get("type"))
 
   def _on_error(self, socket, error):
+    self._failed = True
+    self._closing = True
     print_fatal('Connection to server error: %s' % error)
 
   def _on_close(self, socket):
@@ -959,6 +962,9 @@ class MasterConnection:
   def send(self, message_type, arguments={}, wait_for_response=None, expect_response=True):
     """Sends a message to the master and either waits for a response and returns it, returns a token that can be used
     to wait for a response, or returns a blank string if no response is expected."""
+
+    if self._failed:
+      print_fatal('Connection to server not available')
 
     if wait_for_response is None:
       wait_for_response = expect_response
