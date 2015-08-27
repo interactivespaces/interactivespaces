@@ -16,9 +16,12 @@
 
 package interactivespaces.activity.binary;
 
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivitySystemConfiguration;
 import interactivespaces.configuration.Configuration;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.util.process.NativeApplicationRunner;
 import interactivespaces.util.process.restart.LimitedRetryRestartStrategy;
 import interactivespaces.util.process.restart.RestartStrategy;
@@ -58,6 +61,11 @@ public class BasicNativeWebBrowserRunner implements NativeWebBrowserRunner {
   private NativeActivityRunner browserRunner;
 
   /**
+   * The file support instance to use for operating on the filesystem.
+   */
+  private FileSupport fileSupport = FileSupportImpl.INSTANCE;
+
+  /**
    * Construct a new browser runner.
    *
    * @param activity
@@ -75,7 +83,16 @@ public class BasicNativeWebBrowserRunner implements NativeWebBrowserRunner {
 
     Configuration configuration = activity.getConfiguration();
 
-    browserRunner.setExecutablePath(ActivitySystemConfiguration.getActivityNativeBrowserBinary(configuration));
+    // If the browser executable doesn't exist, we cannot start it on this system.
+    String browserExecutable = ActivitySystemConfiguration.getActivityNativeBrowserBinary(configuration);
+    if (!fileSupport.exists(fileSupport.newFile(browserExecutable))) {
+      throw SimpleInteractiveSpacesException.newFormattedException(
+          "%s - cannot find web browser executable %s",
+          getClass().getName(),
+          browserExecutable);
+    }
+
+    browserRunner.setExecutablePath(browserExecutable);
 
     String commandFlags =
         MessageFormat.format(ActivitySystemConfiguration.getActivityNativeBrowserCommandFlags(configuration, debug),
