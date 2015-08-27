@@ -17,12 +17,15 @@
 package interactivespaces.controller.runtime;
 
 import interactivespaces.activity.ActivityStatus;
-import interactivespaces.activity.deployment.LiveActivityDeploymentRequest;
-import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
-import interactivespaces.container.resource.deployment.ContainerResourceDeploymentCommitRequest;
-import interactivespaces.container.resource.deployment.ContainerResourceDeploymentCommitResponse;
-import interactivespaces.container.resource.deployment.ContainerResourceDeploymentQueryRequest;
-import interactivespaces.container.resource.deployment.ContainerResourceDeploymentQueryResponse;
+import interactivespaces.control.message.activity.LiveActivityDeleteRequest;
+import interactivespaces.control.message.activity.LiveActivityDeleteResponse;
+import interactivespaces.control.message.activity.LiveActivityDeleteResponse.LiveActivityDeleteStatus;
+import interactivespaces.control.message.activity.LiveActivityDeploymentRequest;
+import interactivespaces.control.message.activity.LiveActivityDeploymentResponse;
+import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentCommitRequest;
+import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentCommitResponse;
+import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentQueryRequest;
+import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentQueryResponse;
 import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.SpaceControllerStatus;
 import interactivespaces.controller.resource.deployment.ContainerResourceDeploymentManager;
@@ -57,6 +60,11 @@ import java.util.concurrent.TimeUnit;
  */
 public class StandardSpaceController extends BaseSpaceController implements SpaceControllerControl,
     LiveActivityStatusPublisher {
+
+  /**
+   * An operation detail message when a live activity cannot be deleted because it is still running.
+   */
+  public static final String OPERATION_DETAIL_DELETION_FAIL_LIVE_ACTIVITY_RUNNING = "The live activity is running";
 
   /**
    * The default number of milliseconds the controllerHeartbeat thread delays between beats.
@@ -430,6 +438,8 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
 
   @Override
   public void cleanControllerTempDataAll() {
+    getSpaceEnvironment().getLog().info("Cleaning all live activity temporary data directories");
+
     for (InstalledLiveActivity activity : getAllInstalledLiveActivities()) {
       cleanLiveActivityTmpData(activity.getUuid());
     }
@@ -437,7 +447,7 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
 
   @Override
   public void cleanControllerPermanentDataAll() {
-    getSpaceEnvironment().getLog().info("Cleaning live activity permanent directories");
+    getSpaceEnvironment().getLog().info("Cleaning all live activity permanent data directories");
 
     for (InstalledLiveActivity activity : getAllInstalledLiveActivities()) {
       cleanLiveActivityPermanentData(activity.getUuid());
@@ -491,7 +501,7 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
   @Override
   public ContainerResourceDeploymentCommitResponse handleContainerResourceDeploymentCommitRequest(
       ContainerResourceDeploymentCommitRequest request) {
-      return containerResourceDeploymentManager.commitResources(request);
+    return containerResourceDeploymentManager.commitResources(request);
   }
 
   @Override
@@ -500,9 +510,17 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
   }
 
   @Override
-  public SpaceControllerLiveActivityDeleteResponse
-      deleteLiveActivity(SpaceControllerLiveActivityDeleteRequest request) {
-    return spaceControllerActivityInstallManager.handleDeleteRequest(request);
+  public LiveActivityDeleteResponse deleteLiveActivity(LiveActivityDeleteRequest request) {
+    String uuid = request.getUuid();
+    if (liveActivityRuntime.isLiveActivityRunning(uuid)) {
+      getSpaceEnvironment().getLog().warn(
+          String.format("Attempt to delete live activity %s failed, live activity is running", uuid));
+
+      return new LiveActivityDeleteResponse(uuid, LiveActivityDeleteStatus.FAILURE, getSpaceEnvironment()
+          .getTimeProvider().getCurrentTime(), OPERATION_DETAIL_DELETION_FAIL_LIVE_ACTIVITY_RUNNING);
+    } else {
+      return spaceControllerActivityInstallManager.handleDeleteRequest(request);
+    }
   }
 
   /**

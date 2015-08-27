@@ -16,11 +16,12 @@
 
 package interactivespaces.controller.client.master.internal;
 
-import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
-import interactivespaces.activity.deployment.LiveActivityDeploymentResponse.ActivityDeployStatus;
-import interactivespaces.container.resource.deployment.ContainerResourceDeploymentCommitResponse;
-import interactivespaces.container.resource.deployment.ContainerResourceDeploymentQueryRequest;
-import interactivespaces.container.resource.deployment.ContainerResourceDeploymentQueryResponse;
+import interactivespaces.control.message.activity.LiveActivityDeleteRequest;
+import interactivespaces.control.message.activity.LiveActivityDeploymentResponse;
+import interactivespaces.control.message.activity.LiveActivityDeploymentResponse.ActivityDeployStatus;
+import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentCommitResponse;
+import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentQueryRequest;
+import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentQueryResponse;
 import interactivespaces.controller.client.master.RemoteActivityDeploymentManager;
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.ActivityDependency;
@@ -40,8 +41,6 @@ import interactivespaces.util.uuid.JavaUuidGenerator;
 import interactivespaces.util.uuid.UuidGenerator;
 
 import com.google.common.collect.Maps;
-
-import interactivespaces_msgs.LiveActivityDeleteRequest;
 
 import java.net.URI;
 import java.util.List;
@@ -257,13 +256,11 @@ public class StandardRemoteActivityDeploymentManager implements RemoteActivityDe
   @Override
   public void deleteLiveActivity(ActiveLiveActivity activeLiveActivity) {
     LiveActivity liveActivity = activeLiveActivity.getLiveActivity();
-    LiveActivityDeleteRequest request = remoteSpaceControllerClient.newLiveActivityDeleteRequest();
-    request.setUuid(liveActivity.getUuid());
-    request.setIdentifyingName(liveActivity.getActivity().getIdentifyingName());
-    request.setVersion(liveActivity.getActivity().getVersion());
-    request.setForce(1);
+    LiveActivityDeleteRequest request =
+        new LiveActivityDeleteRequest(liveActivity.getUuid(), liveActivity.getActivity().getIdentifyingName(),
+            liveActivity.getActivity().getVersion(), false);
 
-    remoteSpaceControllerClient.deleteActivity(activeLiveActivity, request);
+    remoteSpaceControllerClient.deleteLiveActivity(activeLiveActivity, request);
   }
 
   /**

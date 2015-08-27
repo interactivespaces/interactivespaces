@@ -17,7 +17,8 @@
 package interactivespaces.master.server.services.internal;
 
 import interactivespaces.activity.ActivityState;
-import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
+import interactivespaces.control.message.activity.LiveActivityDeleteResponse;
+import interactivespaces.control.message.activity.LiveActivityDeploymentResponse;
 import interactivespaces.controller.SpaceControllerState;
 import interactivespaces.master.server.services.ActiveSpaceController;
 import interactivespaces.master.server.services.RemoteSpaceControllerClientListener;
@@ -198,7 +199,7 @@ public class RemoteSpaceControllerClientListenerCollection {
    * @param result
    *          result of the deletion
    */
-  public void signalActivityDelete(String uuid, LiveActivityDeleteResult result) {
+  public void signalActivityDelete(String uuid, LiveActivityDeleteResponse result) {
     for (RemoteSpaceControllerClientListener listener : listeners) {
       try {
         listener.onLiveActivityDelete(uuid, result);

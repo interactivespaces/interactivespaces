@@ -16,9 +16,9 @@
 
 package interactivespaces.controller.client.master;
 
-import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
-import interactivespaces.container.resource.deployment.ContainerResourceDeploymentCommitResponse;
-import interactivespaces.container.resource.deployment.ContainerResourceDeploymentQueryResponse;
+import interactivespaces.control.message.activity.LiveActivityDeploymentResponse;
+import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentCommitResponse;
+import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentQueryResponse;
 import interactivespaces.master.server.services.ActiveLiveActivity;
 import interactivespaces.util.resource.ManagedResource;
 

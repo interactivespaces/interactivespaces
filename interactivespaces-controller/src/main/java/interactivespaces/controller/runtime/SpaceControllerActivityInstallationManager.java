@@ -16,8 +16,10 @@
 
 package interactivespaces.controller.runtime;
 
-import interactivespaces.activity.deployment.LiveActivityDeploymentRequest;
-import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
+import interactivespaces.control.message.activity.LiveActivityDeleteRequest;
+import interactivespaces.control.message.activity.LiveActivityDeleteResponse;
+import interactivespaces.control.message.activity.LiveActivityDeploymentRequest;
+import interactivespaces.control.message.activity.LiveActivityDeploymentResponse;
 import interactivespaces.util.resource.ManagedResource;
 
 /**
@@ -45,5 +47,5 @@ public interface SpaceControllerActivityInstallationManager extends ManagedResou
    *
    * @return the status for the deletion
    */
-  SpaceControllerLiveActivityDeleteResponse handleDeleteRequest(SpaceControllerLiveActivityDeleteRequest request);
+  LiveActivityDeleteResponse handleDeleteRequest(LiveActivityDeleteRequest request);
 }

@@ -17,11 +17,11 @@
 package interactivespaces.master.event;
 
 import interactivespaces.activity.ActivityState;
-import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
+import interactivespaces.control.message.activity.LiveActivityDeleteResponse;
+import interactivespaces.control.message.activity.LiveActivityDeploymentResponse;
 import interactivespaces.controller.SpaceControllerState;
 import interactivespaces.master.server.services.ActiveLiveActivity;
 import interactivespaces.master.server.services.ActiveSpaceController;
-import interactivespaces.master.server.services.internal.LiveActivityDeleteResult;
 
 /**
  * A support implementation of {@link MasterEventListener} which provides empty methods for all events.
@@ -67,12 +67,13 @@ public abstract class BaseMasterEventListener implements MasterEventListener {
   }
 
   @Override
-  public void onLiveActivityDelete(ActiveLiveActivity liveActivity, LiveActivityDeleteResult result, long timestamp) {
+  public void onLiveActivityDelete(ActiveLiveActivity liveActivity, LiveActivityDeleteResponse result) {
     // Default is do nothing.
   }
 
   @Override
-  public void onLiveActivityStateChange(ActiveLiveActivity liveActivity, ActivityState oldState, ActivityState newState) {
+  public void
+      onLiveActivityStateChange(ActiveLiveActivity liveActivity, ActivityState oldState, ActivityState newState) {
     // Default is do nothing.
   }
 }

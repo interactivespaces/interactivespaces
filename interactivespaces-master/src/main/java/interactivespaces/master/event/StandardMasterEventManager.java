@@ -17,11 +17,11 @@
 package interactivespaces.master.event;
 
 import interactivespaces.activity.ActivityState;
-import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
+import interactivespaces.control.message.activity.LiveActivityDeleteResponse;
+import interactivespaces.control.message.activity.LiveActivityDeploymentResponse;
 import interactivespaces.controller.SpaceControllerState;
 import interactivespaces.master.server.services.ActiveLiveActivity;
 import interactivespaces.master.server.services.ActiveSpaceController;
-import interactivespaces.master.server.services.internal.LiveActivityDeleteResult;
 
 import org.apache.commons.logging.Log;
 
@@ -146,11 +146,10 @@ public class StandardMasterEventManager implements MasterEventManager {
   }
 
   @Override
-  public void
-      signalLiveActivityDelete(ActiveLiveActivity liveActivity, LiveActivityDeleteResult result, long timestamp) {
+  public void signalLiveActivityDelete(ActiveLiveActivity liveActivity, LiveActivityDeleteResponse result) {
     for (MasterEventListener listener : listeners) {
       try {
-        listener.onLiveActivityDelete(liveActivity, result, timestamp);
+        listener.onLiveActivityDelete(liveActivity, result);
       } catch (Throwable e) {
         log.error(String.format("Exception while processing live activity delete master event listener (%s): %s",
             result, liveActivity.getDisplayName()), e);

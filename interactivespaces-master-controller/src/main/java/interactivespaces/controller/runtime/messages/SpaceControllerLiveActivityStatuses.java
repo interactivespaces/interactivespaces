@@ -14,14 +14,14 @@
  * the License.
  */
 
-package interactivespaces.controller.runtime;
+package interactivespaces.controller.runtime.messages;
 
 /**
  * Statuses for operations on Interactive Spaces activities in an space controller.
  *
  * @author Keith M. Hughes
  */
-public class SpaceControllerActivityStatuses {
+public class SpaceControllerLiveActivityStatuses {
 
   /**
    * Status of a remote activity attempting to deploy.

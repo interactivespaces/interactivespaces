@@ -14,24 +14,14 @@
  * the License.
  */
 
-package interactivespaces.controller.runtime;
+package interactivespaces.control.message.activity;
 
 /**
- * Status of a deletion of a live activity from a space controller.
+ * Status of a deletion of a live activity.
  *
  * @author Keith M. Hughes
  */
-public class SpaceControllerLiveActivityDeleteResponse {
-
-  /**
-   * The deletion was successful.
-   */
-  public static final int STATUS_SUCCESS = 0;
-
-  /**
-   * The deletion was a failure.
-   */
-  public static final int STATUS_FAILURE = 1;
+public class LiveActivityDeleteResponse {
 
   /**
    * UUID of the live activity deleted.
@@ -41,12 +31,17 @@ public class SpaceControllerLiveActivityDeleteResponse {
   /**
    * Status of the deletion.
    */
-  private int status;
+  private LiveActivityDeleteStatus status;
 
   /**
    * The time the activity was deleted.
    */
   private long timeDeleted;
+
+  /**
+   * The details of the result, can be {@code null}.
+   */
+  private String statusDetail;
 
   /**
    * Construct the status.
@@ -57,11 +52,14 @@ public class SpaceControllerLiveActivityDeleteResponse {
    *          status of the deletion
    * @param timeDeleted
    *          the time the live activity was deleted
+   * @param statusDetail
+   *          the details of the status, can be {@code null}
    */
-  public SpaceControllerLiveActivityDeleteResponse(String uuid, int status, long timeDeleted) {
+  public LiveActivityDeleteResponse(String uuid, LiveActivityDeleteStatus status, long timeDeleted, String statusDetail) {
     this.uuid = uuid;
     this.status = status;
     this.timeDeleted = timeDeleted;
+    this.statusDetail = statusDetail;
   }
 
   /**
@@ -78,7 +76,7 @@ public class SpaceControllerLiveActivityDeleteResponse {
    *
    * @return the status
    */
-  public int getStatus() {
+  public LiveActivityDeleteStatus getStatus() {
     return status;
   }
 
@@ -89,5 +87,36 @@ public class SpaceControllerLiveActivityDeleteResponse {
    */
   public long getTimeDeleted() {
     return timeDeleted;
+  }
+
+  /**
+   * Get the status detail of the deletion.
+   *
+   * @return the detail, can be {@code null}
+   */
+  public String getStatusDetail() {
+    return statusDetail;
+  }
+
+  /**
+   * The status of the deletion.
+   *
+   * @author Keith M. Hughes
+   */
+  public enum LiveActivityDeleteStatus {
+    /**
+     * The deletion was successful.
+     */
+    SUCCESS,
+
+    /**
+     * The deletion was a failure.
+     */
+    FAILURE,
+
+    /**
+     * The live activity does not exist.
+     */
+    DOESNT_EXIST
   }
 }

@@ -16,17 +16,17 @@
 
 package interactivespaces.controller.runtime.internal;
 
-import interactivespaces.activity.deployment.LiveActivityDeploymentRequest;
-import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
-import interactivespaces.activity.deployment.LiveActivityDeploymentResponse.ActivityDeployStatus;
+import interactivespaces.InteractiveSpacesExceptionUtils;
+import interactivespaces.control.message.activity.LiveActivityDeleteRequest;
+import interactivespaces.control.message.activity.LiveActivityDeleteResponse;
+import interactivespaces.control.message.activity.LiveActivityDeleteResponse.LiveActivityDeleteStatus;
+import interactivespaces.control.message.activity.LiveActivityDeploymentRequest;
+import interactivespaces.control.message.activity.LiveActivityDeploymentResponse;
+import interactivespaces.control.message.activity.LiveActivityDeploymentResponse.ActivityDeployStatus;
 import interactivespaces.controller.runtime.SpaceControllerActivityInstallationManager;
-import interactivespaces.controller.runtime.SpaceControllerLiveActivityDeleteRequest;
-import interactivespaces.controller.runtime.SpaceControllerLiveActivityDeleteResponse;
 import interactivespaces.liveactivity.runtime.installation.ActivityInstallationManager;
 import interactivespaces.liveactivity.runtime.installation.ActivityInstallationManager.RemoveActivityResult;
 import interactivespaces.system.InteractiveSpacesEnvironment;
-
-import interactivespaces_msgs.LiveActivityDeleteStatus;
 
 import java.util.Date;
 
@@ -35,7 +35,7 @@ import java.util.Date;
  *
  * @author Keith M. Hughes
  */
-public class SimpleSpaceControllerActivityInstallationManager implements SpaceControllerActivityInstallationManager {
+public class StandardSpaceControllerActivityInstallationManager implements SpaceControllerActivityInstallationManager {
 
   /**
    * The Spaces environment being used.
@@ -55,7 +55,7 @@ public class SimpleSpaceControllerActivityInstallationManager implements SpaceCo
    * @param spaceEnvironment
    *          the space environment to run under
    */
-  public SimpleSpaceControllerActivityInstallationManager(ActivityInstallationManager activityInstallationManager,
+  public StandardSpaceControllerActivityInstallationManager(ActivityInstallationManager activityInstallationManager,
       InteractiveSpacesEnvironment spaceEnvironment) {
     this.activityInstallationManager = activityInstallationManager;
     this.spaceEnvironment = spaceEnvironment;
@@ -126,17 +126,21 @@ public class SimpleSpaceControllerActivityInstallationManager implements SpaceCo
   }
 
   @Override
-  public SpaceControllerLiveActivityDeleteResponse
-      handleDeleteRequest(SpaceControllerLiveActivityDeleteRequest request) {
+  public LiveActivityDeleteResponse handleDeleteRequest(LiveActivityDeleteRequest request) {
     RemoveActivityResult result = RemoveActivityResult.FAILURE;
+
+    String statusDetail = null;
 
     try {
       result = activityInstallationManager.removeActivity(request.getUuid());
-    } catch (Exception e) {
-      spaceEnvironment.getLog().error(String.format("Could not delete live activity %s", request.getUuid()), e);
+    } catch (Throwable e) {
+      statusDetail = InteractiveSpacesExceptionUtils.getExceptionDetail(e);
+
+      spaceEnvironment.getLog().error(
+          String.format("Could not delete live activity %s\n%s", request.getUuid(), statusDetail));
     }
 
-    return createDeleteResponse(request, result);
+    return createDeleteResponse(request, result, statusDetail);
   }
 
   /**
@@ -146,26 +150,28 @@ public class SimpleSpaceControllerActivityInstallationManager implements SpaceCo
    *          the deletion request
    * @param result
    *          result of the deletion request
+   * @param statusDetail
+   *          status detail for the response
    *
    * @return the response to be sent back
    */
-  public SpaceControllerLiveActivityDeleteResponse createDeleteResponse(
-      SpaceControllerLiveActivityDeleteRequest request, RemoveActivityResult result) {
-    int status;
+  public LiveActivityDeleteResponse createDeleteResponse(LiveActivityDeleteRequest request,
+      RemoveActivityResult result, String statusDetail) {
+    LiveActivityDeleteStatus status;
     switch (result) {
       case SUCCESS:
-        status = LiveActivityDeleteStatus.STATUS_SUCCESS;
+        status = LiveActivityDeleteStatus.SUCCESS;
         break;
 
       case DOESNT_EXIST:
-        status = LiveActivityDeleteStatus.STATUS_DOESNT_EXIST;
+        status = LiveActivityDeleteStatus.DOESNT_EXIST;
         break;
 
       default:
-        status = LiveActivityDeleteStatus.STATUS_FAILURE;
+        status = LiveActivityDeleteStatus.FAILURE;
     }
 
-    return new SpaceControllerLiveActivityDeleteResponse(request.getUuid(), status, spaceEnvironment.getTimeProvider()
-        .getCurrentTime());
+    return new LiveActivityDeleteResponse(request.getUuid(), status, spaceEnvironment.getTimeProvider()
+        .getCurrentTime(), statusDetail);
   }
 }

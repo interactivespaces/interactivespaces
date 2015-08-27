@@ -17,11 +17,11 @@
 package interactivespaces.master.event;
 
 import interactivespaces.activity.ActivityState;
-import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
+import interactivespaces.control.message.activity.LiveActivityDeleteResponse;
+import interactivespaces.control.message.activity.LiveActivityDeploymentResponse;
 import interactivespaces.controller.SpaceControllerState;
 import interactivespaces.master.server.services.ActiveLiveActivity;
 import interactivespaces.master.server.services.ActiveSpaceController;
-import interactivespaces.master.server.services.internal.LiveActivityDeleteResult;
 
 /**
  * The manager for master events.
@@ -73,10 +73,8 @@ public interface MasterEventManager {
    *          the live activity
    * @param result
    *          result of the deletion
-   * @param timestamp
-   *          timestamp of the deletion
    */
-  void signalLiveActivityDelete(ActiveLiveActivity liveActivity, LiveActivityDeleteResult result, long timestamp);
+  void signalLiveActivityDelete(ActiveLiveActivity liveActivity, LiveActivityDeleteResponse result);
 
   /**
    * Send the on deployment message to all listeners.

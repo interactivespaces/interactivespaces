@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.container.resource.deployment;
+package interactivespaces.control.message.container.resource.deployment;
 
 /**
  * Response from a container deployment request.

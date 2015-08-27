@@ -18,13 +18,15 @@ package interactivespaces.master.server.services.internal.ros;
 
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.ActivityState;
-import interactivespaces.activity.deployment.LiveActivityDeploymentRequest;
-import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
-import interactivespaces.activity.deployment.ros.RosDeploymentMessageTranslator;
-import interactivespaces.container.resource.deployment.ContainerResourceDeploymentCommitRequest;
-import interactivespaces.container.resource.deployment.ContainerResourceDeploymentCommitResponse;
-import interactivespaces.container.resource.deployment.ContainerResourceDeploymentQueryRequest;
-import interactivespaces.container.resource.deployment.ContainerResourceDeploymentQueryResponse;
+import interactivespaces.control.message.activity.LiveActivityDeleteRequest;
+import interactivespaces.control.message.activity.LiveActivityDeploymentRequest;
+import interactivespaces.control.message.activity.LiveActivityDeploymentResponse;
+import interactivespaces.control.message.activity.ros.RosLiveActivityDeleteMessageTranslator;
+import interactivespaces.control.message.activity.ros.RosLiveActivityDeploymentMessageTranslator;
+import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentCommitRequest;
+import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentCommitResponse;
+import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentQueryRequest;
+import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentQueryResponse;
 import interactivespaces.controller.SpaceControllerStatus;
 import interactivespaces.controller.client.master.RemoteActivityDeploymentManager;
 import interactivespaces.controller.common.ros.RosSpaceControllerSupport;
@@ -36,7 +38,6 @@ import interactivespaces.master.server.services.ActiveSpaceController;
 import interactivespaces.master.server.services.RemoteSpaceControllerClient;
 import interactivespaces.master.server.services.RemoteSpaceControllerClientListener;
 import interactivespaces.master.server.services.internal.DataBundleState;
-import interactivespaces.master.server.services.internal.LiveActivityDeleteResult;
 import interactivespaces.master.server.services.internal.MasterDataBundleManager;
 import interactivespaces.master.server.services.internal.RemoteSpaceControllerClientListenerCollection;
 
@@ -52,10 +53,10 @@ import interactivespaces_msgs.ContainerResourceQueryResponseMessage;
 import interactivespaces_msgs.ControllerFullStatus;
 import interactivespaces_msgs.ControllerRequest;
 import interactivespaces_msgs.ControllerStatus;
-import interactivespaces_msgs.LiveActivityDeleteRequest;
-import interactivespaces_msgs.LiveActivityDeleteStatus;
-import interactivespaces_msgs.LiveActivityDeployRequest;
-import interactivespaces_msgs.LiveActivityDeployStatus;
+import interactivespaces_msgs.LiveActivityDeleteRequestMessage;
+import interactivespaces_msgs.LiveActivityDeleteResponseMessage;
+import interactivespaces_msgs.LiveActivityDeployRequestMessage;
+import interactivespaces_msgs.LiveActivityDeployResponseMessage;
 import interactivespaces_msgs.LiveActivityRuntimeRequest;
 import interactivespaces_msgs.LiveActivityRuntimeStatus;
 import org.apache.commons.logging.Log;
@@ -149,22 +150,22 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
   /**
    * ROS message serializer for a live activity deployment request.
    */
-  private MessageSerializer<LiveActivityDeployRequest> liveActivityDeployRequestSerializer;
+  private MessageSerializer<LiveActivityDeployRequestMessage> liveActivityDeployRequestSerializer;
 
   /**
    * ROS message deserializer for a live activity deployment status.
    */
-  private MessageDeserializer<LiveActivityDeployStatus> liveActivityDeployStatusDeserializer;
+  private MessageDeserializer<LiveActivityDeployResponseMessage> liveActivityDeployResponseDeserializer;
 
   /**
    * ROS message serializer for a live activity delete request.
    */
-  private MessageSerializer<LiveActivityDeleteRequest> liveActivityDeleteRequestSerializer;
+  private MessageSerializer<LiveActivityDeleteRequestMessage> liveActivityDeleteRequestSerializer;
 
   /**
    * ROS message deserializer for a live activity delete status.
    */
-  private MessageDeserializer<LiveActivityDeleteStatus> liveActivityDeleteStatusDeserializer;
+  private MessageDeserializer<LiveActivityDeleteResponseMessage> liveActivityDeleteResponseDeserializer;
 
   /**
    * ROS message deserializer for the full controller status.
@@ -213,16 +214,16 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
         messageSerializationFactory.newMessageDeserializer(LiveActivityRuntimeStatus._TYPE);
 
     liveActivityDeployRequestSerializer =
-        messageSerializationFactory.newMessageSerializer(LiveActivityDeployRequest._TYPE);
+        messageSerializationFactory.newMessageSerializer(LiveActivityDeployRequestMessage._TYPE);
 
-    liveActivityDeployStatusDeserializer =
-        messageSerializationFactory.newMessageDeserializer(LiveActivityDeployStatus._TYPE);
+    liveActivityDeployResponseDeserializer =
+        messageSerializationFactory.newMessageDeserializer(LiveActivityDeployResponseMessage._TYPE);
 
     liveActivityDeleteRequestSerializer =
-        messageSerializationFactory.newMessageSerializer(LiveActivityDeleteRequest._TYPE);
+        messageSerializationFactory.newMessageSerializer(LiveActivityDeleteRequestMessage._TYPE);
 
-    liveActivityDeleteStatusDeserializer =
-        messageSerializationFactory.newMessageDeserializer(LiveActivityDeleteStatus._TYPE);
+    liveActivityDeleteResponseDeserializer =
+        messageSerializationFactory.newMessageDeserializer(LiveActivityDeleteResponseMessage._TYPE);
 
     controllerFullStatusDeserializer = messageSerializationFactory.newMessageDeserializer(ControllerFullStatus._TYPE);
 
@@ -315,27 +316,37 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
 
   @Override
   public void deployActivity(ActiveLiveActivity liveActivity, LiveActivityDeploymentRequest request) {
-    LiveActivityDeployRequest rosRequest = rosMessageFactory.newFromType(LiveActivityDeployRequest._TYPE);
-    RosDeploymentMessageTranslator.serializeActivityDeploymentRequest(request, rosRequest);
-    ChannelBuffer serialize = liveActivityDeployRequestSerializer.serialize(rosRequest);
+    LiveActivityDeployRequestMessage rosRequest =
+        rosMessageFactory.newFromType(LiveActivityDeployRequestMessage._TYPE);
+
+    RosLiveActivityDeploymentMessageTranslator.serializeActivityDeploymentRequest(request, rosRequest);
+
     sendControllerRequest(liveActivity.getActiveController(),
-        ControllerRequest.OPERATION_CONTROLLER_DEPLOY_LIVE_ACTIVITY, serialize);
+        ControllerRequest.OPERATION_CONTROLLER_DEPLOY_LIVE_ACTIVITY,
+        liveActivityDeployRequestSerializer.serialize(rosRequest));
   }
 
   @Override
-  public void deleteActivity(ActiveLiveActivity liveActivity, LiveActivityDeleteRequest request) {
-    ChannelBuffer serialize = liveActivityDeleteRequestSerializer.serialize(request);
+  public void deleteLiveActivity(ActiveLiveActivity liveActivity, LiveActivityDeleteRequest request) {
+    LiveActivityDeleteRequestMessage rosMessage =
+        rosMessageFactory.newFromType(LiveActivityDeleteRequestMessage._TYPE);
+
+    RosLiveActivityDeleteMessageTranslator.serializeLiveActivityDeleteRequest(request, rosMessage);
+
     sendControllerRequest(liveActivity.getActiveController(),
-        ControllerRequest.OPERATION_CONTROLLER_DELETE_LIVE_ACTIVITY, serialize);
+        ControllerRequest.OPERATION_CONTROLLER_DELETE_LIVE_ACTIVITY,
+        liveActivityDeleteRequestSerializer.serialize(rosMessage));
   }
 
   @Override
   public void queryResourceDeployment(ActiveSpaceController controller, ContainerResourceDeploymentQueryRequest query) {
     ContainerResourceQueryRequestMessage rosMessage =
         rosMessageFactory.newFromType(ContainerResourceQueryRequestMessage._TYPE);
-    RosDeploymentMessageTranslator.serializeResourceDeploymentQuery(query, rosMessage, rosMessageFactory);
-    ChannelBuffer payload = containerResourceQueryRequestSerializer.serialize(rosMessage);
-    sendControllerRequest(controller, ControllerRequest.OPERATION_CONTROLLER_RESOURCE_QUERY, payload);
+
+    RosLiveActivityDeploymentMessageTranslator.serializeResourceDeploymentQuery(query, rosMessage, rosMessageFactory);
+
+    sendControllerRequest(controller, ControllerRequest.OPERATION_CONTROLLER_RESOURCE_QUERY,
+        containerResourceQueryRequestSerializer.serialize(rosMessage));
   }
 
   @Override
@@ -343,14 +354,10 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
       ContainerResourceDeploymentCommitRequest request) {
     ContainerResourceCommitRequestMessage rosMessage =
         rosMessageFactory.newFromType(ContainerResourceCommitRequestMessage._TYPE);
-    RosDeploymentMessageTranslator.serializeResourceDeploymentCommit(request, rosMessage, rosMessageFactory);
+    RosLiveActivityDeploymentMessageTranslator.serializeResourceDeploymentCommit(request, rosMessage,
+        rosMessageFactory);
     ChannelBuffer payload = containerResourceCommitRequestSerializer.serialize(rosMessage);
     sendControllerRequest(controller, ControllerRequest.OPERATION_CONTROLLER_RESOURCE_COMMIT, payload);
-  }
-
-  @Override
-  public LiveActivityDeleteRequest newLiveActivityDeleteRequest() {
-    return rosMessageFactory.newFromType(LiveActivityDeleteRequest._TYPE);
   }
 
   @Override
@@ -565,31 +572,20 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
         break;
 
       case ControllerStatus.STATUS_CONTROLLER_ACTIVITY_INSTALL:
-        LiveActivityDeployStatus deployStatus = liveActivityDeployStatusDeserializer.deserialize(status.getPayload());
+        LiveActivityDeployResponseMessage deployResponse =
+            liveActivityDeployResponseDeserializer.deserialize(status.getPayload());
 
         LiveActivityDeploymentResponse dstatus =
-            RosDeploymentMessageTranslator.deserializeDeploymentStatus(deployStatus);
+            RosLiveActivityDeploymentMessageTranslator.deserializeDeploymentResponseMessage(deployResponse);
         remoteActivityDeploymentManager.handleLiveDeployResult(dstatus);
         break;
 
       case ControllerStatus.STATUS_CONTROLLER_ACTIVITY_DELETE:
-        LiveActivityDeleteStatus deleteStatus = liveActivityDeleteStatusDeserializer.deserialize(status.getPayload());
+        LiveActivityDeleteResponseMessage deleteResponse =
+            liveActivityDeleteResponseDeserializer.deserialize(status.getPayload());
 
-        LiveActivityDeleteResult deleteResult;
-        switch (deleteStatus.getStatus()) {
-          case LiveActivityDeleteStatus.STATUS_SUCCESS:
-            deleteResult = LiveActivityDeleteResult.SUCCESS;
-            break;
-
-          case LiveActivityDeleteStatus.STATUS_DOESNT_EXIST:
-            deleteResult = LiveActivityDeleteResult.DOESNT_EXIST;
-            break;
-
-          default:
-            deleteResult = LiveActivityDeleteResult.FAIL;
-        }
-
-        remoteControllerClientListeners.signalActivityDelete(deleteStatus.getUuid(), deleteResult);
+        remoteControllerClientListeners.signalActivityDelete(deleteResponse.getUuid(),
+            RosLiveActivityDeleteMessageTranslator.deserializeLiveActivityDeleteResponseMessage(deleteResponse));
 
         break;
 
@@ -729,7 +725,7 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
    */
   private void handleContainerResourceQueryResponse(ContainerResourceQueryResponseMessage rosResponse) {
     ContainerResourceDeploymentQueryResponse response =
-        RosDeploymentMessageTranslator.deserializeResourceDeploymentQueryResponse(rosResponse);
+        RosLiveActivityDeploymentMessageTranslator.deserializeResourceDeploymentQueryResponse(rosResponse);
     log.info(String.format("Got resource deployment query response for transaction ID %s with status %s",
         response.getTransactionId(), response.getStatus()));
 
@@ -744,7 +740,7 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
    */
   private void handleContainerResourceCommitResponse(ContainerResourceCommitResponseMessage rosResponse) {
     ContainerResourceDeploymentCommitResponse response =
-        RosDeploymentMessageTranslator.deserializeResourceDeploymentCommitResponse(rosResponse);
+        RosLiveActivityDeploymentMessageTranslator.deserializeResourceDeploymentCommitResponse(rosResponse);
     log.info(String.format("Got resource deployment commit response for transaction ID %s with status %s",
         response.getTransactionId(), response.getStatus()));
 

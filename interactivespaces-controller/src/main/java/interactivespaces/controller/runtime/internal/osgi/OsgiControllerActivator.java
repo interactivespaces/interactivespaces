@@ -26,7 +26,7 @@ import interactivespaces.controller.runtime.SpaceControllerDataBundleManager;
 import interactivespaces.controller.runtime.StandardSpaceController;
 import interactivespaces.controller.runtime.StandardSpaceControllerDataBundleManager;
 import interactivespaces.controller.runtime.configuration.StandardSpaceControllerConfigurationManager;
-import interactivespaces.controller.runtime.internal.SimpleSpaceControllerActivityInstallationManager;
+import interactivespaces.controller.runtime.internal.StandardSpaceControllerActivityInstallationManager;
 import interactivespaces.controller.runtime.ros.RosSpaceControllerCommunicator;
 import interactivespaces.controller.ui.internal.osgi.OsgiControllerShell;
 import interactivespaces.evaluation.ExpressionEvaluatorFactory;
@@ -152,7 +152,7 @@ public class OsgiControllerActivator extends InteractiveSpacesServiceOsgiBundleA
     addManagedResource(activityInstallationManager);
 
     SpaceControllerActivityInstallationManager controllerActivityInstaller =
-        new SimpleSpaceControllerActivityInstallationManager(activityInstallationManager, spaceEnvironment);
+        new StandardSpaceControllerActivityInstallationManager(activityInstallationManager, spaceEnvironment);
     addManagedResource(controllerActivityInstaller);
 
     InteractiveSpacesEnvironmentLiveActivityLogFactory activityLogFactory =

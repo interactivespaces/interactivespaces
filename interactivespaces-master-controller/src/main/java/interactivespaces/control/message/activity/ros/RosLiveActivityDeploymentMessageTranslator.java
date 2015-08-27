@@ -14,19 +14,19 @@
  * the License.
  */
 
-package interactivespaces.activity.deployment.ros;
+package interactivespaces.control.message.activity.ros;
 
 import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.activity.deployment.LiveActivityDeploymentRequest;
-import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
-import interactivespaces.activity.deployment.LiveActivityDeploymentResponse.ActivityDeployStatus;
-import interactivespaces.container.resource.deployment.ContainerResourceDeploymentCommitRequest;
-import interactivespaces.container.resource.deployment.ContainerResourceDeploymentCommitResponse;
-import interactivespaces.container.resource.deployment.ContainerResourceDeploymentCommitResponse.ContainerResourceDeploymentCommitStatus;
-import interactivespaces.container.resource.deployment.ContainerResourceDeploymentItem;
-import interactivespaces.container.resource.deployment.ContainerResourceDeploymentQueryRequest;
-import interactivespaces.container.resource.deployment.ContainerResourceDeploymentQueryResponse;
-import interactivespaces.container.resource.deployment.ContainerResourceDeploymentQueryResponse.QueryResponseStatus;
+import interactivespaces.control.message.activity.LiveActivityDeploymentRequest;
+import interactivespaces.control.message.activity.LiveActivityDeploymentResponse;
+import interactivespaces.control.message.activity.LiveActivityDeploymentResponse.ActivityDeployStatus;
+import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentCommitRequest;
+import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentCommitResponse;
+import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentCommitResponse.ContainerResourceDeploymentCommitStatus;
+import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentItem;
+import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentQueryRequest;
+import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentQueryResponse;
+import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentQueryResponse.QueryResponseStatus;
 import interactivespaces.resource.ResourceDependency;
 import interactivespaces.resource.ResourceDependencyReference;
 import interactivespaces.resource.Version;
@@ -40,8 +40,8 @@ import interactivespaces_msgs.ContainerResourceCommitResponseMessage;
 import interactivespaces_msgs.ContainerResourceQueryItem;
 import interactivespaces_msgs.ContainerResourceQueryRequestMessage;
 import interactivespaces_msgs.ContainerResourceQueryResponseMessage;
-import interactivespaces_msgs.LiveActivityDeployRequest;
-import interactivespaces_msgs.LiveActivityDeployStatus;
+import interactivespaces_msgs.LiveActivityDeployRequestMessage;
+import interactivespaces_msgs.LiveActivityDeployResponseMessage;
 import interactivespaces_msgs.LocatableResourceDescription;
 import org.ros.message.MessageFactory;
 
@@ -52,7 +52,7 @@ import java.util.List;
  *
  * @author Keith M. Hughes
  */
-public class RosDeploymentMessageTranslator {
+public class RosLiveActivityDeploymentMessageTranslator {
 
   /**
    * The value that the detail should have in the ROS message for container resource deployment commit responses if
@@ -75,7 +75,7 @@ public class RosDeploymentMessageTranslator {
    *          the ROS message
    */
   public static void serializeActivityDeploymentRequest(LiveActivityDeploymentRequest request,
-      LiveActivityDeployRequest rosRequest) {
+      LiveActivityDeployRequestMessage rosRequest) {
     rosRequest.setTransactionId(request.getTransactionId());
     rosRequest.setUuid(request.getUuid());
     rosRequest.setIdentifyingName(request.getIdentifyingName());
@@ -91,8 +91,8 @@ public class RosDeploymentMessageTranslator {
    *
    * @return the deserialized message
    */
-  public static LiveActivityDeploymentRequest
-      deserializeActivityDeploymentRequest(LiveActivityDeployRequest rosMessage) {
+  public static LiveActivityDeploymentRequest deserializeActivityDeploymentRequest(
+      LiveActivityDeployRequestMessage rosMessage) {
     return new LiveActivityDeploymentRequest(rosMessage.getTransactionId(), rosMessage.getUuid(),
         rosMessage.getIdentifyingName(), Version.parseVersion(rosMessage.getVersion()),
         rosMessage.getActivitySourceUri());
@@ -101,37 +101,37 @@ public class RosDeploymentMessageTranslator {
   /**
    * Serialize the activity deployment status into the corresponding ROS message.
    *
-   * @param deployStatus
+   * @param deployResponse
    *          the deployment status
    * @param rosMessage
    *          the ROS message
    */
-  public static void serializeDeploymentStatus(LiveActivityDeploymentResponse deployStatus,
-      LiveActivityDeployStatus rosMessage) {
-    rosMessage.setTransactionId(deployStatus.getTransactionId());
-    rosMessage.setUuid(deployStatus.getUuid());
-    rosMessage.setTimeDeployed(deployStatus.getTimeDeployed());
+  public static void serializeDeploymentResponse(LiveActivityDeploymentResponse deployResponse,
+      LiveActivityDeployResponseMessage rosMessage) {
+    rosMessage.setTransactionId(deployResponse.getTransactionId());
+    rosMessage.setUuid(deployResponse.getUuid());
+    rosMessage.setTimeDeployed(deployResponse.getTimeDeployed());
 
-    String detail = deployStatus.getStatusDetail();
+    String detail = deployResponse.getStatusDetail();
     if (detail == null) {
       detail = CONTAINER_LIVE_ACTIVITY_DEPLOYMENT_RESPONSE_DETAIL_NONE;
     }
     rosMessage.setStatusDetail(detail);
 
-    switch (deployStatus.getStatus()) {
+    switch (deployResponse.getStatus()) {
       case STATUS_SUCCESS:
-        rosMessage.setStatus(LiveActivityDeployStatus.STATUS_SUCCESS);
+        rosMessage.setStatus(LiveActivityDeployResponseMessage.STATUS_SUCCESS);
         break;
 
       case STATUS_FAILURE_COPY:
-        rosMessage.setStatus(LiveActivityDeployStatus.STATUS_FAILURE_COPY);
+        rosMessage.setStatus(LiveActivityDeployResponseMessage.STATUS_FAILURE_COPY);
         break;
 
       case STATUS_FAILURE_UNPACK:
-        rosMessage.setStatus(LiveActivityDeployStatus.STATUS_FAILURE_UNPACK);
+        rosMessage.setStatus(LiveActivityDeployResponseMessage.STATUS_FAILURE_UNPACK);
         break;
       default:
-        throw new SimpleInteractiveSpacesException(String.format("Unhandled status %s for status %s", deployStatus
+        throw new SimpleInteractiveSpacesException(String.format("Unhandled status %s for status %s", deployResponse
             .getStatus().getClass().getName()));
     }
   }
@@ -144,18 +144,19 @@ public class RosDeploymentMessageTranslator {
    *
    * @return the deployment response
    */
-  public static LiveActivityDeploymentResponse deserializeDeploymentStatus(LiveActivityDeployStatus rosMessage) {
+  public static LiveActivityDeploymentResponse deserializeDeploymentResponseMessage(
+      LiveActivityDeployResponseMessage rosMessage) {
     ActivityDeployStatus status;
     switch (rosMessage.getStatus()) {
-      case LiveActivityDeployStatus.STATUS_SUCCESS:
+      case LiveActivityDeployResponseMessage.STATUS_SUCCESS:
         status = ActivityDeployStatus.STATUS_SUCCESS;
         break;
 
-      case LiveActivityDeployStatus.STATUS_FAILURE_COPY:
+      case LiveActivityDeployResponseMessage.STATUS_FAILURE_COPY:
         status = ActivityDeployStatus.STATUS_FAILURE_COPY;
         break;
 
-      case LiveActivityDeployStatus.STATUS_FAILURE_UNPACK:
+      case LiveActivityDeployResponseMessage.STATUS_FAILURE_UNPACK:
         status = ActivityDeployStatus.STATUS_FAILURE_UNPACK;
         break;
       default:

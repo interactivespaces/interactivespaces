@@ -208,4 +208,14 @@ public interface LiveActivityRuntime extends ActivityRuntime, ManagedResource {
    * @return {@code true} if any live activities are running
    */
   boolean hasLiveActivitiesRunning();
+
+  /**
+   * Is the specified live activity running?
+   *
+   * @param uuid
+   *        the UUID of the live activity
+   *
+   * @return {@code true} if the live activities is running
+   */
+  boolean isLiveActivityRunning(String uuid);
 }

@@ -19,8 +19,10 @@ package interactivespaces.master.server.services.internal;
 import static org.junit.Assert.assertEquals;
 
 import interactivespaces.activity.ActivityState;
-import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
-import interactivespaces.activity.deployment.LiveActivityDeploymentResponse.ActivityDeployStatus;
+import interactivespaces.control.message.activity.LiveActivityDeleteResponse;
+import interactivespaces.control.message.activity.LiveActivityDeleteResponse.LiveActivityDeleteStatus;
+import interactivespaces.control.message.activity.LiveActivityDeploymentResponse;
+import interactivespaces.control.message.activity.LiveActivityDeploymentResponse.ActivityDeployStatus;
 import interactivespaces.controller.client.master.RemoteActivityDeploymentManager;
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.LiveActivity;
@@ -168,7 +170,7 @@ public class StandardActiveSpaceControllerManagerTest extends BaseSpaceTest {
   @Test
   public void testActivityDeleteSucccess() {
     String activityUuid = "activity";
-    LiveActivityDeleteResult result = LiveActivityDeleteResult.SUCCESS;
+    LiveActivityDeleteStatus deleteStatus = LiveActivityDeleteStatus.SUCCESS;
 
     String spaceUuid = "space";
     SpaceController controller = new SimpleSpaceController();
@@ -190,9 +192,12 @@ public class StandardActiveSpaceControllerManagerTest extends BaseSpaceTest {
     active.setDeployState(null);
     active.setRuntimeState(null, null);
 
-    activeControllerManager.onLiveActivityDelete(activityUuid, result);
+    LiveActivityDeleteResponse deleteResponse =
+        new LiveActivityDeleteResponse(activityUuid, deleteStatus, 10000, null);
 
-    Mockito.verify(masterEventManager).signalLiveActivityDelete(active, result, timestamp);
+    activeControllerManager.onLiveActivityDelete(activityUuid, deleteResponse);
+
+    Mockito.verify(masterEventManager).signalLiveActivityDelete(active, deleteResponse);
     assertEquals(ActivityState.UNKNOWN, active.getRuntimeState());
     assertEquals(ActivityState.UNKNOWN, active.getDeployState());
     assertEquals(null, liveActivity.getLastDeployDate());
@@ -204,7 +209,7 @@ public class StandardActiveSpaceControllerManagerTest extends BaseSpaceTest {
   @Test
   public void testActivityDeleteFailure() {
     String activityUuid = "activity";
-    LiveActivityDeleteResult result = LiveActivityDeleteResult.FAIL;
+    LiveActivityDeleteStatus deleteStatus = LiveActivityDeleteStatus.FAILURE;
 
     String spaceUuid = "space";
     SpaceController controller = new SimpleSpaceController();
@@ -220,9 +225,12 @@ public class StandardActiveSpaceControllerManagerTest extends BaseSpaceTest {
     active.setDeployState(null);
     active.setRuntimeState(null, null);
 
-    activeControllerManager.onLiveActivityDelete(activityUuid, result);
+    LiveActivityDeleteResponse deleteResponse =
+        new LiveActivityDeleteResponse(activityUuid, deleteStatus, 10000, null);
 
-    Mockito.verify(masterEventManager).signalLiveActivityDelete(active, result, timestamp);
+    activeControllerManager.onLiveActivityDelete(activityUuid, deleteResponse);
+
+    Mockito.verify(masterEventManager).signalLiveActivityDelete(active, deleteResponse);
     assertEquals(null, active.getRuntimeState());
     assertEquals(null, active.getDeployState());
     assertEquals(lastDeployDate, activity.getLastDeployDate());
@@ -235,7 +243,7 @@ public class StandardActiveSpaceControllerManagerTest extends BaseSpaceTest {
   @Test
   public void testActivityDeleteNotExist() {
     String activityUuid = "activity";
-    LiveActivityDeleteResult result = LiveActivityDeleteResult.DOESNT_EXIST;
+    LiveActivityDeleteStatus deleteStatus = LiveActivityDeleteStatus.DOESNT_EXIST;
 
     String spaceUuid = "space";
     SpaceController controller = new SimpleSpaceController();
@@ -255,9 +263,12 @@ public class StandardActiveSpaceControllerManagerTest extends BaseSpaceTest {
     active.setDeployState(null);
     active.setRuntimeState(null, null);
 
-    activeControllerManager.onLiveActivityDelete(activityUuid, result);
+    LiveActivityDeleteResponse deleteResponse =
+        new LiveActivityDeleteResponse(activityUuid, deleteStatus, 10000, null);
 
-    Mockito.verify(masterEventManager).signalLiveActivityDelete(active, result, timestamp);
+    activeControllerManager.onLiveActivityDelete(activityUuid, deleteResponse);
+
+    Mockito.verify(masterEventManager).signalLiveActivityDelete(active, deleteResponse);
     assertEquals(ActivityState.DOESNT_EXIST, active.getRuntimeState());
     assertEquals(ActivityState.DOESNT_EXIST, active.getDeployState());
   }

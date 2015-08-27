@@ -17,11 +17,11 @@
 package interactivespaces.master.event;
 
 import interactivespaces.activity.ActivityState;
-import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
+import interactivespaces.control.message.activity.LiveActivityDeleteResponse;
+import interactivespaces.control.message.activity.LiveActivityDeploymentResponse;
 import interactivespaces.controller.SpaceControllerState;
 import interactivespaces.master.server.services.ActiveLiveActivity;
 import interactivespaces.master.server.services.ActiveSpaceController;
-import interactivespaces.master.server.services.internal.LiveActivityDeleteResult;
 
 /**
  * A listener for events within the master.
@@ -104,10 +104,8 @@ public interface MasterEventListener {
    *          the activity
    * @param result
    *          result from the deletion attempt
-   * @param timestamp
-   *          timestamp of the event
    */
-  void onLiveActivityDelete(ActiveLiveActivity liveActivity, LiveActivityDeleteResult result, long timestamp);
+  void onLiveActivityDelete(ActiveLiveActivity liveActivity, LiveActivityDeleteResponse result);
 
   /**
    * A live activity has had a state change.

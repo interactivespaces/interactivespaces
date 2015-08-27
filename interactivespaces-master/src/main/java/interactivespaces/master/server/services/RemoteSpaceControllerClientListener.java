@@ -17,10 +17,10 @@
 package interactivespaces.master.server.services;
 
 import interactivespaces.activity.ActivityState;
-import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
+import interactivespaces.control.message.activity.LiveActivityDeleteResponse;
+import interactivespaces.control.message.activity.LiveActivityDeploymentResponse;
 import interactivespaces.controller.SpaceControllerState;
 import interactivespaces.master.server.services.internal.DataBundleState;
-import interactivespaces.master.server.services.internal.LiveActivityDeleteResult;
 
 /**
  * A listener for changes in activity states.
@@ -92,7 +92,7 @@ public interface RemoteSpaceControllerClientListener {
    * @param result
    *          result of the delete
    */
-  void onLiveActivityDelete(String uuid, LiveActivityDeleteResult result);
+  void onLiveActivityDelete(String uuid, LiveActivityDeleteResponse result);
 
   /**
    * A remote activity has deployment status.

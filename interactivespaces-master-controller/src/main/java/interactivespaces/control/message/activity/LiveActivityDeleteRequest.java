@@ -14,14 +14,14 @@
  * the License.
  */
 
-package interactivespaces.controller.runtime;
+package interactivespaces.control.message.activity;
 
 /**
- * Request for a deletion of a live activity from a space controller.
+ * Request for a deletion of a live activity.
  *
  * @author Keith M. Hughes
  */
-public class SpaceControllerLiveActivityDeleteRequest {
+public class LiveActivityDeleteRequest {
 
   /**
    * UUID of the live activity to be deleted.
@@ -39,6 +39,11 @@ public class SpaceControllerLiveActivityDeleteRequest {
   private String version;
 
   /**
+   * {@code true} if the deletion should be forced.
+   */
+  private boolean force;
+
+  /**
    * Construct the request.
    *
    * @param uuid
@@ -47,11 +52,14 @@ public class SpaceControllerLiveActivityDeleteRequest {
    *          identifying name of the live activity
    * @param version
    *          version of the live activity
+   * @param force
+   *          {@code true} if the deletion should be forced
    */
-  public SpaceControllerLiveActivityDeleteRequest(String uuid, String identifyingName, String version) {
+  public LiveActivityDeleteRequest(String uuid, String identifyingName, String version, boolean force) {
     this.uuid = uuid;
     this.identifyingName = identifyingName;
     this.version = version;
+    this.force = force;
   }
 
   /**
@@ -79,5 +87,14 @@ public class SpaceControllerLiveActivityDeleteRequest {
    */
   public String getVersion() {
     return version;
+  }
+
+  /**
+   * Should the deletion be forced.
+   *
+   * @return {@code true} if the deletion should be forced
+   */
+  public boolean isForce() {
+    return force;
   }
 }

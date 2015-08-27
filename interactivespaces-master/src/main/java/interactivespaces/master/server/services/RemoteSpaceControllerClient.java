@@ -16,14 +16,13 @@
 
 package interactivespaces.master.server.services;
 
-import interactivespaces.activity.deployment.LiveActivityDeploymentRequest;
-import interactivespaces.container.resource.deployment.ContainerResourceDeploymentCommitRequest;
-import interactivespaces.container.resource.deployment.ContainerResourceDeploymentQueryRequest;
+import interactivespaces.control.message.activity.LiveActivityDeleteRequest;
+import interactivespaces.control.message.activity.LiveActivityDeploymentRequest;
+import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentCommitRequest;
+import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentQueryRequest;
 import interactivespaces.controller.client.master.RemoteActivityDeploymentManager;
 import interactivespaces.master.server.services.internal.RemoteSpaceControllerClientListenerCollection;
 import interactivespaces.util.resource.ManagedResource;
-
-import interactivespaces_msgs.LiveActivityDeleteRequest;
 
 /**
  * A client for speaking to a remote controller.
@@ -181,16 +180,7 @@ public interface RemoteSpaceControllerClient extends ManagedResource {
    * @param request
    *          the deletion request
    */
-  // TODO(keith): make this not depend on the ROS message or the live
-  // activity, just a spec.
-  void deleteActivity(ActiveLiveActivity liveActivity, LiveActivityDeleteRequest request);
-
-  /**
-   * Create a new delete request.
-   *
-   * @return a new delete request
-   */
-  LiveActivityDeleteRequest newLiveActivityDeleteRequest();
+  void deleteLiveActivity(ActiveLiveActivity liveActivity, LiveActivityDeleteRequest request);
 
   /**
    * Fully configure an activity on its controller.

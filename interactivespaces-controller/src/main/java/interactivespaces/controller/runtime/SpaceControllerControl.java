@@ -16,12 +16,14 @@
 
 package interactivespaces.controller.runtime;
 
-import interactivespaces.activity.deployment.LiveActivityDeploymentRequest;
-import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
-import interactivespaces.container.resource.deployment.ContainerResourceDeploymentCommitRequest;
-import interactivespaces.container.resource.deployment.ContainerResourceDeploymentCommitResponse;
-import interactivespaces.container.resource.deployment.ContainerResourceDeploymentQueryRequest;
-import interactivespaces.container.resource.deployment.ContainerResourceDeploymentQueryResponse;
+import interactivespaces.control.message.activity.LiveActivityDeleteRequest;
+import interactivespaces.control.message.activity.LiveActivityDeleteResponse;
+import interactivespaces.control.message.activity.LiveActivityDeploymentRequest;
+import interactivespaces.control.message.activity.LiveActivityDeploymentResponse;
+import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentCommitRequest;
+import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentCommitResponse;
+import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentQueryRequest;
+import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentQueryResponse;
 import interactivespaces.controller.SpaceController;
 import interactivespaces.liveactivity.runtime.LiveActivityRunner;
 import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
@@ -218,5 +220,5 @@ public interface SpaceControllerControl extends SpaceController {
    *
    * @return the delete response
    */
-  SpaceControllerLiveActivityDeleteResponse deleteLiveActivity(SpaceControllerLiveActivityDeleteRequest request);
+  LiveActivityDeleteResponse deleteLiveActivity(LiveActivityDeleteRequest request);
 }

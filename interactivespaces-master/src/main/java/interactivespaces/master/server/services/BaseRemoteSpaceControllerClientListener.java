@@ -17,10 +17,10 @@
 package interactivespaces.master.server.services;
 
 import interactivespaces.activity.ActivityState;
-import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
+import interactivespaces.control.message.activity.LiveActivityDeleteResponse;
+import interactivespaces.control.message.activity.LiveActivityDeploymentResponse;
 import interactivespaces.controller.SpaceControllerState;
 import interactivespaces.master.server.services.internal.DataBundleState;
-import interactivespaces.master.server.services.internal.LiveActivityDeleteResult;
 
 /**
  * Base class for {@link RemoteSpaceControllerClientListener} subclasses that implements every method with a no-op.
@@ -60,7 +60,7 @@ public class BaseRemoteSpaceControllerClientListener implements RemoteSpaceContr
   }
 
   @Override
-  public void onLiveActivityDelete(String uuid, LiveActivityDeleteResult result) {
+  public void onLiveActivityDelete(String uuid, LiveActivityDeleteResponse result) {
     // Default is do nothing
   }
 

@@ -14,16 +14,25 @@
 # the License.
 ##
 
-# goal definition for deleting a live activity
+# result of a deletion of a live activity
 
 # UUID of the live activity
 string uuid
 
-# Identifying name of the activity
-string identifying_name
+# Time deleted on controller
+int64 time_deleted
 
-# Version of the activity
-string version
+# The status of the operation.
+int32 status
 
-# 1 if should force deletion
-int32 force
+# The status for a successful deletion.
+int32 STATUS_SUCCESS = 0
+
+# The status for a failed deletion.
+int32 STATUS_FAILURE = 1
+
+# The status for a failed deletion due to the live activity not existing.
+int32 STATUS_DOESNT_EXIST = 2
+
+# More detail about the status, e.g. a stack trace
+string statusDetail

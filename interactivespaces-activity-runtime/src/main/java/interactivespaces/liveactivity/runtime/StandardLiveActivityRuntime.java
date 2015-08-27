@@ -600,14 +600,34 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
   public boolean hasLiveActivitiesRunning() {
     synchronized (liveActivityRunners) {
       for (LiveActivityRunner runner : liveActivityRunners.values()) {
-        ActivityState state = runner.getCachedActivityStatus().getState();
-        if (state.isRunning() || state.isTransitional()) {
+        if (isLiveActivityRunning(runner)) {
           return true;
         }
       }
     }
 
     return false;
+  }
+
+  @Override
+  public boolean isLiveActivityRunning(String uuid) {
+    synchronized (liveActivityRunners) {
+      LiveActivityRunner runner = liveActivityRunners.get(uuid);
+      return runner != null && isLiveActivityRunning(runner);
+    }
+  }
+
+  /**
+   * Is the given live activity runner running?
+   *
+   * @param runner
+   *          the runner to check
+   *
+   * @return {@code true} if the runner is officially running
+   */
+  private boolean isLiveActivityRunning(LiveActivityRunner runner) {
+    ActivityState state = runner.getCachedActivityStatus().getState();
+    return state.isRunning() || state.isTransitional();
   }
 
   /**

@@ -16,8 +16,8 @@
 
 package interactivespaces.controller.client.master.internal;
 
-import interactivespaces.activity.deployment.LiveActivityDeploymentRequest;
-import interactivespaces.container.resource.deployment.ContainerResourceDeploymentQueryRequest;
+import interactivespaces.control.message.activity.LiveActivityDeploymentRequest;
+import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentQueryRequest;
 import interactivespaces.master.server.services.ActiveLiveActivity;
 import interactivespaces.resource.Version;
 

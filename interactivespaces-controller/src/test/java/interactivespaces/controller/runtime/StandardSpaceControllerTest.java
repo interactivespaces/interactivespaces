@@ -16,6 +16,7 @@
 
 package interactivespaces.controller.runtime;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -23,6 +24,8 @@ import static org.mockito.Mockito.when;
 
 import interactivespaces.configuration.Configuration;
 import interactivespaces.configuration.SimpleConfiguration;
+import interactivespaces.control.message.activity.LiveActivityDeleteRequest;
+import interactivespaces.control.message.activity.LiveActivityDeleteResponse;
 import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.runtime.configuration.SpaceControllerConfigurationManager;
 import interactivespaces.liveactivity.runtime.LiveActivityRuntime;
@@ -66,6 +69,7 @@ public class StandardSpaceControllerTest {
   private InteractiveSpacesFilesystem systemFilesystem;
   private SpaceControllerConfigurationManager spaceControllerConfigurationManager;
   private LiveActivityRuntime liveActivityRuntime;
+  private SpaceControllerActivityInstallationManager spaceControllerActivityInstallManager;
 
   private Configuration systemConfiguration;
 
@@ -85,6 +89,7 @@ public class StandardSpaceControllerTest {
     systemConfiguration = SimpleConfiguration.newConfiguration();
     dataBundleManager = mock(StandardSpaceControllerDataBundleManager.class);
     spaceControllerConfigurationManager = mock(SpaceControllerConfigurationManager.class);
+    spaceControllerActivityInstallManager = mock(SpaceControllerActivityInstallationManager.class);
 
     systemFilesystem = mock(InteractiveSpacesFilesystem.class);
 
@@ -109,9 +114,9 @@ public class StandardSpaceControllerTest {
     systemConfiguration.setValue(InteractiveSpacesEnvironment.CONFIGURATION_CONTAINER_FILE_CONTROLLABLE, "false");
 
     controller =
-        new StandardSpaceController(null, null, controllerCommunicator, controllerInfoPersister, spaceSystemControl,
-            dataBundleManager, spaceControllerConfigurationManager, liveActivityRuntime,
-            new ImmediateRunSequentialEventQueue(), spaceEnvironment);
+        new StandardSpaceController(spaceControllerActivityInstallManager, null, controllerCommunicator,
+            controllerInfoPersister, spaceSystemControl, dataBundleManager, spaceControllerConfigurationManager,
+            liveActivityRuntime, new ImmediateRunSequentialEventQueue(), spaceEnvironment);
 
     fileSupport = mock(FileSupport.class);
     controller.setFileSupport(fileSupport);
@@ -255,5 +260,41 @@ public class StandardSpaceControllerTest {
     controller.configureLiveActivity(uuid, configuration);
 
     verify(liveActivityRuntime, times(1)).configureLiveActivity(uuid, configuration);
+  }
+
+  /**
+   * Test deleting a live activity when it is possible to delete.
+   *
+   */
+  @Test
+  public void testLiveActivityDelete() {
+    String uuid = "1.2.3.4";
+
+    when(liveActivityRuntime.isLiveActivityRunning(uuid)).thenReturn(false);
+
+    LiveActivityDeleteRequest request = new LiveActivityDeleteRequest(uuid, "foo", "1.2.3", false);
+
+    controller.deleteLiveActivity(request);
+
+    verify(spaceControllerActivityInstallManager).handleDeleteRequest(request);
+  }
+
+  /**
+   * Test deleting a live activity when it is running.
+   */
+  @Test
+  public void testLiveActivityDeleteWhenRunning() {
+    String uuid = "1.2.3.4";
+
+    when(liveActivityRuntime.isLiveActivityRunning(uuid)).thenReturn(true);
+
+    LiveActivityDeleteRequest request = new LiveActivityDeleteRequest(uuid, "foo", "1.2.3", false);
+
+    LiveActivityDeleteResponse response = controller.deleteLiveActivity(request);
+
+    assertEquals(uuid, response.getUuid());
+    assertEquals(LiveActivityDeleteResponse.LiveActivityDeleteStatus.FAILURE, response.getStatus());
+
+    verify(spaceControllerActivityInstallManager, times(0)).handleDeleteRequest(request);
   }
 }

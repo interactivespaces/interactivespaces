@@ -16,8 +16,8 @@
 
 package interactivespaces.master.api.master.internal;
 
-import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
-import interactivespaces.activity.deployment.LiveActivityDeploymentResponse.ActivityDeployStatus;
+import interactivespaces.control.message.activity.LiveActivityDeploymentResponse;
+import interactivespaces.control.message.activity.LiveActivityDeploymentResponse.ActivityDeployStatus;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.master.event.MasterEventManager;
 import interactivespaces.master.server.services.ActiveLiveActivity;

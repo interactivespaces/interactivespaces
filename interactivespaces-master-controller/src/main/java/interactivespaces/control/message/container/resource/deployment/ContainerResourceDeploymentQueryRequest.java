@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.container.resource.deployment;
+package interactivespaces.control.message.container.resource.deployment;
 
 import interactivespaces.resource.ResourceDependency;
 

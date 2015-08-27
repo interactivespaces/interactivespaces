@@ -17,7 +17,8 @@
 package interactivespaces.master.server.services.internal;
 
 import interactivespaces.activity.ActivityState;
-import interactivespaces.activity.deployment.LiveActivityDeploymentResponse;
+import interactivespaces.control.message.activity.LiveActivityDeleteResponse;
+import interactivespaces.control.message.activity.LiveActivityDeploymentResponse;
 import interactivespaces.controller.SpaceControllerState;
 import interactivespaces.controller.client.master.RemoteActivityDeploymentManager;
 import interactivespaces.domain.basic.GroupLiveActivity;
@@ -932,10 +933,10 @@ public class StandardActiveSpaceControllerManager implements InternalActiveSpace
   }
 
   @Override
-  public void onLiveActivityDelete(String uuid, LiveActivityDeleteResult result) {
+  public void onLiveActivityDelete(String uuid, LiveActivityDeleteResponse result) {
     ActiveLiveActivity active = getActiveActivityByUuid(uuid);
     if (active != null) {
-      switch (result) {
+      switch (result.getStatus()) {
         case SUCCESS:
           // If not running, should update the status as there may be an
           // error or something that is currently being shown.
@@ -952,17 +953,18 @@ public class StandardActiveSpaceControllerManager implements InternalActiveSpace
           active.setDeployState(ActivityState.DOESNT_EXIST);
           active.setRuntimeState(ActivityState.DOESNT_EXIST, null);
 
-          spaceEnvironment.getLog().info(
+          spaceEnvironment.getLog().warn(
               String.format("Live activity deletion attempt failed because it isn't on the controller: %s",
                   active.getDisplayName()));
 
           break;
 
         default:
-          spaceEnvironment.getLog().info(String.format("Live activity %s delete failed", uuid));
+          spaceEnvironment.getLog().error(
+              String.format("Live activity delete failed: %s\n%s", active.getDisplayName(), result.getStatusDetail()));
       }
 
-      masterEventManager.signalLiveActivityDelete(active, result, spaceEnvironment.getTimeProvider().getCurrentTime());
+      masterEventManager.signalLiveActivityDelete(active, result);
     } else {
       logUnknownLiveActivity(uuid);
     }
