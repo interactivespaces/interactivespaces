@@ -17,8 +17,8 @@
 package interactivespaces.master.event;
 
 import interactivespaces.activity.ActivityState;
-import interactivespaces.control.message.activity.LiveActivityDeleteResponse;
-import interactivespaces.control.message.activity.LiveActivityDeploymentResponse;
+import interactivespaces.container.control.message.activity.LiveActivityDeleteResponse;
+import interactivespaces.container.control.message.activity.LiveActivityDeploymentResponse;
 import interactivespaces.controller.SpaceControllerState;
 import interactivespaces.master.server.services.ActiveLiveActivity;
 import interactivespaces.master.server.services.ActiveSpaceController;

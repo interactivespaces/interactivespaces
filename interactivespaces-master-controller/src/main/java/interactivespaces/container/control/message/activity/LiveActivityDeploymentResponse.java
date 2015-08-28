@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.control.message.activity;
+package interactivespaces.container.control.message.activity;
 
 /**
  * The response of a live activity deployment on the controller.
@@ -125,17 +125,17 @@ public class LiveActivityDeploymentResponse {
     /**
      * Deployment was a success.
      */
-    STATUS_SUCCESS(true, "Live activity deployment was successful"),
+    SUCCESS(true, "Live activity deployment was successful"),
 
     /**
      * Failed to copy the activity from the repository.
      */
-    STATUS_FAILURE_COPY(false, "The live activity failed to copy to the remote destination"),
+    FAILURE_COPY(false, "The live activity failed to copy to the remote destination"),
 
     /**
      * Could not unpack the live activity.
      */
-    STATUS_FAILURE_UNPACK(false, "The live activity could not be unpacked at the remote destination"),
+    FAILURE_UNPACK(false, "The live activity could not be unpacked at the remote destination"),
 
     /**
      * The dependencies could not be committed for the deployment.

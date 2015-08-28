@@ -17,8 +17,8 @@
 package interactivespaces.master.api.master.internal;
 
 import interactivespaces.activity.ActivityState;
-import interactivespaces.control.message.activity.LiveActivityDeploymentResponse;
-import interactivespaces.control.message.activity.LiveActivityDeploymentResponse.ActivityDeployStatus;
+import interactivespaces.container.control.message.activity.LiveActivityDeploymentResponse;
+import interactivespaces.container.control.message.activity.LiveActivityDeploymentResponse.ActivityDeployStatus;
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.ActivityConfiguration;
 import interactivespaces.domain.basic.ActivityDependency;
@@ -1425,7 +1425,7 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
    */
   private void handleLiveActivityInstallMasterEvent(ActiveLiveActivity liveActivity,
       LiveActivityDeploymentResponse result, long timestamp) {
-    if (result.getStatus() == ActivityDeployStatus.STATUS_SUCCESS) {
+    if (result.getStatus() == ActivityDeployStatus.SUCCESS) {
       updateLiveActivityDeploymentTime(liveActivity, timestamp);
     }
   }

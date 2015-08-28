@@ -16,10 +16,10 @@
 
 package interactivespaces.controller.resource.deployment;
 
-import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentCommitRequest;
-import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentCommitResponse;
-import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentQueryRequest;
-import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentQueryResponse;
+import interactivespaces.container.control.message.container.resource.deployment.ContainerResourceDeploymentCommitRequest;
+import interactivespaces.container.control.message.container.resource.deployment.ContainerResourceDeploymentCommitResponse;
+import interactivespaces.container.control.message.container.resource.deployment.ContainerResourceDeploymentQueryRequest;
+import interactivespaces.container.control.message.container.resource.deployment.ContainerResourceDeploymentQueryResponse;
 import interactivespaces.util.resource.ManagedResource;
 
 /**

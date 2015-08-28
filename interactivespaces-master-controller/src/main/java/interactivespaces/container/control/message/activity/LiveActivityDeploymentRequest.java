@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.control.message.activity;
+package interactivespaces.container.control.message.activity;
 
 import interactivespaces.resource.Version;
 

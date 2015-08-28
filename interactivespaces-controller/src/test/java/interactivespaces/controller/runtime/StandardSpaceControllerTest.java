@@ -24,8 +24,8 @@ import static org.mockito.Mockito.when;
 
 import interactivespaces.configuration.Configuration;
 import interactivespaces.configuration.SimpleConfiguration;
-import interactivespaces.control.message.activity.LiveActivityDeleteRequest;
-import interactivespaces.control.message.activity.LiveActivityDeleteResponse;
+import interactivespaces.container.control.message.activity.LiveActivityDeleteRequest;
+import interactivespaces.container.control.message.activity.LiveActivityDeleteResponse;
 import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.runtime.configuration.SpaceControllerConfigurationManager;
 import interactivespaces.liveactivity.runtime.LiveActivityRuntime;
@@ -264,7 +264,6 @@ public class StandardSpaceControllerTest {
 
   /**
    * Test deleting a live activity when it is possible to delete.
-   *
    */
   @Test
   public void testLiveActivityDelete() {

@@ -19,10 +19,10 @@ package interactivespaces.master.server.services.internal;
 import static org.junit.Assert.assertEquals;
 
 import interactivespaces.activity.ActivityState;
-import interactivespaces.control.message.activity.LiveActivityDeleteResponse;
-import interactivespaces.control.message.activity.LiveActivityDeleteResponse.LiveActivityDeleteStatus;
-import interactivespaces.control.message.activity.LiveActivityDeploymentResponse;
-import interactivespaces.control.message.activity.LiveActivityDeploymentResponse.ActivityDeployStatus;
+import interactivespaces.container.control.message.activity.LiveActivityDeleteResponse;
+import interactivespaces.container.control.message.activity.LiveActivityDeploymentResponse;
+import interactivespaces.container.control.message.activity.LiveActivityDeleteResponse.LiveActivityDeleteStatus;
+import interactivespaces.container.control.message.activity.LiveActivityDeploymentResponse.ActivityDeployStatus;
 import interactivespaces.controller.client.master.RemoteActivityDeploymentManager;
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.LiveActivity;
@@ -102,7 +102,7 @@ public class StandardActiveSpaceControllerManagerTest extends BaseSpaceTest {
   public void testActivityDeploySuccess() {
     String activityUuid = "activity";
     LiveActivityDeploymentResponse result =
-        new LiveActivityDeploymentResponse(null, activityUuid, ActivityDeployStatus.STATUS_SUCCESS, null, timestamp);
+        new LiveActivityDeploymentResponse(null, activityUuid, ActivityDeployStatus.SUCCESS, null, timestamp);
 
     String spaceUuid = "space";
     SpaceController controller = new SimpleSpaceController();
@@ -136,7 +136,7 @@ public class StandardActiveSpaceControllerManagerTest extends BaseSpaceTest {
   public void testActivityDeployFailure() {
     String activityUuid = "activity";
     LiveActivityDeploymentResponse result =
-        new LiveActivityDeploymentResponse(null, activityUuid, ActivityDeployStatus.STATUS_FAILURE_COPY, "bad",
+        new LiveActivityDeploymentResponse(null, activityUuid, ActivityDeployStatus.FAILURE_COPY, "bad",
             timestamp);
 
     String spaceUuid = "space";

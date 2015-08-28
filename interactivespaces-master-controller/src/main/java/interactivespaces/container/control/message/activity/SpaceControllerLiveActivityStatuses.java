@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.controller.runtime.messages;
+package interactivespaces.container.control.message.activity;
 
 /**
  * Statuses for operations on Interactive Spaces activities in an space controller.

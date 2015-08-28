@@ -17,8 +17,8 @@
 package interactivespaces.master.server.services.internal;
 
 import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentCommitRequest;
-import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentItem;
+import interactivespaces.container.control.message.container.resource.deployment.ContainerResourceDeploymentCommitRequest;
+import interactivespaces.container.control.message.container.resource.deployment.ContainerResourceDeploymentItem;
 import interactivespaces.master.server.services.ActiveSpaceController;
 import interactivespaces.master.server.services.ContainerResourceDeploymentManager;
 import interactivespaces.master.server.services.RemoteSpaceControllerClient;

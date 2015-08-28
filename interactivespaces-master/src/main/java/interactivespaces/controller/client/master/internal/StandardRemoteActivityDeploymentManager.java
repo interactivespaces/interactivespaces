@@ -16,12 +16,12 @@
 
 package interactivespaces.controller.client.master.internal;
 
-import interactivespaces.control.message.activity.LiveActivityDeleteRequest;
-import interactivespaces.control.message.activity.LiveActivityDeploymentResponse;
-import interactivespaces.control.message.activity.LiveActivityDeploymentResponse.ActivityDeployStatus;
-import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentCommitResponse;
-import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentQueryRequest;
-import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentQueryResponse;
+import interactivespaces.container.control.message.activity.LiveActivityDeleteRequest;
+import interactivespaces.container.control.message.activity.LiveActivityDeploymentResponse;
+import interactivespaces.container.control.message.activity.LiveActivityDeploymentResponse.ActivityDeployStatus;
+import interactivespaces.container.control.message.container.resource.deployment.ContainerResourceDeploymentCommitResponse;
+import interactivespaces.container.control.message.container.resource.deployment.ContainerResourceDeploymentQueryRequest;
+import interactivespaces.container.control.message.container.resource.deployment.ContainerResourceDeploymentQueryResponse;
 import interactivespaces.controller.client.master.RemoteActivityDeploymentManager;
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.ActivityDependency;

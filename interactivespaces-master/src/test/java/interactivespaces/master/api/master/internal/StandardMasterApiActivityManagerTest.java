@@ -16,8 +16,8 @@
 
 package interactivespaces.master.api.master.internal;
 
-import interactivespaces.control.message.activity.LiveActivityDeploymentResponse;
-import interactivespaces.control.message.activity.LiveActivityDeploymentResponse.ActivityDeployStatus;
+import interactivespaces.container.control.message.activity.LiveActivityDeploymentResponse;
+import interactivespaces.container.control.message.activity.LiveActivityDeploymentResponse.ActivityDeployStatus;
 import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.master.event.MasterEventManager;
 import interactivespaces.master.server.services.ActiveLiveActivity;
@@ -79,7 +79,7 @@ public class StandardMasterApiActivityManagerTest {
   public void testActivityInstallSuccess() {
     String uuid = "foo";
     LiveActivityDeploymentResponse result =
-        new LiveActivityDeploymentResponse("trans", uuid, ActivityDeployStatus.STATUS_SUCCESS, null, 1111);
+        new LiveActivityDeploymentResponse("trans", uuid, ActivityDeployStatus.SUCCESS, null, 1111);
     long timestamp = 1234567;
 
     LiveActivity liveActivity = Mockito.mock(LiveActivity.class);

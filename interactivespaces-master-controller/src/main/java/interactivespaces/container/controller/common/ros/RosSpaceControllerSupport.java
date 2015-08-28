@@ -14,7 +14,7 @@
  * the License.
  */
 
-package interactivespaces.controller.common.ros;
+package interactivespaces.container.controller.common.ros;
 
 import interactivespaces_msgs.ControllerRequest;
 import interactivespaces_msgs.ControllerStatus;

@@ -14,19 +14,19 @@
  * the License.
  */
 
-package interactivespaces.control.message.activity.ros;
+package interactivespaces.container.control.message.activity.ros;
 
 import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.control.message.activity.LiveActivityDeploymentRequest;
-import interactivespaces.control.message.activity.LiveActivityDeploymentResponse;
-import interactivespaces.control.message.activity.LiveActivityDeploymentResponse.ActivityDeployStatus;
-import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentCommitRequest;
-import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentCommitResponse;
-import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentCommitResponse.ContainerResourceDeploymentCommitStatus;
-import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentItem;
-import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentQueryRequest;
-import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentQueryResponse;
-import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentQueryResponse.QueryResponseStatus;
+import interactivespaces.container.control.message.activity.LiveActivityDeploymentRequest;
+import interactivespaces.container.control.message.activity.LiveActivityDeploymentResponse;
+import interactivespaces.container.control.message.activity.LiveActivityDeploymentResponse.ActivityDeployStatus;
+import interactivespaces.container.control.message.container.resource.deployment.ContainerResourceDeploymentCommitRequest;
+import interactivespaces.container.control.message.container.resource.deployment.ContainerResourceDeploymentCommitResponse;
+import interactivespaces.container.control.message.container.resource.deployment.ContainerResourceDeploymentItem;
+import interactivespaces.container.control.message.container.resource.deployment.ContainerResourceDeploymentQueryRequest;
+import interactivespaces.container.control.message.container.resource.deployment.ContainerResourceDeploymentQueryResponse;
+import interactivespaces.container.control.message.container.resource.deployment.ContainerResourceDeploymentCommitResponse.ContainerResourceDeploymentCommitStatus;
+import interactivespaces.container.control.message.container.resource.deployment.ContainerResourceDeploymentQueryResponse.QueryResponseStatus;
 import interactivespaces.resource.ResourceDependency;
 import interactivespaces.resource.ResourceDependencyReference;
 import interactivespaces.resource.Version;
@@ -119,15 +119,15 @@ public class RosLiveActivityDeploymentMessageTranslator {
     rosMessage.setStatusDetail(detail);
 
     switch (deployResponse.getStatus()) {
-      case STATUS_SUCCESS:
+      case SUCCESS:
         rosMessage.setStatus(LiveActivityDeployResponseMessage.STATUS_SUCCESS);
         break;
 
-      case STATUS_FAILURE_COPY:
+      case FAILURE_COPY:
         rosMessage.setStatus(LiveActivityDeployResponseMessage.STATUS_FAILURE_COPY);
         break;
 
-      case STATUS_FAILURE_UNPACK:
+      case FAILURE_UNPACK:
         rosMessage.setStatus(LiveActivityDeployResponseMessage.STATUS_FAILURE_UNPACK);
         break;
       default:
@@ -149,15 +149,15 @@ public class RosLiveActivityDeploymentMessageTranslator {
     ActivityDeployStatus status;
     switch (rosMessage.getStatus()) {
       case LiveActivityDeployResponseMessage.STATUS_SUCCESS:
-        status = ActivityDeployStatus.STATUS_SUCCESS;
+        status = ActivityDeployStatus.SUCCESS;
         break;
 
       case LiveActivityDeployResponseMessage.STATUS_FAILURE_COPY:
-        status = ActivityDeployStatus.STATUS_FAILURE_COPY;
+        status = ActivityDeployStatus.FAILURE_COPY;
         break;
 
       case LiveActivityDeployResponseMessage.STATUS_FAILURE_UNPACK:
-        status = ActivityDeployStatus.STATUS_FAILURE_UNPACK;
+        status = ActivityDeployStatus.FAILURE_UNPACK;
         break;
       default:
         throw new SimpleInteractiveSpacesException(String.format("Unknown activity deployment status code %d",

@@ -14,41 +14,43 @@
  * the License.
  */
 
-package interactivespaces.control.message.container.resource.deployment;
+package interactivespaces.container.control.message.container.resource.deployment;
 
-import com.google.common.collect.Lists;
+import interactivespaces.resource.ResourceDependency;
 
-import java.util.List;
+import com.google.common.collect.Sets;
+
+import java.util.Set;
 
 /**
- * A request for a commit of container resources.
+ * A request for resource deployments to the container.
  *
  * @author Keith M. Hughes
  */
-public class ContainerResourceDeploymentCommitRequest {
+public class ContainerResourceDeploymentQueryRequest {
 
   /**
-   * The ID for a full deployment transaction.
+   * ID for the transaction for the deployment request.
    */
   private final String transactionId;
 
   /**
-   * The items which are part of the commit request.
+   * The queries.
    */
-  private final List<ContainerResourceDeploymentItem> items = Lists.newArrayList();
+  private final Set<ResourceDependency> queries = Sets.newHashSet();
 
   /**
-   * Construct a commit request.
+   * Construct a new query.
    *
    * @param transactionId
-   *          transaction ID for the request
+   *          transaction ID for the query
    */
-  public ContainerResourceDeploymentCommitRequest(String transactionId) {
+  public ContainerResourceDeploymentQueryRequest(String transactionId) {
     this.transactionId = transactionId;
   }
 
   /**
-   * Get the transaction ID for the request.
+   * Get the transaction ID for the query.
    *
    * @return the transaction ID
    */
@@ -57,21 +59,21 @@ public class ContainerResourceDeploymentCommitRequest {
   }
 
   /**
-   * Get all items in the request.
+   * Add in a new query.
    *
-   * @return all items in the request
+   * @param query
+   *          the query to add
    */
-  public List<ContainerResourceDeploymentItem> getItems() {
-    return items;
+  public void addQuery(ResourceDependency query) {
+    queries.add(query);
   }
 
   /**
-   * Add a new item into the request.
+   * Get the queries.
    *
-   * @param item
-   *          the item to add
+   * @return the queries
    */
-  public void addItem(ContainerResourceDeploymentItem item) {
-    items.add(item);
+  public Set<ResourceDependency> getQueries() {
+    return queries;
   }
 }

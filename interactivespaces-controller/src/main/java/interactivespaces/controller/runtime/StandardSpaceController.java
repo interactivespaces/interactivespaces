@@ -17,15 +17,15 @@
 package interactivespaces.controller.runtime;
 
 import interactivespaces.activity.ActivityStatus;
-import interactivespaces.control.message.activity.LiveActivityDeleteRequest;
-import interactivespaces.control.message.activity.LiveActivityDeleteResponse;
-import interactivespaces.control.message.activity.LiveActivityDeleteResponse.LiveActivityDeleteStatus;
-import interactivespaces.control.message.activity.LiveActivityDeploymentRequest;
-import interactivespaces.control.message.activity.LiveActivityDeploymentResponse;
-import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentCommitRequest;
-import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentCommitResponse;
-import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentQueryRequest;
-import interactivespaces.control.message.container.resource.deployment.ContainerResourceDeploymentQueryResponse;
+import interactivespaces.container.control.message.activity.LiveActivityDeleteRequest;
+import interactivespaces.container.control.message.activity.LiveActivityDeleteResponse;
+import interactivespaces.container.control.message.activity.LiveActivityDeploymentRequest;
+import interactivespaces.container.control.message.activity.LiveActivityDeploymentResponse;
+import interactivespaces.container.control.message.activity.LiveActivityDeleteResponse.LiveActivityDeleteStatus;
+import interactivespaces.container.control.message.container.resource.deployment.ContainerResourceDeploymentCommitRequest;
+import interactivespaces.container.control.message.container.resource.deployment.ContainerResourceDeploymentCommitResponse;
+import interactivespaces.container.control.message.container.resource.deployment.ContainerResourceDeploymentQueryRequest;
+import interactivespaces.container.control.message.container.resource.deployment.ContainerResourceDeploymentQueryResponse;
 import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.SpaceControllerStatus;
 import interactivespaces.controller.resource.deployment.ContainerResourceDeploymentManager;
@@ -513,7 +513,7 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
   public LiveActivityDeleteResponse deleteLiveActivity(LiveActivityDeleteRequest request) {
     String uuid = request.getUuid();
     if (liveActivityRuntime.isLiveActivityRunning(uuid)) {
-      getSpaceEnvironment().getLog().warn(
+      getSpaceEnvironment().getLog().error(
           String.format("Attempt to delete live activity %s failed, live activity is running", uuid));
 
       return new LiveActivityDeleteResponse(uuid, LiveActivityDeleteStatus.FAILURE, getSpaceEnvironment()

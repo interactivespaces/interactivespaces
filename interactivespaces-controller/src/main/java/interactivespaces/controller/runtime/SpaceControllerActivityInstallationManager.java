@@ -16,10 +16,10 @@
 
 package interactivespaces.controller.runtime;
 
-import interactivespaces.control.message.activity.LiveActivityDeleteRequest;
-import interactivespaces.control.message.activity.LiveActivityDeleteResponse;
-import interactivespaces.control.message.activity.LiveActivityDeploymentRequest;
-import interactivespaces.control.message.activity.LiveActivityDeploymentResponse;
+import interactivespaces.container.control.message.activity.LiveActivityDeleteRequest;
+import interactivespaces.container.control.message.activity.LiveActivityDeleteResponse;
+import interactivespaces.container.control.message.activity.LiveActivityDeploymentRequest;
+import interactivespaces.container.control.message.activity.LiveActivityDeploymentResponse;
 import interactivespaces.util.resource.ManagedResource;
 
 /**

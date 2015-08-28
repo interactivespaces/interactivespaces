@@ -17,12 +17,12 @@
 package interactivespaces.controller.runtime.internal;
 
 import interactivespaces.InteractiveSpacesExceptionUtils;
-import interactivespaces.control.message.activity.LiveActivityDeleteRequest;
-import interactivespaces.control.message.activity.LiveActivityDeleteResponse;
-import interactivespaces.control.message.activity.LiveActivityDeleteResponse.LiveActivityDeleteStatus;
-import interactivespaces.control.message.activity.LiveActivityDeploymentRequest;
-import interactivespaces.control.message.activity.LiveActivityDeploymentResponse;
-import interactivespaces.control.message.activity.LiveActivityDeploymentResponse.ActivityDeployStatus;
+import interactivespaces.container.control.message.activity.LiveActivityDeleteRequest;
+import interactivespaces.container.control.message.activity.LiveActivityDeleteResponse;
+import interactivespaces.container.control.message.activity.LiveActivityDeploymentRequest;
+import interactivespaces.container.control.message.activity.LiveActivityDeploymentResponse;
+import interactivespaces.container.control.message.activity.LiveActivityDeleteResponse.LiveActivityDeleteStatus;
+import interactivespaces.container.control.message.activity.LiveActivityDeploymentResponse.ActivityDeployStatus;
 import interactivespaces.controller.runtime.SpaceControllerActivityInstallationManager;
 import interactivespaces.liveactivity.runtime.installation.ActivityInstallationManager;
 import interactivespaces.liveactivity.runtime.installation.ActivityInstallationManager.RemoveActivityResult;
@@ -81,14 +81,14 @@ public class StandardSpaceControllerActivityInstallationManager implements Space
     Date installedDate = null;
 
     try {
-      status = ActivityDeployStatus.STATUS_FAILURE_COPY;
+      status = ActivityDeployStatus.FAILURE_COPY;
       activityInstallationManager.copyActivity(uuid, activityUri);
 
-      status = ActivityDeployStatus.STATUS_FAILURE_UNPACK;
+      status = ActivityDeployStatus.FAILURE_UNPACK;
       installedDate =
           activityInstallationManager.installActivity(uuid, request.getIdentifyingName(), request.getVersion());
 
-      status = ActivityDeployStatus.STATUS_SUCCESS;
+      status = ActivityDeployStatus.SUCCESS;
     } catch (Exception e) {
       spaceEnvironment.getLog().error(String.format("Could not install live activity %s", uuid), e);
 

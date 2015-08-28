@@ -14,12 +14,12 @@
  * the License.
  */
 
-package interactivespaces.control.message.activity.ros;
+package interactivespaces.container.control.message.activity.ros;
 
 import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.control.message.activity.LiveActivityDeleteRequest;
-import interactivespaces.control.message.activity.LiveActivityDeleteResponse;
-import interactivespaces.control.message.activity.LiveActivityDeleteResponse.LiveActivityDeleteStatus;
+import interactivespaces.container.control.message.activity.LiveActivityDeleteRequest;
+import interactivespaces.container.control.message.activity.LiveActivityDeleteResponse;
+import interactivespaces.container.control.message.activity.LiveActivityDeleteResponse.LiveActivityDeleteStatus;
 
 import interactivespaces_msgs.LiveActivityDeleteRequestMessage;
 import interactivespaces_msgs.LiveActivityDeleteResponseMessage;
@@ -58,6 +58,7 @@ public class RosLiveActivityDeleteMessageTranslator {
       case FAILURE:
         rosMessage.setStatus(LiveActivityDeleteResponseMessage.STATUS_FAILURE);
         break;
+
       case DOESNT_EXIST:
         rosMessage.setStatus(LiveActivityDeleteResponseMessage.STATUS_DOESNT_EXIST);
         break;

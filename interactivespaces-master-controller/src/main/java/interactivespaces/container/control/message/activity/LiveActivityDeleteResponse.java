@@ -14,10 +14,10 @@
  * the License.
  */
 
-package interactivespaces.control.message.activity;
+package interactivespaces.container.control.message.activity;
 
 /**
- * Status of a deletion of a live activity.
+ * The response for an attempt to delete a live activity.
  *
  * @author Keith M. Hughes
  */
