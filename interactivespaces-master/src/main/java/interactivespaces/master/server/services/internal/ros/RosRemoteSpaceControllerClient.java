@@ -820,7 +820,7 @@ public class RosRemoteSpaceControllerClient implements RemoteSpaceControllerClie
 
     if (communicator != null) {
       communicator.shutdown();
-      log.formattedInfo("Communicator for controller %s shutdown and removed", controller.getSpaceController()
+      log.formatInfo("Communicator for controller %s shutdown and removed", controller.getSpaceController()
           .getUuid());
     }
   }

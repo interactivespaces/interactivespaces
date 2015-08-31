@@ -92,7 +92,7 @@ public class RemoteSpaceControllerClientListenerCollection {
       try {
         listener.onSpaceControllerConnectAttempted(controller);
       } catch (Throwable e) {
-        log.formattedError(e, "Error handling space controller connect event for %s", controller.getDisplayName());
+        log.formatError(e, "Error handling space controller connect event for %s", controller.getDisplayName());
       }
     }
   }
@@ -110,7 +110,7 @@ public class RemoteSpaceControllerClientListenerCollection {
       try {
         listener.onSpaceControllerConnectFailed(controller, waitedTime);
       } catch (Throwable e) {
-        log.formattedError(e, "Error handling space controller connect event for %s", controller.getDisplayName());
+        log.formatError(e, "Error handling space controller connect event for %s", controller.getDisplayName());
       }
     }
   }
@@ -126,7 +126,7 @@ public class RemoteSpaceControllerClientListenerCollection {
       try {
         listener.onSpaceControllerDisconnectAttempted(controller);
       } catch (Throwable e) {
-        log.formattedError(e, "Error handling space controller disconnect event for %s", controller.getDisplayName());
+        log.formatError(e, "Error handling space controller disconnect event for %s", controller.getDisplayName());
       }
     }
   }
@@ -144,7 +144,7 @@ public class RemoteSpaceControllerClientListenerCollection {
       try {
         listener.onSpaceControllerHeartbeat(uuid, timestamp);
       } catch (Throwable e) {
-        log.formattedError(e, "Error handling space controller heartbeat event for UUID %s and timestamp %d", uuid,
+        log.formatError(e, "Error handling space controller heartbeat event for UUID %s and timestamp %d", uuid,
             timestamp);
       }
     }
@@ -163,7 +163,7 @@ public class RemoteSpaceControllerClientListenerCollection {
       try {
         listener.onSpaceControllerStatusChange(uuid, state);
       } catch (Throwable e) {
-        log.formattedError(e, "Error handling space controller status change event for UUID %s and state %s", uuid,
+        log.formatError(e, "Error handling space controller status change event for UUID %s and state %s", uuid,
             state);
       }
     }
@@ -180,7 +180,7 @@ public class RemoteSpaceControllerClientListenerCollection {
       try {
         listener.onSpaceControllerShutdown(uuid);
       } catch (Throwable e) {
-        log.formattedError(e, "Error handling space controller shutdown event for UUID %s", uuid);
+        log.formatError(e, "Error handling space controller shutdown event for UUID %s", uuid);
       }
     }
   }
@@ -198,7 +198,7 @@ public class RemoteSpaceControllerClientListenerCollection {
       try {
         listener.onLiveActivityDeployment(uuid, result);
       } catch (Throwable e) {
-        log.formattedError(e, "Error handling space controller deployment status event for UUID %s and result %s",
+        log.formatError(e, "Error handling space controller deployment status event for UUID %s and result %s",
             uuid, result);
       }
     }
@@ -217,7 +217,7 @@ public class RemoteSpaceControllerClientListenerCollection {
       try {
         listener.onLiveActivityDelete(uuid, result);
       } catch (Throwable e) {
-        log.formattedError(e, "Error handling live activity delete event for UUID %s and result %s", uuid, result);
+        log.formatError(e, "Error handling live activity delete event for UUID %s and result %s", uuid, result);
       }
     }
   }
@@ -237,7 +237,7 @@ public class RemoteSpaceControllerClientListenerCollection {
       try {
         listener.onLiveActivityRuntimeStateChange(uuid, newRuntimeState, newRuntimeStateDetail);
       } catch (Throwable e) {
-        log.formattedError(e, "Error handling live activity state change event for UUID %s and new runtime state %s",
+        log.formatError(e, "Error handling live activity state change event for UUID %s and new runtime state %s",
             uuid, newRuntimeState);
       }
     }
@@ -256,7 +256,7 @@ public class RemoteSpaceControllerClientListenerCollection {
       try {
         listener.onDataBundleStateChange(uuid, status);
       } catch (Throwable e) {
-        log.formattedError(e, "Error handling live activity data bundle event for UUID %s and status %s", uuid, status);
+        log.formatError(e, "Error handling live activity data bundle event for UUID %s and status %s", uuid, status);
       }
     }
   }

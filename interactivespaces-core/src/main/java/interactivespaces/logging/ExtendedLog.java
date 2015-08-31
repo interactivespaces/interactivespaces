@@ -35,7 +35,7 @@ public interface ExtendedLog extends Log {
    * @param args
    *          the arguments to be formatted
    */
-  void formattedTrace(String message, Object... args);
+  void formatTrace(String message, Object... args);
 
   /**
    * Log a formatted trace message.
@@ -51,7 +51,7 @@ public interface ExtendedLog extends Log {
    * @param args
    *          the arguments to be formatted
    */
-  void formattedTrace(Throwable throwable, String message, Object... args);
+  void formatTrace(Throwable throwable, String message, Object... args);
 
   /**
    * Log a formatted debug message.
@@ -61,7 +61,7 @@ public interface ExtendedLog extends Log {
    * @param args
    *          the arguments to be formatted
    */
-  void formattedDebug(String message, Object... args);
+  void formatDebug(String message, Object... args);
 
   /**
    * Log a formatted debug message.
@@ -77,7 +77,7 @@ public interface ExtendedLog extends Log {
    * @param args
    *          the arguments to be formatted
    */
-  void formattedDebug(Throwable throwable, String message, Object... args);
+  void formatDebug(Throwable throwable, String message, Object... args);
 
   /**
    * Log a formatted info message.
@@ -87,7 +87,7 @@ public interface ExtendedLog extends Log {
    * @param args
    *          the arguments to be formatted
    */
-  void formattedInfo(String message, Object... args);
+  void formatInfo(String message, Object... args);
 
   /**
    * Log a formatted info message.
@@ -103,7 +103,7 @@ public interface ExtendedLog extends Log {
    * @param args
    *          the arguments to be formatted
    */
-  void formattedInfo(Throwable throwable, String message, Object... args);
+  void formatInfo(Throwable throwable, String message, Object... args);
 
   /**
    * Log a formatted warn message.
@@ -113,7 +113,7 @@ public interface ExtendedLog extends Log {
    * @param args
    *          the arguments to be formatted
    */
-  void formattedWarn(String message, Object... args);
+  void formatWarn(String message, Object... args);
 
   /**
    * Log a formatted warn message.
@@ -129,7 +129,7 @@ public interface ExtendedLog extends Log {
    * @param args
    *          the arguments to be formatted
    */
-  void formattedWarn(Throwable throwable, String message, Object... args);
+  void formatWarn(Throwable throwable, String message, Object... args);
 
   /**
    * Log a formatted error message.
@@ -139,7 +139,7 @@ public interface ExtendedLog extends Log {
    * @param args
    *          the arguments to be formatted
    */
-  void formattedError(String message, Object... args);
+  void formatError(String message, Object... args);
 
   /**
    * Log a formatted error message.
@@ -155,7 +155,7 @@ public interface ExtendedLog extends Log {
    * @param args
    *          the arguments to be formatted
    */
-  void formattedError(Throwable throwable, String message, Object... args);
+  void formatError(Throwable throwable, String message, Object... args);
 
   /**
    * Log a formatted fatal message.
@@ -165,7 +165,7 @@ public interface ExtendedLog extends Log {
    * @param args
    *          the arguments to be formatted
    */
-  void formattedFatal(String message, Object... args);
+  void formatFatal(String message, Object... args);
 
   /**
    * Log a formatted fatal message.
@@ -181,5 +181,5 @@ public interface ExtendedLog extends Log {
    * @param args
    *          the arguments to be formatted
    */
-  void formattedFatal(Throwable throwable, String message, Object... args);
+  void formatFatal(Throwable throwable, String message, Object... args);
 }

@@ -133,68 +133,68 @@ public class StandardExtendedLog implements ExtendedLog {
   }
 
   @Override
-  public void formattedTrace(String message, Object... args) {
+  public void formatTrace(String message, Object... args) {
     delegate.trace(String.format(message, args));
   }
 
   @Override
-  public void formattedTrace(Throwable throwable, String message, Object... args) {
-    formattedTrace(message, args);
+  public void formatTrace(Throwable throwable, String message, Object... args) {
+    formatTrace(message, args);
     delegate.trace(InteractiveSpacesExceptionUtils.getExceptionDetail(throwable));
   }
 
   @Override
-  public void formattedDebug(String message, Object... args) {
+  public void formatDebug(String message, Object... args) {
     delegate.debug(String.format(message, args));
   }
 
   @Override
-  public void formattedDebug(Throwable throwable, String message, Object... args) {
-    formattedDebug(message, args);
+  public void formatDebug(Throwable throwable, String message, Object... args) {
+    formatDebug(message, args);
     delegate.debug(InteractiveSpacesExceptionUtils.getExceptionDetail(throwable));
   }
 
   @Override
-  public void formattedInfo(String message, Object... args) {
+  public void formatInfo(String message, Object... args) {
     delegate.info(String.format(message, args));
   }
 
   @Override
-  public void formattedInfo(Throwable throwable, String message, Object... args) {
-    formattedInfo(message, args);
+  public void formatInfo(Throwable throwable, String message, Object... args) {
+    formatInfo(message, args);
     delegate.info(InteractiveSpacesExceptionUtils.getExceptionDetail(throwable));
   }
 
   @Override
-  public void formattedWarn(String message, Object... args) {
+  public void formatWarn(String message, Object... args) {
     delegate.warn(String.format(message, args));
   }
 
   @Override
-  public void formattedWarn(Throwable throwable, String message, Object... args) {
-    formattedWarn(message, args);
+  public void formatWarn(Throwable throwable, String message, Object... args) {
+    formatWarn(message, args);
     delegate.warn(InteractiveSpacesExceptionUtils.getExceptionDetail(throwable));
   }
 
   @Override
-  public void formattedError(String message, Object... args) {
+  public void formatError(String message, Object... args) {
     delegate.error(String.format(message, args));
   }
 
   @Override
-  public void formattedError(Throwable throwable, String message, Object... args) {
-    formattedError(message, args);
+  public void formatError(Throwable throwable, String message, Object... args) {
+    formatError(message, args);
     delegate.error(InteractiveSpacesExceptionUtils.getExceptionDetail(throwable));
   }
 
   @Override
-  public void formattedFatal(String message, Object... args) {
+  public void formatFatal(String message, Object... args) {
     delegate.fatal(String.format(message, args));
   }
 
   @Override
-  public void formattedFatal(Throwable throwable, String message, Object... args) {
-    formattedFatal(message, args);
+  public void formatFatal(Throwable throwable, String message, Object... args) {
+    formatFatal(message, args);
     delegate.fatal(InteractiveSpacesExceptionUtils.getExceptionDetail(throwable));
   }
 }
