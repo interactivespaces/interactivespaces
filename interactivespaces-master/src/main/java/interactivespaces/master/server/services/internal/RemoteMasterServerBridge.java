@@ -16,8 +16,10 @@
 
 package interactivespaces.master.server.services.internal;
 
+import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.domain.basic.SpaceController;
+import interactivespaces.domain.support.DomainValidationResult;
 import interactivespaces.domain.support.DomainValidationResult.DomainValidationResultType;
 import interactivespaces.domain.support.SpaceControllerHostIdValidator;
 import interactivespaces.logging.ExtendedLog;
@@ -68,42 +70,82 @@ public class RemoteMasterServerBridge implements RemoteMasterServerListener {
 
   @Override
   public void onControllerRegistration(SpaceController registeringController) {
-    String registeringUuid = registeringController.getUuid();
-    SpaceController existingController = spaceControllerRepository.getSpaceControllerByUuid(registeringUuid);
+    SpaceController existingController =
+        spaceControllerRepository.getSpaceControllerByUuid(registeringController.getUuid());
     if (existingController == null) {
-      if (log.isInfoEnabled()) {
-        log.formatInfo("Controller %s was unrecognized. Creating new record.", registeringUuid);
-        log.formatInfo("\tName: %s\n\tDescription: %s\n\tHost ID: %s", registeringController.getName(),
-            registeringController.getDescription(), registeringController.getHostId());
-      }
-
-      String hostId = registeringController.getHostId();
-      if (hostIdValidator.validate(hostId).getResultType() == DomainValidationResultType.ERRORS) {
-        throw SimpleInteractiveSpacesException.newFormattedException(
-            "Space controller registration with invalid host id %s", hostId);
-      }
-
-      SpaceController newController =
-          spaceControllerRepository.newSpaceController(registeringUuid, registeringController);
-
-      spaceControllerRepository.saveSpaceController(newController);
+      handleNeverBeforeSeenSpaceController(registeringController);
     } else {
-      String existingHostId = existingController.getHostId();
-      String registeringHostId = registeringController.getHostId();
-      if (!registeringHostId.equals(existingHostId)) {
-        if (hostIdValidator.validate(registeringHostId).getResultType() == DomainValidationResultType.ERRORS) {
-          throw SimpleInteractiveSpacesException.newFormattedException(
-              "Space controller registration with invalid host id %s", registeringHostId);
-        }
+      handleExistingSpaceController(registeringController, existingController);
+    }
+  }
 
-        log.formatInfo(
-            "Changing space controller host ID\tName: %s\n\tDescription: %s\n\tOld Host ID: %s\tNew Host ID: %s",
-            registeringController.getName(), registeringController.getDescription(), existingHostId, registeringHostId);
+  /**
+   * Handle a space controller that has never been seen before.
+   *
+   * @param registeringController
+   *          the information about the registering controller
+   */
+  private void handleNeverBeforeSeenSpaceController(SpaceController registeringController) {
+    // If it is a new controller, an instance must be created and stored in the space controller repository.
 
-        existingController.setHostId(registeringHostId);
+    String registeringUuid = registeringController.getUuid();
+    if (log.isInfoEnabled()) {
+      log.formatInfo("Controller %s was unrecognized. Creating new record.", registeringUuid);
+      log.formatInfo("\tName: %s\n\tDescription: %s\n\tHost ID: %s", registeringController.getName(),
+          registeringController.getDescription(), registeringController.getHostId());
+    }
 
-        spaceControllerRepository.saveSpaceController(existingController);
-      }
+    checkHostId(registeringController);
+
+    SpaceController newController =
+        spaceControllerRepository.newSpaceController(registeringUuid, registeringController);
+
+    spaceControllerRepository.saveSpaceController(newController);
+  }
+
+  /**
+   * Handle an existing space controller.
+   *
+   * @param registeringController
+   *          the information coming in
+   * @param existingController
+   *          the existing controller pulled from the space controller repository
+   */
+  private void
+      handleExistingSpaceController(SpaceController registeringController, SpaceController existingController) {
+    // if the space controller exists, check to see if the host ID has changed. if it has, update the controller from
+    // the repository.
+
+    String existingHostId = existingController.getHostId();
+    String registeringHostId = registeringController.getHostId();
+    if (!registeringHostId.equals(existingHostId)) {
+      checkHostId(registeringController);
+
+      log.formatInfo(
+          "Changing space controller host ID\tName: %s\n\tDescription: %s\n\tOld Host ID: %s\tNew Host ID: %s",
+          registeringController.getName(), registeringController.getDescription(), existingHostId, registeringHostId);
+
+      existingController.setHostId(registeringHostId);
+
+      spaceControllerRepository.saveSpaceController(existingController);
+    }
+  }
+
+  /**
+   * Check to see if the incoming controller host ID information is valid.
+   *
+   * @param registeringController
+   *          the controller information
+   *
+   * @throws InteractiveSpacesException
+   *           the hostID was invalid
+   */
+  private void checkHostId(SpaceController registeringController) throws InteractiveSpacesException {
+    String hostId = registeringController.getHostId();
+    DomainValidationResult hostIdValidate = hostIdValidator.validate(hostId);
+    if (hostIdValidate.getResultType() == DomainValidationResultType.ERRORS) {
+      throw SimpleInteractiveSpacesException.newFormattedException(
+          "Space controller registration with invalid host id %s\n%s", hostId, hostIdValidate.getDescription());
     }
   }
 

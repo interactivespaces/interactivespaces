@@ -42,13 +42,12 @@ public class SpaceControllerHostIdValidator implements Validator {
    * Description of a legal version.
    */
   public static final String HOST_ID_FORMAT_DESCRIPTION = "A host must be of the form segment1/segment2/segment3...\n"
-      + "where each segment starts with a letter or underscore, and\n" + ""
+      + "where each segment starts with a letter or underscore, and\n"
       + "is followed by letters, digits, -, or underscores.";
 
   @Override
   public DomainValidationResult validate(String hostId) {
     hostId = hostId.trim();
-
     if (hostId.isEmpty()) {
       return new DomainValidationResult(DomainValidationResultType.ERRORS, "A host ID is required.");
     }

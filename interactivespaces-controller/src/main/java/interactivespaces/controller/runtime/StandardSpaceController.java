@@ -32,6 +32,7 @@ import interactivespaces.controller.SpaceControllerStatus;
 import interactivespaces.controller.resource.deployment.ContainerResourceDeploymentManager;
 import interactivespaces.controller.runtime.configuration.SpaceControllerConfigurationManager;
 import interactivespaces.domain.basic.pojo.SimpleSpaceController;
+import interactivespaces.domain.support.DomainValidationResult;
 import interactivespaces.domain.support.DomainValidationResult.DomainValidationResultType;
 import interactivespaces.domain.support.SpaceControllerHostIdValidator;
 import interactivespaces.liveactivity.runtime.LiveActivityRunner;
@@ -65,7 +66,7 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
     LiveActivityStatusPublisher {
 
   /**
-   * The amount of time for shutting down the controller if some startup error happens, in milliseconds.
+   * The amount of time to wait for shutting down the controller if some startup error happens, in milliseconds.
    */
   public static final int CONTROLLER_ERROR_SHUTDOWN_WAIT_TIME = 5000;
 
@@ -256,8 +257,10 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
     SimpleSpaceController spaceControllerInfo = getControllerInfo();
 
     String hostId = spaceControllerInfo.getHostId();
-    if (hostIdValidator.validate(hostId).getResultType() == DomainValidationResultType.ERRORS) {
-      String error = String.format("Space controller has illegal hostID %s", hostId);
+    DomainValidationResult hostIdValidate = hostIdValidator.validate(hostId);
+    if (hostIdValidate.getResultType() == DomainValidationResultType.ERRORS) {
+      String error =
+          String.format("Space controller has illegal hostID %s\n%s", hostId, hostIdValidate.getDescription());
       getSpaceEnvironment().getExtendedLog().error(error);
 
       // DO NOT LIKE THIS BUT HOW TO SHUT THE CONTAINER DOWN WITHOUT TONS OF STARTUP ERRORS.
