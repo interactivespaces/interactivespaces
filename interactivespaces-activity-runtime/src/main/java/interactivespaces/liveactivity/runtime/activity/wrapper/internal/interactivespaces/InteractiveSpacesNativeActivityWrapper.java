@@ -113,6 +113,7 @@ public class InteractiveSpacesNativeActivityWrapper extends BaseActivityWrapper 
   public synchronized void done() {
     if (activityBundle != null) {
       bundleLoader.dismissLiveActivityBundle(liveActivity);
+      activityBundle = null;
     }
   }
 
