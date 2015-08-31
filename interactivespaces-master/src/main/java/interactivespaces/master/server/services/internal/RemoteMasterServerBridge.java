@@ -16,12 +16,14 @@
 
 package interactivespaces.master.server.services.internal;
 
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.domain.basic.SpaceController;
+import interactivespaces.domain.support.DomainValidationResult.DomainValidationResultType;
+import interactivespaces.domain.support.SpaceControllerHostIdValidator;
+import interactivespaces.logging.ExtendedLog;
 import interactivespaces.master.server.remote.master.RemoteMasterServer;
 import interactivespaces.master.server.remote.master.RemoteMasterServerListener;
 import interactivespaces.master.server.services.SpaceControllerRepository;
-
-import org.apache.commons.logging.Log;
 
 /**
  * A bridge between the {@link RemoteMasterServer} and the master.
@@ -43,7 +45,12 @@ public class RemoteMasterServerBridge implements RemoteMasterServerListener {
   /**
    * The logger for this bridge.
    */
-  private Log log;
+  private ExtendedLog log;
+
+  /**
+   * The validator for host IDs.
+   */
+  private SpaceControllerHostIdValidator hostIdValidator = new SpaceControllerHostIdValidator();
 
   /**
    * Start the bridge up.
@@ -62,21 +69,41 @@ public class RemoteMasterServerBridge implements RemoteMasterServerListener {
   @Override
   public void onControllerRegistration(SpaceController registeringController) {
     String registeringUuid = registeringController.getUuid();
-    SpaceController existingController =
-        spaceControllerRepository.getSpaceControllerByUuid(registeringUuid);
+    SpaceController existingController = spaceControllerRepository.getSpaceControllerByUuid(registeringUuid);
     if (existingController == null) {
       if (log.isInfoEnabled()) {
-        log.info(String.format("Controller %s was unrecognized. Creating new record.",
-            registeringUuid));
-        log.info(String.format("\tName: %s\n\tDescription: %s\n\tHost ID: %s",
-            registeringController.getName(), registeringController.getDescription(),
-            registeringController.getHostId()));
+        log.formatInfo("Controller %s was unrecognized. Creating new record.", registeringUuid);
+        log.formatInfo("\tName: %s\n\tDescription: %s\n\tHost ID: %s", registeringController.getName(),
+            registeringController.getDescription(), registeringController.getHostId());
+      }
+
+      String hostId = registeringController.getHostId();
+      if (hostIdValidator.validate(hostId).getResultType() == DomainValidationResultType.ERRORS) {
+        throw SimpleInteractiveSpacesException.newFormattedException(
+            "Space controller registration with invalid host id %s", hostId);
       }
 
       SpaceController newController =
           spaceControllerRepository.newSpaceController(registeringUuid, registeringController);
 
       spaceControllerRepository.saveSpaceController(newController);
+    } else {
+      String existingHostId = existingController.getHostId();
+      String registeringHostId = registeringController.getHostId();
+      if (!registeringHostId.equals(existingHostId)) {
+        if (hostIdValidator.validate(registeringHostId).getResultType() == DomainValidationResultType.ERRORS) {
+          throw SimpleInteractiveSpacesException.newFormattedException(
+              "Space controller registration with invalid host id %s", registeringHostId);
+        }
+
+        log.formatInfo(
+            "Changing space controller host ID\tName: %s\n\tDescription: %s\n\tOld Host ID: %s\tNew Host ID: %s",
+            registeringController.getName(), registeringController.getDescription(), existingHostId, registeringHostId);
+
+        existingController.setHostId(registeringHostId);
+
+        spaceControllerRepository.saveSpaceController(existingController);
+      }
     }
   }
 
@@ -100,7 +127,7 @@ public class RemoteMasterServerBridge implements RemoteMasterServerListener {
    * @param log
    *          the log to set
    */
-  public void setLog(Log log) {
+  public void setLog(ExtendedLog log) {
     this.log = log;
   }
 }

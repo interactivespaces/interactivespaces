@@ -16,12 +16,13 @@
 
 package interactivespaces.controller.runtime;
 
+import interactivespaces.SimpleInteractiveSpacesException;
 import interactivespaces.activity.ActivityStatus;
 import interactivespaces.container.control.message.activity.LiveActivityDeleteRequest;
 import interactivespaces.container.control.message.activity.LiveActivityDeleteResponse;
+import interactivespaces.container.control.message.activity.LiveActivityDeleteResponse.LiveActivityDeleteStatus;
 import interactivespaces.container.control.message.activity.LiveActivityDeploymentRequest;
 import interactivespaces.container.control.message.activity.LiveActivityDeploymentResponse;
-import interactivespaces.container.control.message.activity.LiveActivityDeleteResponse.LiveActivityDeleteStatus;
 import interactivespaces.container.control.message.container.resource.deployment.ContainerResourceDeploymentCommitRequest;
 import interactivespaces.container.control.message.container.resource.deployment.ContainerResourceDeploymentCommitResponse;
 import interactivespaces.container.control.message.container.resource.deployment.ContainerResourceDeploymentQueryRequest;
@@ -31,6 +32,8 @@ import interactivespaces.controller.SpaceControllerStatus;
 import interactivespaces.controller.resource.deployment.ContainerResourceDeploymentManager;
 import interactivespaces.controller.runtime.configuration.SpaceControllerConfigurationManager;
 import interactivespaces.domain.basic.pojo.SimpleSpaceController;
+import interactivespaces.domain.support.DomainValidationResult.DomainValidationResultType;
+import interactivespaces.domain.support.SpaceControllerHostIdValidator;
 import interactivespaces.liveactivity.runtime.LiveActivityRunner;
 import interactivespaces.liveactivity.runtime.LiveActivityRuntime;
 import interactivespaces.liveactivity.runtime.LiveActivityStatusPublisher;
@@ -60,6 +63,11 @@ import java.util.concurrent.TimeUnit;
  */
 public class StandardSpaceController extends BaseSpaceController implements SpaceControllerControl,
     LiveActivityStatusPublisher {
+
+  /**
+   * The amount of time for shutting down the controller if some startup error happens, in milliseconds.
+   */
+  public static final int CONTROLLER_ERROR_SHUTDOWN_WAIT_TIME = 5000;
 
   /**
    * An operation detail message when a live activity cannot be deleted because it is still running.
@@ -148,6 +156,11 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
    * Support for file operations.
    */
   private FileSupport fileSupport = FileSupportImpl.INSTANCE;
+
+  /**
+   * The validator for host IDs.
+   */
+  private SpaceControllerHostIdValidator hostIdValidator = new SpaceControllerHostIdValidator();
 
   /**
    * Construct a new StandardSpaceController.
@@ -240,16 +253,33 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
    * Make sure the controller had a UUID. If not, generate one.
    */
   private void confirmUuid() {
-    SimpleSpaceController simpleSpaceController = getControllerInfo();
-    String uuid = simpleSpaceController.getUuid();
+    SimpleSpaceController spaceControllerInfo = getControllerInfo();
+
+    String hostId = spaceControllerInfo.getHostId();
+    if (hostIdValidator.validate(hostId).getResultType() == DomainValidationResultType.ERRORS) {
+      String error = String.format("Space controller has illegal hostID %s", hostId);
+      getSpaceEnvironment().getExtendedLog().error(error);
+
+      // DO NOT LIKE THIS BUT HOW TO SHUT THE CONTAINER DOWN WITHOUT TONS OF STARTUP ERRORS.
+      getSpaceEnvironment().getExecutorService().schedule(new Runnable() {
+        @Override
+        public void run() {
+          spaceSystemControl.shutdown();
+        }
+      }, CONTROLLER_ERROR_SHUTDOWN_WAIT_TIME, TimeUnit.MILLISECONDS);
+
+      throw new SimpleInteractiveSpacesException(error);
+    }
+
+    String uuid = spaceControllerInfo.getUuid();
     if (uuid == null || uuid.trim().isEmpty()) {
       UuidGenerator uuidGenerator = new JavaUuidGenerator();
       uuid = uuidGenerator.newUuid();
-      simpleSpaceController.setUuid(uuid);
+      spaceControllerInfo.setUuid(uuid);
 
       getSpaceEnvironment().getLog().warn(String.format("No controller UUID found, generated UUID is %s", uuid));
 
-      controllerInfoPersister.persist(simpleSpaceController, getSpaceEnvironment());
+      controllerInfoPersister.persist(spaceControllerInfo, getSpaceEnvironment());
     }
   }
 

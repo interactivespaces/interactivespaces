@@ -17,7 +17,7 @@
 package interactivespaces.domain.support;
 
 /**
- * A validator for activity values.
+ * A validator for domain values.
  *
  * @author Keith M. Hughes
  */

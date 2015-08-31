@@ -19,6 +19,7 @@ package interactivespaces.master.server.remote.master.internal;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.domain.basic.SpaceController;
 import interactivespaces.domain.basic.pojo.SimpleSpaceController;
+import interactivespaces.logging.ExtendedLog;
 import interactivespaces.master.communication.MasterCommunicationManager;
 import interactivespaces.master.server.remote.RemoteMasterServerMessages;
 import interactivespaces.master.server.remote.master.RemoteMasterServer;
@@ -31,8 +32,6 @@ import interactivespaces.util.data.json.JsonMapper;
 import interactivespaces.util.data.json.StandardJsonMapper;
 
 import com.google.common.collect.Lists;
-
-import org.apache.commons.logging.Log;
 
 import java.io.IOException;
 import java.util.List;
@@ -53,10 +52,10 @@ public class StandardRemoteMasterServer implements RemoteMasterServer {
   /**
    * Logger for the controller.
    */
-  private Log log;
+  private ExtendedLog log;
 
   /**
-   * The master commmunication manager.
+   * The master communication manager.
    */
   private MasterCommunicationManager masterCommunicationManager;
 
@@ -97,7 +96,7 @@ public class StandardRemoteMasterServer implements RemoteMasterServer {
     String uuid = (String) data.get(RemoteMasterServerMessages.CONTROLLER_REGISTRATION_UUID);
     String hostId = (String) data.get(RemoteMasterServerMessages.CONTROLLER_REGISTRATION_HOST_ID);
 
-    log.info(String.format("Controller %s (Host ID %s) is online.", uuid, hostId));
+    log.formatInfo("Controller %s (Host ID %s) is online.", uuid, hostId);
 
     SpaceController controller = new SimpleSpaceController();
     controller.setUuid(uuid);
@@ -105,7 +104,7 @@ public class StandardRemoteMasterServer implements RemoteMasterServer {
     controller.setDescription((String) data.get(RemoteMasterServerMessages.CONTROLLER_REGISTRATION_DESCRIPTION));
     controller.setHostId(hostId);
 
-    signalControllerRegisteration(controller);
+    signalControllerRegistration(controller);
   }
 
   /**
@@ -114,7 +113,7 @@ public class StandardRemoteMasterServer implements RemoteMasterServer {
    * @param controller
    *          information about the controller
    */
-  private void signalControllerRegisteration(SpaceController controller) {
+  private void signalControllerRegistration(SpaceController controller) {
     for (RemoteMasterServerListener listener : listeners) {
       listener.onControllerRegistration(controller);
     }
@@ -136,7 +135,7 @@ public class StandardRemoteMasterServer implements RemoteMasterServer {
    * @param log
    *          the log to set
    */
-  public void setLog(Log log) {
+  public void setLog(ExtendedLog log) {
     this.log = log;
   }
 
@@ -154,7 +153,7 @@ public class StandardRemoteMasterServer implements RemoteMasterServer {
       if (methodName.equals(RemoteMasterServerMessages.MASTER_SPACE_CONTROLLER_METHOD_REGISTER)) {
         handleRegister(request, response);
       } else {
-        log.warn(String.format("Received unknown remote master server method name %s", methodName));
+        log.formatWarn("Received unknown remote master server method name %s", methodName);
         response.setResponseCode(HttpResponseCode.NOT_FOUND);
         try {
           response.getOutputStream().write(RemoteMasterServerMessages.MASTER_METHOD_RESPONSE_FAILURE.getBytes());
@@ -197,6 +196,5 @@ public class StandardRemoteMasterServer implements RemoteMasterServer {
             request.getUri());
       }
     }
-
   }
 }
