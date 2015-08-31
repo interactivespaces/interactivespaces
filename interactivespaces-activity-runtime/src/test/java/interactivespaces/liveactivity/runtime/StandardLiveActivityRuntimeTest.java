@@ -27,6 +27,7 @@ import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivityState;
 import interactivespaces.activity.ActivityStatus;
 import interactivespaces.activity.binary.NativeActivityRunnerFactory;
+import interactivespaces.liveactivity.runtime.activity.wrapper.ActivityWrapper;
 import interactivespaces.liveactivity.runtime.alert.AlertStatusManager;
 import interactivespaces.liveactivity.runtime.configuration.LiveActivityConfiguration;
 import interactivespaces.liveactivity.runtime.configuration.LiveActivityConfigurationManager;
@@ -36,12 +37,12 @@ import interactivespaces.liveactivity.runtime.installation.ActivityInstallationM
 import interactivespaces.liveactivity.runtime.logging.LiveActivityLogFactory;
 import interactivespaces.liveactivity.runtime.monitor.RemoteLiveActivityRuntimeMonitorService;
 import interactivespaces.liveactivity.runtime.repository.LocalLiveActivityRepository;
+import interactivespaces.logging.ExtendedLog;
 import interactivespaces.service.ServiceRegistry;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.time.TimeProvider;
 import interactivespaces.util.concurrency.ImmediateRunSequentialEventQueue;
 
-import org.apache.commons.logging.Log;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -72,11 +73,11 @@ public class StandardLiveActivityRuntimeTest {
   private LiveActivityRuntimeComponentFactory liveActivityRuntimeComponentFactory;
   private RemoteLiveActivityRuntimeMonitorService runtimeDebugService;
 
-  private Log log;
+  private ExtendedLog log;
 
   @Before
   public void setup() {
-    log = mock(Log.class);
+    log = mock(ExtendedLog.class);
 
     liveActivityInstallationManager = mock(ActivityInstallationManager.class);
     liveActivityRepository = mock(LocalLiveActivityRepository.class);
@@ -97,6 +98,7 @@ public class StandardLiveActivityRuntimeTest {
 
     spaceEnvironment = mock(InteractiveSpacesEnvironment.class);
     when(spaceEnvironment.getLog()).thenReturn(log);
+    when(spaceEnvironment.getExtendedLog()).thenReturn(log);
     when(spaceEnvironment.getTimeProvider()).thenReturn(timeProvider);
 
     serviceRegistry = mock(ServiceRegistry.class);
@@ -367,11 +369,15 @@ public class StandardLiveActivityRuntimeTest {
     liveActivityRuntime.addLiveActivityRunner(uuid, runner);
     when(runner.sampleActivityStatus()).thenReturn(newStatus);
 
+    ActivityWrapper wrapper = mock(ActivityWrapper.class);
+    when(runner.getActivityWrapper()).thenReturn(wrapper);
+
     liveActivityRuntime.getActivityListener().onActivityStatusChange(activity, oldStatus, newStatus);
 
     verify(liveActivityRunnerSampler, times(0)).startSamplingRunner(runner);
     verify(liveActivityStatusPublisher).publishActivityStatus(uuid, newStatus);
     verify(alertStatusManager).announceLiveActivityStatus(runner);
+    verify(wrapper).done();
   }
 
   /**
