@@ -678,21 +678,24 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
 
     // Want the log before anything else is tried.
     if (error) {
-      getSpaceEnvironment().getLog().error(
-          String.format("Error for live activity %s, state is now %s", activity.getUuid(), newState),
-          newStatus.getException());
-
+      getSpaceEnvironment().getExtendedLog().formatError(newStatus.getException(),
+          "Error for live activity %s, state is now %s", activity.getUuid(), newState);
     } else {
-      getSpaceEnvironment().getLog().info(
-          String.format("Live activity %s, state is now %s", activity.getUuid(), newState));
+      getSpaceEnvironment().getExtendedLog().formatInfo("Live activity %s, state is now %s", activity.getUuid(),
+          newState);
     }
 
     // If went from not running to running we need to watch the activity
     if (!oldStatus.getState().isRunning() && newState.isRunning()) {
       liveActivityRunnerSampler.startSamplingRunner(getLiveActivityRunnerByUuid(activity.getUuid()));
-    } else if (newState == ActivityState.STARTUP_FAILURE) {
+    } else if (!newState.isRunning()) {
       // If the activity went from a not running state and tried to transition to a not running state
-      getLiveActivityRunnerByUuid(activity.getUuid()).getActivityWrapper().done();
+      LiveActivityRunner liveActivityRunner = getLiveActivityRunnerByUuid(activity.getUuid());
+
+      // Paranoia check to see if was a runner.
+      if (liveActivityRunner != null) {
+        liveActivityRunner.getActivityWrapper().done();
+      }
     }
 
     publishActivityStatus(activity.getUuid(), newStatus);
@@ -939,7 +942,7 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
    * Does nothing if the runner was not there.
    *
    * @param uuid
-   *        UUID for the live activity
+   *          UUID for the live activity
    */
   private void removeLiveActivityRunner(String uuid) {
     synchronized (liveActivityRunners) {
