@@ -106,12 +106,12 @@ public class Log4jColoredConsoleAppender extends ConsoleAppender {
   /**
    * ANSI code sequence for FATAL log messages.
    */
-  private static final String FATAL_COLOUR = PREFIX + BRIGHT + SEPARATOR + FOREGROUND_RED + SUFFIX;
+  private static final String FATAL_COLOUR = PREFIX + BRIGHT + SEPARATOR + FOREGROUND_MAGENTA + SUFFIX;
 
   /**
    * ANSI code sequence for ERROR log messages.
    */
-  private static final String ERROR_COLOUR = PREFIX + NORMAL + SEPARATOR + FOREGROUND_RED + SUFFIX;
+  private static final String ERROR_COLOUR = PREFIX + BRIGHT + SEPARATOR + FOREGROUND_RED + SUFFIX;
 
   /**
    * ANSI code sequence for WARN log messages.
@@ -126,12 +126,12 @@ public class Log4jColoredConsoleAppender extends ConsoleAppender {
   /**
    * ANSI code sequence for DEBUG log messages.
    */
-  private static final String DEBUG_COLOUR = PREFIX + BRIGHT + SEPARATOR + FOREGROUND_BLACK + SUFFIX;
+  private static final String DEBUG_COLOUR = PREFIX + NORMAL + SEPARATOR + FOREGROUND_CYAN + SUFFIX;
 
   /**
    * ANSI code sequence for TRACE log messages.
    */
-  private static final String TRACE_COLOUR = PREFIX + BRIGHT + SEPARATOR + FOREGROUND_BLACK + SUFFIX;
+  private static final String TRACE_COLOUR = PREFIX + NORMAL + SEPARATOR + FOREGROUND_CYAN + SUFFIX;
 
   /**
    * Wraps the ANSI control characters around the
