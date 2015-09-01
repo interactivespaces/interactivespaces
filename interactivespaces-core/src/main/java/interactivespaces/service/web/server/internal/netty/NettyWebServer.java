@@ -28,6 +28,7 @@ import interactivespaces.service.web.server.HttpStaticContentRequestHandler;
 import interactivespaces.service.web.server.WebResourceAccessManager;
 import interactivespaces.service.web.server.WebServer;
 import interactivespaces.service.web.server.WebServerWebSocketHandlerFactory;
+import interactivespaces.util.net.NetworkBindSimpleInteractiveSpacesException;
 import interactivespaces.util.web.MimeResolver;
 
 import com.google.common.collect.Lists;
@@ -244,8 +245,8 @@ public class NettyWebServer implements WebServer {
       serverChannel = bootstrap.bind(new InetSocketAddress(port));
     } catch (ChannelException e) {
       if (e.getCause() instanceof BindException) {
-        SimpleInteractiveSpacesException.throwFormattedException(e,
-            "web server component could not be started, port %d in use", port);
+        throw new NetworkBindSimpleInteractiveSpacesException(String.format(
+            "web server component could not be started, port %d in use", port), e);
       } else {
         throw e;
       }

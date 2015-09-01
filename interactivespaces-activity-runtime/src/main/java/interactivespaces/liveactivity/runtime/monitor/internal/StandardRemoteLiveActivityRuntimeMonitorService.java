@@ -23,13 +23,14 @@ import interactivespaces.liveactivity.runtime.monitor.RemoteLiveActivityRuntimeM
 import interactivespaces.service.web.server.WebServer;
 import interactivespaces.service.web.server.internal.netty.NettyWebServer;
 import interactivespaces.system.InteractiveSpacesEnvironment;
+import interactivespaces.util.net.NetworkBindSimpleInteractiveSpacesException;
 
 import com.google.common.collect.Lists;
 
 import java.util.List;
 
 /**
- * Simple activity to debug controllers remotely.
+ * The standard remote live activity runtime monitoring system.
  *
  * @author Keith M. Hughes
  * @author Trevor Pering
@@ -77,21 +78,43 @@ public class StandardRemoteLiveActivityRuntimeMonitorService implements RemoteLi
 
     boolean enabled = systemConfiguration.getPropertyBoolean(CONFIGURATION_NAME_MONITOR_ENABLE, enabledDefault);
     if (!enabled) {
-      spaceEnvironment.getLog().warn("Live activity runtime monitor server disabled");
+      spaceEnvironment.getExtendedLog().warn("Live activity runtime monitor server disabled");
       return;
     }
 
-    webServer = new NettyWebServer(spaceEnvironment.getExecutorService(), spaceEnvironment.getLog());
-    webServer.setServerName(WEB_SERVER_NAME);
-    webServer.setPort(systemConfiguration.getPropertyInteger(CONFIGURATION_WEBSERVER_PORT,
-        CONFIGURATION_VALUE_DEFAULT_WEBSERVER_PORT));
+    try {
+      webServer = new NettyWebServer(spaceEnvironment.getExecutorService(), spaceEnvironment.getLog());
+      webServer.setServerName(WEB_SERVER_NAME);
+      webServer.setPort(systemConfiguration.getPropertyInteger(CONFIGURATION_NAME_WEBSERVER_PORT,
+          CONFIGURATION_VALUE_DEFAULT_WEBSERVER_PORT));
 
-    webServer.startup();
+      webServer.startup();
 
-    spaceEnvironment.getLog().info("Live activity runtime monitor server running on port " + webServer.getPort());
+      spaceEnvironment.getExtendedLog().info(
+          "Live activity runtime monitor server running on port " + webServer.getPort());
 
-    addBasePlugins();
-    addPlugin(indexPlugin, false);
+      addBasePlugins();
+      addPlugin(indexPlugin, false);
+    } catch (NetworkBindSimpleInteractiveSpacesException e) {
+      handleWebServerStartupError(e, String.format(
+          "Remote live activity runtime monitor disabled due to port confict."
+              + "The port can be changed using configuration parameter %s", CONFIGURATION_NAME_WEBSERVER_PORT));
+    } catch (Throwable e) {
+      handleWebServerStartupError(e, "Remote live activity runtime monitor disabled due to error");
+    }
+  }
+
+  /**
+   * Handle a web server startup error.
+   *
+   * @param e
+   *          the exception from the startup error
+   * @param message
+   *          the message to print
+   */
+  private void handleWebServerStartupError(Throwable e, String message) {
+    spaceEnvironment.getExtendedLog().formatError(e, message);
+    webServer = null;
   }
 
   @Override
@@ -107,6 +130,7 @@ public class StandardRemoteLiveActivityRuntimeMonitorService implements RemoteLi
     }
 
     webServer.shutdown();
+    webServer = null;
   }
 
   /**
@@ -149,8 +173,8 @@ public class StandardRemoteLiveActivityRuntimeMonitorService implements RemoteLi
         plugins.add(plugin);
       }
     } catch (Throwable e) {
-      liveActivityRuntime.getSpaceEnvironment().getLog()
-          .error(String.format("Could not start up live activity monitor plugin %s", plugin.getUrlPrefix()), e);
+      liveActivityRuntime.getSpaceEnvironment().getExtendedLog()
+          .formatError(e, "Could not start up live activity monitor plugin %s", plugin.getUrlPrefix());
     }
   }
 

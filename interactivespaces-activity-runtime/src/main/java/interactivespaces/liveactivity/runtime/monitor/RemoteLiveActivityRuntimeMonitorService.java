@@ -46,7 +46,7 @@ public interface RemoteLiveActivityRuntimeMonitorService extends ManagedResource
   /**
    * The configuration property name for the monitor webserver port.
    */
-  String CONFIGURATION_WEBSERVER_PORT = "space.activityruntime.monitor.webserver.port";
+  String CONFIGURATION_NAME_WEBSERVER_PORT = "space.activityruntime.monitor.webserver.port";
 
   /**
    * The configuration property default value for the monitor webserver port.
