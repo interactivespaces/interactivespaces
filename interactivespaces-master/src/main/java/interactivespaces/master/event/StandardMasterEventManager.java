@@ -171,7 +171,7 @@ public class StandardMasterEventManager implements MasterEventManager {
   }
 
   @Override
-  public void signalLiveActivityRuntmeStateChange(ActiveLiveActivity liveActivity, ActivityState oldState,
+  public void signalLiveActivityRuntimeStateChange(ActiveLiveActivity liveActivity, ActivityState oldState,
       ActivityState newState) {
     for (MasterEventListener listener : listeners) {
       try {

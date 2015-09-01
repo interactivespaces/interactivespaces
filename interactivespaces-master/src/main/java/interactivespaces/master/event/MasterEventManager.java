@@ -64,7 +64,7 @@ public interface MasterEventManager {
    * @param newState
    *          new state of the remote activity
    */
-  void signalLiveActivityRuntmeStateChange(ActiveLiveActivity liveActivity, ActivityState oldState,
+  void signalLiveActivityRuntimeStateChange(ActiveLiveActivity liveActivity, ActivityState oldState,
       ActivityState newState);
 
   /**
