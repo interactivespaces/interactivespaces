@@ -18,10 +18,8 @@ package interactivespaces.master.server.services.internal;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.container.data.SpaceControllerInformationValidator;
 import interactivespaces.domain.basic.SpaceController;
-import interactivespaces.domain.support.DomainValidationResult;
-import interactivespaces.domain.support.DomainValidationResult.DomainValidationResultType;
-import interactivespaces.domain.support.SpaceControllerHostIdValidator;
 import interactivespaces.logging.ExtendedLog;
 import interactivespaces.master.server.remote.master.RemoteMasterServer;
 import interactivespaces.master.server.remote.master.RemoteMasterServerListener;
@@ -50,9 +48,10 @@ public class RemoteMasterServerBridge implements RemoteMasterServerListener {
   private ExtendedLog log;
 
   /**
-   * The validator for host IDs.
+   * The validator for space controller information.
    */
-  private SpaceControllerHostIdValidator hostIdValidator = new SpaceControllerHostIdValidator();
+  private SpaceControllerInformationValidator spaceControllerInformationValidator =
+      new SpaceControllerInformationValidator();
 
   /**
    * Start the bridge up.
@@ -95,7 +94,7 @@ public class RemoteMasterServerBridge implements RemoteMasterServerListener {
           registeringController.getDescription(), registeringController.getHostId());
     }
 
-    checkHostId(registeringController);
+    checkSpaceControllerInfo(registeringController);
 
     SpaceController newController =
         spaceControllerRepository.newSpaceController(registeringUuid, registeringController);
@@ -116,19 +115,32 @@ public class RemoteMasterServerBridge implements RemoteMasterServerListener {
     // if the space controller exists, check to see if the host ID has changed. if it has, update the controller from
     // the repository.
 
-    String existingHostId = existingController.getHostId();
-    String registeringHostId = registeringController.getHostId();
-    if (!registeringHostId.equals(existingHostId)) {
-      checkHostId(registeringController);
-
-      log.formatInfo(
-          "Changing space controller host ID\tName: %s\n\tDescription: %s\n\tOld Host ID: %s\tNew Host ID: %s",
-          registeringController.getName(), registeringController.getDescription(), existingHostId, registeringHostId);
+    if (shouldRecordBeUpdated(registeringController, existingController)) {
+      String registeringHostId = registeringController.getHostId();
+      String registeringName = registeringController.getName();
+      log.formatInfo("Changing space controller data: Old Name: %s\tNew Name: %s\tOld Host ID: %s\tNew Host ID: %s",
+          existingController.getName(), registeringName, existingController.getHostId(), registeringHostId);
 
       existingController.setHostId(registeringHostId);
+      existingController.setName(registeringName);
 
       spaceControllerRepository.saveSpaceController(existingController);
     }
+  }
+
+  /**
+   * Should a controller record be updated?
+   *
+   * @param registeringController
+   *          the incoming controller information
+   * @param existingController
+   *          the existing controller information
+   *
+   * @return {@code true} if the existing controller record should be updated
+   */
+  private boolean shouldRecordBeUpdated(SpaceController registeringController, SpaceController existingController) {
+    return !existingController.getHostId().equals(registeringController.getHostId())
+        || !existingController.getName().equals(registeringController.getName());
   }
 
   /**
@@ -140,12 +152,11 @@ public class RemoteMasterServerBridge implements RemoteMasterServerListener {
    * @throws InteractiveSpacesException
    *           the hostID was invalid
    */
-  private void checkHostId(SpaceController registeringController) throws InteractiveSpacesException {
-    String hostId = registeringController.getHostId();
-    DomainValidationResult hostIdValidate = hostIdValidator.validate(hostId);
-    if (hostIdValidate.getResultType() == DomainValidationResultType.ERRORS) {
-      throw SimpleInteractiveSpacesException.newFormattedException(
-          "Space controller registration with invalid host id %s\n%s", hostId, hostIdValidate.getDescription());
+  private void checkSpaceControllerInfo(SpaceController registeringController) throws InteractiveSpacesException {
+    StringBuilder errorBuilder =
+        spaceControllerInformationValidator.checkControllerInfoForErrors(registeringController, log);
+    if (errorBuilder.length() != 0) {
+      throw new SimpleInteractiveSpacesException(errorBuilder.toString());
     }
   }
 

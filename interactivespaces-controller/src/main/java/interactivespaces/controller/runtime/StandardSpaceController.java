@@ -27,14 +27,12 @@ import interactivespaces.container.control.message.container.resource.deployment
 import interactivespaces.container.control.message.container.resource.deployment.ContainerResourceDeploymentCommitResponse;
 import interactivespaces.container.control.message.container.resource.deployment.ContainerResourceDeploymentQueryRequest;
 import interactivespaces.container.control.message.container.resource.deployment.ContainerResourceDeploymentQueryResponse;
+import interactivespaces.container.data.SpaceControllerInformationValidator;
 import interactivespaces.controller.SpaceController;
 import interactivespaces.controller.SpaceControllerStatus;
 import interactivespaces.controller.resource.deployment.ContainerResourceDeploymentManager;
 import interactivespaces.controller.runtime.configuration.SpaceControllerConfigurationManager;
 import interactivespaces.domain.basic.pojo.SimpleSpaceController;
-import interactivespaces.domain.support.DomainValidationResult;
-import interactivespaces.domain.support.DomainValidationResult.DomainValidationResultType;
-import interactivespaces.domain.support.SpaceControllerHostIdValidator;
 import interactivespaces.liveactivity.runtime.LiveActivityRunner;
 import interactivespaces.liveactivity.runtime.LiveActivityRuntime;
 import interactivespaces.liveactivity.runtime.LiveActivityStatusPublisher;
@@ -159,11 +157,6 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
   private FileSupport fileSupport = FileSupportImpl.INSTANCE;
 
   /**
-   * The validator for host IDs.
-   */
-  private SpaceControllerHostIdValidator hostIdValidator = new SpaceControllerHostIdValidator();
-
-  /**
    * Construct a new StandardSpaceController.
    *
    * @param spaceControllerActivityInstaller
@@ -256,13 +249,12 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
   private void confirmUuid() {
     SimpleSpaceController spaceControllerInfo = getControllerInfo();
 
-    String hostId = spaceControllerInfo.getHostId();
-    DomainValidationResult hostIdValidate = hostIdValidator.validate(hostId);
-    if (hostIdValidate.getResultType() == DomainValidationResultType.ERRORS) {
-      String error =
-          String.format("Space controller has illegal hostID %s\n%s", hostId, hostIdValidate.getDescription());
-      getSpaceEnvironment().getExtendedLog().error(error);
-
+    SpaceControllerInformationValidator spaceControllerInformationValidator =
+        new SpaceControllerInformationValidator();
+    StringBuilder errorBuilder =
+        spaceControllerInformationValidator.checkControllerInfoForErrors(spaceControllerInfo, getSpaceEnvironment()
+            .getExtendedLog());
+    if (errorBuilder.length() != 0) {
       // DO NOT LIKE THIS BUT HOW TO SHUT THE CONTAINER DOWN WITHOUT TONS OF STARTUP ERRORS.
       getSpaceEnvironment().getExecutorService().schedule(new Runnable() {
         @Override
@@ -271,7 +263,7 @@ public class StandardSpaceController extends BaseSpaceController implements Spac
         }
       }, CONTROLLER_ERROR_SHUTDOWN_WAIT_TIME, TimeUnit.MILLISECONDS);
 
-      throw new SimpleInteractiveSpacesException(error);
+      throw new SimpleInteractiveSpacesException(errorBuilder.toString());
     }
 
     String uuid = spaceControllerInfo.getUuid();
