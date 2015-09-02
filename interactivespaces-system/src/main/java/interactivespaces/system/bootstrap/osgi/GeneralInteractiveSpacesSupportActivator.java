@@ -205,7 +205,7 @@ public class GeneralInteractiveSpacesSupportActivator implements BundleActivator
   private void createAdditionalResources() {
     containerResourceManager =
         new OsgiContainerResourceManager(bundleContext, bundleContext.getBundle(0).adapt(FrameworkWiring.class),
-            filesystem, configurationProvider.getConfigFolder(), spaceEnvironment.getLog());
+            filesystem, configurationProvider.getConfigFolder(), spaceEnvironment.getExtendedLog());
     containerResourceManager.startup();
     managedResources.addResource(containerResourceManager);
   }

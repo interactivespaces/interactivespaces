@@ -20,6 +20,7 @@ import interactivespaces.configuration.Configuration;
 import interactivespaces.liveactivity.runtime.LiveActivityRuntime;
 import interactivespaces.liveactivity.runtime.monitor.LiveActivityRuntimeMonitorPlugin;
 import interactivespaces.liveactivity.runtime.monitor.RemoteLiveActivityRuntimeMonitorService;
+import interactivespaces.logging.ExtendedLog;
 import interactivespaces.service.web.server.WebServer;
 import interactivespaces.service.web.server.internal.netty.NettyWebServer;
 import interactivespaces.system.InteractiveSpacesEnvironment;
@@ -191,6 +192,11 @@ public class StandardRemoteLiveActivityRuntimeMonitorService implements RemoteLi
   @Override
   public LiveActivityRuntime getLiveActivityRuntime() {
     return liveActivityRuntime;
+  }
+
+  @Override
+  public ExtendedLog getLog() {
+    return liveActivityRuntime.getSpaceEnvironment().getExtendedLog();
   }
 
   /**

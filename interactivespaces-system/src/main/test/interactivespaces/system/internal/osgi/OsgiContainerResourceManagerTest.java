@@ -17,6 +17,7 @@
 package interactivespaces.system.internal.osgi;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -24,6 +25,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import interactivespaces.logging.ExtendedLog;
 import interactivespaces.resource.Version;
 import interactivespaces.resource.io.ResourceSource;
 import interactivespaces.system.InteractiveSpacesFilesystem;
@@ -36,7 +38,6 @@ import interactivespaces.util.io.FileSupport;
 import com.google.common.collect.Lists;
 
 import junit.framework.Assert;
-import org.apache.commons.logging.Log;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -75,7 +76,7 @@ public class OsgiContainerResourceManagerTest {
   private File configFile = null;
 
   @Mock
-  private Log log;
+  private ExtendedLog log;
 
   @Mock
   private FileSupport fileSupport;
@@ -106,23 +107,31 @@ public class OsgiContainerResourceManagerTest {
             ContainerResourceLocation.USER_BOOTSTRAP, "signature1");
 
     Bundle[] bundles = new Bundle[] {};
-    Mockito.when(bundleContext.getBundles()).thenReturn(bundles);
+    when(bundleContext.getBundles()).thenReturn(bundles);
 
     File installFolder = new File("/test/install");
-    Mockito.when(filesystem.getInstallDirectory()).thenReturn(installFolder);
+    when(filesystem.getInstallDirectory()).thenReturn(installFolder);
     File userBootstrapFolder = new File("/test/install/startup");
-    Mockito.when(fileSupport.newFile(installFolder, "startup")).thenReturn(userBootstrapFolder);
+    when(fileSupport.newFile(installFolder, "startup")).thenReturn(userBootstrapFolder);
     String destinationFilePath = resourceName + "-" + resourceVersion.toString() + ".jar";
     File destinationFile = new File(userBootstrapFolder, destinationFilePath);
-    Mockito.when(fileSupport.newFile(userBootstrapFolder, destinationFilePath)).thenReturn(destinationFile);
+    when(fileSupport.newFile(userBootstrapFolder, destinationFilePath)).thenReturn(destinationFile);
 
     Bundle installedBundle = Mockito.mock(Bundle.class);
-    Mockito.when(bundleContext.installBundle(destinationFile.toURI().toString())).thenReturn(installedBundle);
+    String bundleLocation = destinationFile.toURI().toString();
+    when(installedBundle.getVersion()).thenReturn(new org.osgi.framework.Version(resourceVersion.getMajor(), resourceVersion.getMinor(), resourceVersion.getMicro()));
+    when(installedBundle.getLocation()).thenReturn(bundleLocation);
+    when(bundleContext.installBundle(bundleLocation)).thenReturn(installedBundle);
+
+    when(resourceSignatureCalculator.getResourceSignature(destinationFile.toURI())).thenReturn("mysig");
 
     manager.addResource(resource, resourceSource);
 
-    Mockito.verify(resourceSource).copyTo(destinationFile);
-    Mockito.verify(installedBundle).start();
+    verify(resourceSource).copyTo(destinationFile);
+    verify(installedBundle).start();
+
+    ContainerResource containerResource = manager.getContainerResource(bundleLocation);
+    assertNotNull(containerResource);
   }
 
   /**
@@ -165,30 +174,30 @@ public class OsgiContainerResourceManagerTest {
             ContainerResourceLocation.USER_BOOTSTRAP, signatureIncoming);
 
     File installFolder = new File("/test/install");
-    Mockito.when(filesystem.getInstallDirectory()).thenReturn(installFolder);
+    when(filesystem.getInstallDirectory()).thenReturn(installFolder);
     File userBootstrapFolder = new File("/test/install/startup");
-    Mockito.when(fileSupport.newFile(installFolder, "startup")).thenReturn(userBootstrapFolder);
+    when(fileSupport.newFile(installFolder, "startup")).thenReturn(userBootstrapFolder);
     String destinationFilePath = resourceName + "-" + resourceVersion.toString() + ".jar";
     File destinationFile = new File(userBootstrapFolder, destinationFilePath);
-    Mockito.when(fileSupport.newFile(userBootstrapFolder, destinationFilePath)).thenReturn(destinationFile);
+    when(fileSupport.newFile(userBootstrapFolder, destinationFilePath)).thenReturn(destinationFile);
 
     final Bundle installedBundle = Mockito.mock(Bundle.class);
 
     // Make sure bundle will be found as belonging to the given resource.
-    Mockito.when(installedBundle.getSymbolicName()).thenReturn(resourceName);
-    Mockito.when(installedBundle.getVersion()).thenReturn(
+    when(installedBundle.getSymbolicName()).thenReturn(resourceName);
+    when(installedBundle.getVersion()).thenReturn(
         new org.osgi.framework.Version(resourceVersion.getMajor(), resourceVersion.getMinor(), resourceVersion
             .getMicro(), resourceVersion.getQualifier()));
     URI destinationFileUri = destinationFile.toURI();
-    Mockito.when(installedBundle.getLocation()).thenReturn(destinationFileUri.toString());
-    Mockito.when(fileSupport.newFile(destinationFileUri)).thenReturn(destinationFile);
+    when(installedBundle.getLocation()).thenReturn(destinationFileUri.toString());
+    when(fileSupport.newFile(destinationFileUri)).thenReturn(destinationFile);
 
-    Mockito.when(resourceSignatureCalculator.getResourceSignature(destinationFile)).thenReturn(signatureInstalled);
+    when(resourceSignatureCalculator.getResourceSignature(destinationFile)).thenReturn(signatureInstalled);
 
     Bundle[] bundles = new Bundle[] { installedBundle };
-    Mockito.when(bundleContext.getBundles()).thenReturn(bundles);
+    when(bundleContext.getBundles()).thenReturn(bundles);
 
-    Mockito.when(bundleContext.installBundle(destinationFileUri.toString())).thenReturn(installedBundle);
+    when(bundleContext.installBundle(destinationFileUri.toString())).thenReturn(installedBundle);
 
     // Have to create the framework event for OSGi so bundle updaters don't hang forever.
     Mockito
@@ -204,10 +213,10 @@ public class OsgiContainerResourceManagerTest {
 
     manager.addResource(resource, resourceSource);
 
-    Mockito.verify(resourceSource, Mockito.times(timesCalled)).copyTo(destinationFile);
-    Mockito.verify(installedBundle, Mockito.times(timesCalled)).update();
+    verify(resourceSource, Mockito.times(timesCalled)).copyTo(destinationFile);
+    verify(installedBundle, Mockito.times(timesCalled)).update();
 
-    Assert.assertEquals(timesCalled != 0 ? signatureIncoming : signatureInstalled,
+    assertEquals(timesCalled != 0 ? signatureIncoming : signatureInstalled,
         manager.getContainerResource(destinationFileUri.toString()).getSignature());
   }
 
@@ -235,7 +244,7 @@ public class OsgiContainerResourceManagerTest {
     verify(bundle).start();
 
     ContainerResource containerResource = manager.getContainerResource(bundleFileUri);
-    Assert.assertEquals(ContainerResourceType.ACTIVITY, containerResource.getType());
+    assertEquals(ContainerResourceType.ACTIVITY, containerResource.getType());
 
     manager.uninstallBundle(bundle);
 

@@ -17,6 +17,7 @@
 package interactivespaces.liveactivity.runtime.monitor;
 
 import interactivespaces.liveactivity.runtime.LiveActivityRuntime;
+import interactivespaces.logging.ExtendedLog;
 import interactivespaces.util.resource.ManagedResource;
 
 import java.util.List;
@@ -82,4 +83,11 @@ public interface RemoteLiveActivityRuntimeMonitorService extends ManagedResource
    * @return the live activity runtime
    */
   LiveActivityRuntime getLiveActivityRuntime();
+
+  /**
+   * Get the logger.
+   *
+   * @return the logger
+   */
+  ExtendedLog getLog();
 }

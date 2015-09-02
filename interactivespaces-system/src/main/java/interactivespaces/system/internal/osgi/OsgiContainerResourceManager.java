@@ -18,6 +18,7 @@ package interactivespaces.system.internal.osgi;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.logging.ExtendedLog;
 import interactivespaces.resource.Version;
 import interactivespaces.resource.io.ResourceSource;
 import interactivespaces.system.InteractiveSpacesFilesystem;
@@ -37,7 +38,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import org.apache.commons.logging.Log;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -101,7 +101,7 @@ public class OsgiContainerResourceManager implements ContainerResourceManager, M
   /**
    * Logger for this manager.
    */
-  private final Log log;
+  private final ExtendedLog log;
 
   /**
    * A map from bundle IDs to bundle updaters.
@@ -138,7 +138,7 @@ public class OsgiContainerResourceManager implements ContainerResourceManager, M
    *          the log to use
    */
   public OsgiContainerResourceManager(BundleContext bundleContext, FrameworkWiring frameworkWiring,
-      InteractiveSpacesFilesystem filesystem, File configFolder, Log log) {
+      InteractiveSpacesFilesystem filesystem, File configFolder, ExtendedLog log) {
     this.bundleContext = bundleContext;
     this.frameworkWiring = frameworkWiring;
     this.filesystem = filesystem;
@@ -165,7 +165,7 @@ public class OsgiContainerResourceManager implements ContainerResourceManager, M
 
   @Override
   public synchronized void addResource(ContainerResource incomingResource, ResourceSource resourceSource) {
-    log.info(String.format("Adding container resource %s from URI %s", incomingResource, resourceSource.getLocation()));
+    log.formatInfo("Adding container resource %s from URI %s", incomingResource, resourceSource.getLocation());
 
     loadContainerResources();
 
@@ -224,9 +224,8 @@ public class OsgiContainerResourceManager implements ContainerResourceManager, M
         try {
           bundle.uninstall();
         } catch (BundleException e1) {
-          log.error(
-              String.format("Could not uninstall an OSGi bundle that could not be started: %s of type",
-                  fileSupport.getAbsolutePath(bundleFile), type), e);
+          log.formatError(e, "Could not uninstall an OSGi bundle that could not be started: %s of type",
+              fileSupport.getAbsolutePath(bundleFile), type);
         }
       }
 
@@ -291,8 +290,8 @@ public class OsgiContainerResourceManager implements ContainerResourceManager, M
    */
   private void loadNewBundle(ContainerResource resource, ResourceSource resourceSource, File resourceDestinationFile,
       String resourceDestinationFileUri) {
-    log.debug(String.format("New Resource %s being loaded into the container from %s to %s", resource,
-        resourceSource.getLocation(), resourceDestinationFileUri));
+    log.formatDebug("New Resource %s being loaded into the container from %s to %s", resource,
+        resourceSource.getLocation(), resourceDestinationFileUri);
 
     // Always copy, it isn't there.
     resourceSource.copyTo(resourceDestinationFile);
@@ -301,6 +300,8 @@ public class OsgiContainerResourceManager implements ContainerResourceManager, M
       Bundle installedBundle = bundleContext.installBundle(resourceDestinationFileUri);
 
       installedBundle.start();
+
+      addNewContainerResource(installedBundle);
     } catch (Throwable e) {
       throw InteractiveSpacesException.newFormattedException(e, "Could not load a new bundle %s from source %s",
           resourceDestinationFileUri, resourceSource.getLocation());
@@ -321,13 +322,13 @@ public class OsgiContainerResourceManager implements ContainerResourceManager, M
    */
   private void updateExactInstalledBundle(ContainerResource incomingResource, ResourceSource resourceSource,
       File resourceDestinationFile, Bundle installedBundle) {
-    log.debug(String.format("Resource %s already was loaded. Attempting update.", incomingResource));
+    log.formatDebug("Resource %s already was loaded. Attempting update.", incomingResource);
 
     ContainerResource existingResource = getContainerResource(getBundleUri(installedBundle).toString());
 
     String signatureNew = incomingResource.getSignature();
     if (existingResource.getSignature().equals(signatureNew)) {
-      log.debug(String.format("Resource %s was not updated, signatures identical.", incomingResource));
+      log.formatDebug("Resource %s was not updated, signatures identical.", incomingResource);
       return;
     }
 
@@ -340,7 +341,7 @@ public class OsgiContainerResourceManager implements ContainerResourceManager, M
 
     resourceSource.copyTo(resourceDestinationFile);
 
-    log.debug(String.format("Resource %s update beginning.", incomingResource));
+    log.formatDebug("Resource %s update beginning.", incomingResource);
     newBundleUpdater(installedBundle, existingResource, signatureNew).updateBundle();
   }
 
@@ -364,7 +365,7 @@ public class OsgiContainerResourceManager implements ContainerResourceManager, M
           dependentActivities.add(bundle);
         }
       } else {
-        log.warn(String.format("The OSGi container has an untracked bundle at %s", bundleUri));
+        log.formatWarn("The OSGi container has an untracked bundle at %s", bundleUri);
       }
     }
 
@@ -404,8 +405,7 @@ public class OsgiContainerResourceManager implements ContainerResourceManager, M
    */
   private void swapInstalledBundle(ContainerResource resource, ResourceSource resourceSource,
       File resourceDestinationFile, String resourceDestinationFileUri, Bundle installedBundle) {
-    log.debug(String.format("Resource %s already was loaded with another name. Uninstalling old and loading new.",
-        resource));
+    log.formatDebug("Resource %s already was loaded with another name. Uninstalling old and loading new.", resource);
 
     // No matter what, copy the new bundle without checking the signature since we want it with its new name.
     resourceSource.copyTo(resourceDestinationFile);
@@ -455,7 +455,7 @@ public class OsgiContainerResourceManager implements ContainerResourceManager, M
         return filesystem.getInstallDirectory();
 
       default:
-        throw new SimpleInteractiveSpacesException(String.format("Unsupported container location %s", location));
+        throw SimpleInteractiveSpacesException.newFormattedException("Unsupported container location %s", location);
     }
   }
 
@@ -493,27 +493,38 @@ public class OsgiContainerResourceManager implements ContainerResourceManager, M
     cachedResources = Maps.newHashMap();
 
     for (Bundle bundle : bundleContext.getBundles()) {
-      org.osgi.framework.Version osgiVersion = bundle.getVersion();
-      String bundleLocation = bundle.getLocation();
-      ContainerResourceLocation resourceLocation = null;
-      if (bundleLocation.contains(SYSTEM_BOOTSTRAP_COMPONENT)) {
-        resourceLocation = ContainerResourceLocation.SYSTEM_BOOTSTRAP;
-      } else if (bundleLocation.contains(USER_BOOTSTRAP_COMPONENT)) {
-        resourceLocation = ContainerResourceLocation.USER_BOOTSTRAP;
-      }
+      addNewContainerResource(bundle);
+    }
+  }
 
-      // Only add if in a monitored area.
-      if (resourceLocation != null) {
-        try {
-          ContainerResource resource =
-              new ContainerResource(bundle.getSymbolicName(), new Version(osgiVersion.getMajor(),
-                  osgiVersion.getMinor(), osgiVersion.getMicro(), osgiVersion.getQualifier()),
-                  ContainerResourceType.LIBRARY, resourceLocation,
-                  resourceSignatureCalculator.getResourceSignature(getBundleFile(bundle)));
-          cachedResources.put(bundleLocation, resource);
-        } catch (Throwable e) {
-          log.info(String.format("Could not create container resource information for %s", bundle.getLocation()), e);
-        }
+  /**
+   * Add in the container resource for a bundle into the cache.
+   *
+   * @param bundle
+   *          the bundle
+   */
+  private void addNewContainerResource(Bundle bundle) {
+    String bundleLocation = bundle.getLocation();
+    ContainerResourceLocation resourceLocation = null;
+    if (bundleLocation.contains(SYSTEM_BOOTSTRAP_COMPONENT)) {
+      resourceLocation = ContainerResourceLocation.SYSTEM_BOOTSTRAP;
+    } else if (bundleLocation.contains(USER_BOOTSTRAP_COMPONENT)) {
+      resourceLocation = ContainerResourceLocation.USER_BOOTSTRAP;
+    }
+
+    // Only add if in a monitored area.
+    if (resourceLocation != null) {
+      try {
+        org.osgi.framework.Version osgiVersion = bundle.getVersion();
+        ContainerResource resource =
+            new ContainerResource(bundle.getSymbolicName(), new Version(osgiVersion.getMajor(),
+                osgiVersion.getMinor(), osgiVersion.getMicro(), osgiVersion.getQualifier()),
+                ContainerResourceType.LIBRARY, resourceLocation,
+                resourceSignatureCalculator.getResourceSignature(getBundleFile(bundle)));
+
+        cachedResources.put(bundleLocation, resource);
+      } catch (Throwable e) {
+        log.formatInfo(e, "Could not create container resource information for %s", bundleLocation);
       }
     }
   }

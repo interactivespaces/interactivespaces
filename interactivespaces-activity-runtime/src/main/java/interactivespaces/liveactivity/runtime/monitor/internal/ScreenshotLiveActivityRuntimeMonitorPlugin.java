@@ -19,6 +19,7 @@ package interactivespaces.liveactivity.runtime.monitor.internal;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.liveactivity.runtime.LiveActivityRuntime;
 import interactivespaces.liveactivity.runtime.monitor.PluginFunctionalityDescriptor;
+import interactivespaces.service.web.HttpResponseCode;
 import interactivespaces.service.web.server.HttpRequest;
 import interactivespaces.service.web.server.HttpResponse;
 import interactivespaces.system.InteractiveSpacesEnvironment;
@@ -28,10 +29,12 @@ import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.util.process.NativeApplicationDescription;
 import interactivespaces.util.process.NativeApplicationRunnerCollection;
 import interactivespaces.util.process.StandardNativeApplicationRunnerCollection;
+import interactivespaces.util.web.CommonMimeTypes;
 
 import com.google.common.collect.Lists;
 
 import java.io.File;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
@@ -156,9 +159,29 @@ public class ScreenshotLiveActivityRuntimeMonitorPlugin extends BaseLiveActivity
 
   @Override
   protected void onHandleRequest(HttpRequest request, HttpResponse response, String fullPath) throws Exception {
-    File screenshotFile = captureScreenshots();
+    OutputStream outputStream = response.getOutputStream();
+    if (screenshotExecutable != null) {
+      File screenshotFile = captureScreenshots();
 
-    fileSupport.copyFileToStream(screenshotFile, response.getOutputStream(), false);
+      if (fileSupport.exists(screenshotFile)) {
+        fileSupport.copyFileToStream(screenshotFile, outputStream, false);
+      } else {
+        String message = String.format("Screenshot file not found: %s", fileSupport.getAbsolutePath(screenshotFile));
+        getMonitorService().getLog().warn(message);
+
+        response.setResponseCode(HttpResponseCode.INTERNAL_SERVER_ERROR);
+        response.setContentType(CommonMimeTypes.MIME_TYPE_TEXT_PLAIN);
+        outputStream.write(message.getBytes());
+        outputStream.flush();
+      }
+    } else {
+      getMonitorService().getLog().warn("Screenshot executable is null in live activity runtime remote monitor");
+
+      response.setResponseCode(HttpResponseCode.INTERNAL_SERVER_ERROR);
+      response.setContentType(CommonMimeTypes.MIME_TYPE_TEXT_PLAIN);
+      outputStream.write("Screenshot executable not set.".getBytes());
+      outputStream.flush();
+    }
   }
 
   /**
