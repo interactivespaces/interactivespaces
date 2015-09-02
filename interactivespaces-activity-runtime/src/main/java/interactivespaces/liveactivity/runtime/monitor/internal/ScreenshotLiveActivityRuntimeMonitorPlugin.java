@@ -34,6 +34,7 @@ import interactivespaces.util.web.CommonMimeTypes;
 import com.google.common.collect.Lists;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
@@ -159,27 +160,54 @@ public class ScreenshotLiveActivityRuntimeMonitorPlugin extends BaseLiveActivity
 
   @Override
   protected void onHandleRequest(HttpRequest request, HttpResponse response, String fullPath) throws Exception {
-    OutputStream outputStream = response.getOutputStream();
     if (screenshotExecutable != null) {
-      File screenshotFile = captureScreenshots();
-
-      if (fileSupport.exists(screenshotFile)) {
-        fileSupport.copyFileToStream(screenshotFile, outputStream, false);
-      } else {
-        String message = String.format("Screenshot file not found: %s", fileSupport.getAbsolutePath(screenshotFile));
-        getMonitorService().getLog().warn(message);
-
-        response.setResponseCode(HttpResponseCode.INTERNAL_SERVER_ERROR);
-        response.setContentType(CommonMimeTypes.MIME_TYPE_TEXT_PLAIN);
-        outputStream.write(message.getBytes());
-        outputStream.flush();
-      }
+      performScreenshot(response);
     } else {
-      getMonitorService().getLog().warn("Screenshot executable is null in live activity runtime remote monitor");
+      reportLackOfScreenshotExecutable(response);
+    }
+  }
+
+  /**
+   * The screenshot executable is not available. Report it.
+   *
+   * @param response
+   *          the HTTP response
+   *
+   * @throws IOException
+   *           something bad happened while writing IO
+   */
+  private void reportLackOfScreenshotExecutable(HttpResponse response) throws IOException {
+    getMonitorService().getLog().warn("Screenshot executable is null in live activity runtime remote monitor");
+
+    response.setResponseCode(HttpResponseCode.INTERNAL_SERVER_ERROR);
+    response.setContentType(CommonMimeTypes.MIME_TYPE_TEXT_PLAIN);
+    OutputStream outputStream = response.getOutputStream();
+    outputStream.write("Screenshot executable not set.".getBytes());
+    outputStream.flush();
+  }
+
+  /**
+   * Do the screenshot and write it out, if possible.
+   *
+   * @param response
+   *          the HTTP response
+   *
+   * @throws IOException
+   *           something bad happened while writing IO
+   */
+  private void performScreenshot(HttpResponse response) throws InterruptedException, IOException {
+    File screenshotFile = captureScreenshots();
+
+    OutputStream outputStream = response.getOutputStream();
+    if (fileSupport.exists(screenshotFile)) {
+      fileSupport.copyFileToStream(screenshotFile, outputStream, false);
+    } else {
+      String message = String.format("Screenshot file not found: %s", fileSupport.getAbsolutePath(screenshotFile));
+      getMonitorService().getLog().warn(message);
 
       response.setResponseCode(HttpResponseCode.INTERNAL_SERVER_ERROR);
       response.setContentType(CommonMimeTypes.MIME_TYPE_TEXT_PLAIN);
-      outputStream.write("Screenshot executable not set.".getBytes());
+      outputStream.write(message.getBytes());
       outputStream.flush();
     }
   }
