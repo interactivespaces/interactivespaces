@@ -31,12 +31,12 @@ public enum SpaceControllerState {
   /**
    * Attempting a connection to the space controller.
    */
-  CONNECT_ATTEMPT("space.controller.state.connect.attempt", true, false),
+  CONNECT_ATTEMPT("space.controller.state.connection.attempt", true, false),
 
   /**
    * Unable to connect to the space controller.
    */
-  CONNECT_FAILURE("space.controller.state.connect.failure", false, true),
+  CONNECT_FAILURE("space.controller.state.connection.failure", false, true),
 
   /**
    * The space controller is connected.
