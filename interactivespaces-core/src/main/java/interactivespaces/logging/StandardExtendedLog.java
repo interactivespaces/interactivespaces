@@ -140,7 +140,9 @@ public class StandardExtendedLog implements ExtendedLog {
   @Override
   public void formatTrace(Throwable throwable, String message, Object... args) {
     formatTrace(message, args);
-    delegate.trace(InteractiveSpacesExceptionUtils.getExceptionDetail(throwable));
+    if (throwable != null) {
+      delegate.trace(InteractiveSpacesExceptionUtils.getExceptionDetail(throwable));
+    }
   }
 
   @Override
@@ -151,7 +153,9 @@ public class StandardExtendedLog implements ExtendedLog {
   @Override
   public void formatDebug(Throwable throwable, String message, Object... args) {
     formatDebug(message, args);
-    delegate.debug(InteractiveSpacesExceptionUtils.getExceptionDetail(throwable));
+    if (throwable != null) {
+      delegate.debug(InteractiveSpacesExceptionUtils.getExceptionDetail(throwable));
+    }
   }
 
   @Override
@@ -162,7 +166,9 @@ public class StandardExtendedLog implements ExtendedLog {
   @Override
   public void formatInfo(Throwable throwable, String message, Object... args) {
     formatInfo(message, args);
-    delegate.info(InteractiveSpacesExceptionUtils.getExceptionDetail(throwable));
+    if (throwable != null) {
+      delegate.info(InteractiveSpacesExceptionUtils.getExceptionDetail(throwable));
+    }
   }
 
   @Override
@@ -173,7 +179,9 @@ public class StandardExtendedLog implements ExtendedLog {
   @Override
   public void formatWarn(Throwable throwable, String message, Object... args) {
     formatWarn(message, args);
-    delegate.warn(InteractiveSpacesExceptionUtils.getExceptionDetail(throwable));
+    if (throwable != null) {
+      delegate.warn(InteractiveSpacesExceptionUtils.getExceptionDetail(throwable));
+    }
   }
 
   @Override
@@ -184,7 +192,9 @@ public class StandardExtendedLog implements ExtendedLog {
   @Override
   public void formatError(Throwable throwable, String message, Object... args) {
     formatError(message, args);
-    delegate.error(InteractiveSpacesExceptionUtils.getExceptionDetail(throwable));
+    if (throwable != null) {
+      delegate.error(InteractiveSpacesExceptionUtils.getExceptionDetail(throwable));
+    }
   }
 
   @Override
@@ -195,6 +205,8 @@ public class StandardExtendedLog implements ExtendedLog {
   @Override
   public void formatFatal(Throwable throwable, String message, Object... args) {
     formatFatal(message, args);
-    delegate.fatal(InteractiveSpacesExceptionUtils.getExceptionDetail(throwable));
+    if (throwable != null) {
+      delegate.fatal(InteractiveSpacesExceptionUtils.getExceptionDetail(throwable));
+    }
   }
 }

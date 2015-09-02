@@ -42,10 +42,11 @@ public interface ExtendedLog extends Log {
    *
    * <p>
    * The throwable will be formatted using the rules in
-   * {@link InteractiveSpacesExceptionUtils#getExceptionDetail(Throwable)}.
+   * {@link InteractiveSpacesExceptionUtils#getExceptionDetail(Throwable)} and will not be output if the throwable is
+   * {@code null}.
    *
    * @param throwable
-   *          the exception to be added to the message
+   *          the exception to be added to the message, can be {@code null}
    * @param message
    *          the formatted message string
    * @param args
@@ -68,10 +69,11 @@ public interface ExtendedLog extends Log {
    *
    * <p>
    * The throwable will be formatted using the rules in
-   * {@link InteractiveSpacesExceptionUtils#getExceptionDetail(Throwable)}.
+   * {@link InteractiveSpacesExceptionUtils#getExceptionDetail(Throwable)} and will not be output if the throwable is
+   * {@code null}.
    *
    * @param throwable
-   *          the exception to be added to the message
+   *          the exception to be added to the message, can be {@code null}
    * @param message
    *          the formatted message string
    * @param args
@@ -94,10 +96,11 @@ public interface ExtendedLog extends Log {
    *
    * <p>
    * The throwable will be formatted using the rules in
-   * {@link InteractiveSpacesExceptionUtils#getExceptionDetail(Throwable)}.
+   * {@link InteractiveSpacesExceptionUtils#getExceptionDetail(Throwable)} and will not be output if the throwable is
+   * {@code null}.
    *
    * @param throwable
-   *          the exception to be added to the message
+   *          the exception to be added to the message, can be {@code null}
    * @param message
    *          the formatted message string
    * @param args
@@ -120,10 +123,11 @@ public interface ExtendedLog extends Log {
    *
    * <p>
    * The throwable will be formatted using the rules in
-   * {@link InteractiveSpacesExceptionUtils#getExceptionDetail(Throwable)}.
+   * {@link InteractiveSpacesExceptionUtils#getExceptionDetail(Throwable)} and will not be output if the throwable is
+   * {@code null}.
    *
    * @param throwable
-   *          the exception to be added to the message
+   *          the exception to be added to the message, can be {@code null}
    * @param message
    *          the formatted message string
    * @param args
@@ -146,10 +150,11 @@ public interface ExtendedLog extends Log {
    *
    * <p>
    * The throwable will be formatted using the rules in
-   * {@link InteractiveSpacesExceptionUtils#getExceptionDetail(Throwable)}.
+   * {@link InteractiveSpacesExceptionUtils#getExceptionDetail(Throwable)} and will not be output if the throwable is
+   * {@code null}.
    *
    * @param throwable
-   *          the exception to be added to the message
+   *          the exception to be added to the message, can be {@code null}
    * @param message
    *          the formatted message string
    * @param args
@@ -172,10 +177,11 @@ public interface ExtendedLog extends Log {
    *
    * <p>
    * The throwable will be formatted using the rules in
-   * {@link InteractiveSpacesExceptionUtils#getExceptionDetail(Throwable)}.
+   * {@link InteractiveSpacesExceptionUtils#getExceptionDetail(Throwable)} and will not be output if the throwable is
+   * {@code null}.
    *
    * @param throwable
-   *          the exception to be added to the message
+   *          the exception to be added to the message, can be {@code null}
    * @param message
    *          the formatted message string
    * @param args
