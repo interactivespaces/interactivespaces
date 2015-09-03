@@ -56,9 +56,10 @@ function deleteSpace() {
     <td><button type="button" id="liveActivitiesButton" onclick="window.location='/interactivespaces/space/${space.id}/liveactivities.html'" title="Get all live activities that are part of the space and its subspaces">Live Activities</button></td>
     <td><button type="button" id="editButton" onclick="window.location='/interactivespaces/space/${space.id}/edit.html'" title="Edit the space details">Edit</button></td>
     <td><button type="button" id="editMetadataButton" onclick="window.location='/interactivespaces/space/${space.id}/metadata/edit.html'" title="Edit the space metadata">Metadata</button></td>
-    <#if liveactivities?has_content>
+    <td><button type="button" id="cloneButton" onclick="window.location='/interactivespaces/space/${space.id}/clone.html'" title="Clone the space">Clone</button></td>
+    <#if containingSpaces?has_content>
       <#assign disabledAttribute = 'disabled'>
-      <#assign title = 'Can not delete space containing live activities'>
+      <#assign title = 'Can not delete a space contained in other spaces'>
     <#else>
       <#assign disabledAttribute = ''>
       <#assign title = 'Delete space on master'>

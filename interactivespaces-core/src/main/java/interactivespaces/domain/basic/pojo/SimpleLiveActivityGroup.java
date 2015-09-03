@@ -24,6 +24,7 @@ import interactivespaces.domain.basic.LiveActivity;
 import interactivespaces.domain.basic.LiveActivityGroup;
 import interactivespaces.domain.pojo.SimpleObject;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import java.util.ArrayList;
@@ -66,7 +67,7 @@ public class SimpleLiveActivityGroup extends SimpleObject implements LiveActivit
    * Construct a new group.
    */
   public SimpleLiveActivityGroup() {
-    activities = new ArrayList<GroupLiveActivity>();
+    activities = Lists.newArrayList();
   }
 
   @Override

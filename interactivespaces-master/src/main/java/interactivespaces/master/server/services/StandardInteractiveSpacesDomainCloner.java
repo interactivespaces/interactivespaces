@@ -16,7 +16,6 @@
 
 package interactivespaces.master.server.services;
 
-import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.ActivityConfiguration;
 import interactivespaces.domain.basic.ConfigurationParameter;
 import interactivespaces.domain.basic.GroupLiveActivity;
@@ -28,16 +27,17 @@ import interactivespaces.domain.space.Space;
 import com.google.common.collect.Maps;
 
 import java.util.Map;
+import java.util.Map.Entry;
 
 /**
- * Clone a space.
+ * Clone Interactive Spaces domain objects.
  *
  * <p>
  * An instance of this class should be used for only 1 cloning operation as it keeps much state.
  *
  * @author Keith M. Hughes
  */
-public class SpaceCloner {
+public class StandardInteractiveSpacesDomainCloner implements InteractiveSpacesDomainCloner {
 
   /**
    * The activity repository to use during cloning.
@@ -75,53 +75,34 @@ public class SpaceCloner {
    * @param activityRepository
    *          the activity repository to use during cloning
    */
-  public SpaceCloner(ActivityRepository activityRepository) {
+  public StandardInteractiveSpacesDomainCloner(ActivityRepository activityRepository) {
     this.activityRepository = activityRepository;
   }
 
-  /**
-   * Set the name prefix for each created entity.
-   *
-   * @param namePrefix
-   *          the namePrefix to set
-   */
+  @Override
   public void setNamePrefix(String namePrefix) {
     this.namePrefix = namePrefix;
   }
 
-  /**
-   * Set the map from controllers in the old space to controllers in the new space.
-   *
-   * @param controllerMap
-   *          keys are the old controller, values are the controller to replace (can be {@code null})
-   */
+  @Override
   public void setControllerMap(Map<SpaceController, SpaceController> controllerMap) {
     this.controllerMap = controllerMap;
   }
 
-  /**
-   * Save all generated clones in their respective repositories.
-   */
+  @Override
   public void saveClones() {
-    for (LiveActivity liveActivity : liveActivityClones.values()) {
-      activityRepository.saveLiveActivity(liveActivity);
+    for (Entry<String, LiveActivity> liveActivity : liveActivityClones.entrySet()) {
+      liveActivity.setValue(activityRepository.saveLiveActivity(liveActivity.getValue()));
     }
-    for (LiveActivityGroup liveActivityGroup : liveActivityGroupClones.values()) {
-      activityRepository.saveLiveActivityGroup(liveActivityGroup);
+    for (Entry<String, LiveActivityGroup> liveActivityGroup : liveActivityGroupClones.entrySet()) {
+      liveActivityGroup.setValue(activityRepository.saveLiveActivityGroup(liveActivityGroup.getValue()));
     }
-    for (Space space : spaceClones.values()) {
-      activityRepository.saveSpace(space);
+    for (Entry<String, Space> space : spaceClones.entrySet()) {
+      space.setValue(activityRepository.saveSpace(space.getValue()));
     }
   }
 
-  /**
-   * Clone a live activity.
-   *
-   * @param src
-   *          the source live activity
-   *
-   * @return the cloned live activity
-   */
+  @Override
   public LiveActivity cloneLiveActivity(LiveActivity src) {
     String id = src.getId();
     LiveActivity clone = liveActivityClones.get(id);
@@ -132,10 +113,9 @@ public class SpaceCloner {
     clone = activityRepository.newLiveActivity();
     liveActivityClones.put(id, clone);
 
-    Activity activity = src.getActivity();
-    clone.setName(namePrefix + " " + activity.getName());
+    clone.setName(namePrefix + " " + src.getName());
     clone.setDescription(src.getDescription());
-    clone.setActivity(activity);
+    clone.setActivity(src.getActivity());
     clone.setController(getController(src.getController()));
     clone.setMetadata(src.getMetadata());
     clone.setConfiguration(cloneConfiguration(src.getConfiguration()));
@@ -143,14 +123,12 @@ public class SpaceCloner {
     return clone;
   }
 
-  /**
-   * Clone a configuration.
-   *
-   * @param src
-   *          the configuration to clone
-   *
-   * @return the cloned configuration
-   */
+  @Override
+  public LiveActivity getClonedLiveActivity(String srcId) {
+    return liveActivityClones.get(srcId);
+  }
+
+  @Override
   public ActivityConfiguration cloneConfiguration(ActivityConfiguration src) {
     if (src == null) {
       return null;
@@ -175,14 +153,7 @@ public class SpaceCloner {
     return clone;
   }
 
-  /**
-   * Clone a live activity group.
-   *
-   * @param src
-   *          the source live activity group
-   *
-   * @return the cloned live activity group
-   */
+  @Override
   public LiveActivityGroup cloneLiveActivityGroup(LiveActivityGroup src) {
     String id = src.getId();
     LiveActivityGroup clone = liveActivityGroupClones.get(id);
@@ -205,14 +176,12 @@ public class SpaceCloner {
     return clone;
   }
 
-  /**
-   * Clone a space.
-   *
-   * @param src
-   *          the source space
-   *
-   * @return the cloned space
-   */
+  @Override
+  public LiveActivityGroup getClonedLiveActivityGroup(String srcId) {
+    return liveActivityGroupClones.get(srcId);
+  }
+
+  @Override
   public Space cloneSpace(Space src) {
     String id = src.getId();
     Space clone = spaceClones.get(id);
@@ -239,6 +208,11 @@ public class SpaceCloner {
     spaceClones.put(id, clone);
 
     return clone;
+  }
+
+  @Override
+  public Space getClonedSpace(String srcId) {
+    return spaceClones.get(srcId);
   }
 
   /**

@@ -66,7 +66,8 @@ function deleteActivityGroup() {
   <tr>
     <td><button type="button" id="editButton" onclick="window.location='/interactivespaces/liveactivitygroup/${liveactivitygroup.id}/edit.html'" title="Edit the live activity group details">Edit</button></td>
     <td><button type="button" id="editMetadataButton" onclick="window.location='/interactivespaces/liveactivitygroup/${liveactivitygroup.id}/metadata/edit.html'" title="Edit the live activity group metadata">Metadata</button></td>
-    <#if spaces?has_content>
+   <td><button type="button" id="cloneButton" onclick="window.location='/interactivespaces/liveactivitygroup/${liveactivitygroup.id}/clone.html'" title="Clone the live activity group">Clone</button></td>
+     <#if spaces?has_content>
       <#assign disabledAttribute = 'disabled'>
       <#assign title = 'Can not delete activity group in a space'>
     <#else>

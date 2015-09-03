@@ -77,10 +77,11 @@ function remoteDeleteLiveActivity() {
     <td><button type="button" id="editButton" onclick="ugly.changePage('/interactivespaces/liveactivity/${liveactivity.id}/edit.html')" title="Edit the activity details">Edit</button></td>
     <td><button type="button" id="editConfigButton" onclick="ugly.changePage('/interactivespaces/liveactivity/${liveactivity.id}/config/edit.html')" title="Edit the activity configuration">Edit Config</button></td>
     <td><button type="button" id="editMetadataButton" onclick="ugly.changePage('/interactivespaces/liveactivity/${liveactivity.id}/metadata/edit.html')" title="Edit the live activity metadata">Metadata</button></td>
+    <td><button type="button" id="cloneButton" onclick="ugly.changePage('/interactivespaces/liveactivity/${liveactivity.id}/clone.html')" title="Clone the live activity">Clone</button></td>
     <td><button type="button" onclick="cleanTempDataLiveActivity()" title="Delete temp data for live activity">Clean Tmp</button></td>
     <td><button type="button" onclick="cleanPermanentDataLiveActivity()" title="Delete permanent data for live activity">Clean Permanent</button></td>
     <td><button type="button" onclick="remoteDeleteLiveActivity()" title="Delete the live activity on its controller">Remote Delete</button></td>
-    <#if liveactivityGroups?has_content>
+    <#if liveActivityGroups?has_content>
       <#assign disabledAttribute = 'disabled'>
       <#assign title = 'Can not delete a live activity contained in a group'>
     <#else>

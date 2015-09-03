@@ -20,9 +20,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.ActivityConfiguration;
 import interactivespaces.domain.basic.ConfigurationParameter;
@@ -39,6 +36,9 @@ import interactivespaces.domain.basic.pojo.SimpleSpaceController;
 import interactivespaces.domain.space.Space;
 import interactivespaces.domain.space.pojo.SimpleSpace;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -52,11 +52,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 /**
- * Tests for a {@link SpaceCloner}.
+ * Tests for a {@link StandardInteractiveSpacesDomainCloner}.
  *
  * @author Keith M. Hughes
  */
-public class SpaceClonerTest {
+public class StandardInteractiveSpacesDomainClonerTest {
   private static final String DESCRIPTION = "dumb description";
 
   private static final String ACTIVITY_3_NAME = "activity 3";
@@ -67,7 +67,7 @@ public class SpaceClonerTest {
 
   private static final String CLONE_NAME_PREFIX = "I think I'm a clone now";
 
-  private SpaceCloner cloner;
+  private StandardInteractiveSpacesDomainCloner cloner;
 
   @Mock
   private ActivityRepository activityRepository;
@@ -90,6 +90,7 @@ public class SpaceClonerTest {
 
     Mockito.when(activityRepository.newActivityConfiguration()).thenAnswer(
         new Answer<ActivityConfiguration>() {
+          @Override
           public ActivityConfiguration answer(InvocationOnMock invocation) {
             return new SimpleActivityConfiguration();
           }
@@ -97,12 +98,14 @@ public class SpaceClonerTest {
 
     Mockito.when(activityRepository.newActivityConfigurationParameter()).thenAnswer(
         new Answer<ConfigurationParameter>() {
+          @Override
           public ConfigurationParameter answer(InvocationOnMock invocation) {
             return new SimpleConfigurationParameter();
           }
         });
 
     Mockito.when(activityRepository.newLiveActivity()).thenAnswer(new Answer<LiveActivity>() {
+      @Override
       public LiveActivity answer(InvocationOnMock invocation) {
         return new SimpleLiveActivity();
       }
@@ -110,18 +113,20 @@ public class SpaceClonerTest {
 
     Mockito.when(activityRepository.newLiveActivityGroup()).thenAnswer(
         new Answer<LiveActivityGroup>() {
+          @Override
           public LiveActivityGroup answer(InvocationOnMock invocation) {
             return new SimpleLiveActivityGroup();
           }
         });
 
     Mockito.when(activityRepository.newSpace()).thenAnswer(new Answer<Space>() {
+      @Override
       public Space answer(InvocationOnMock invocation) {
         return new SimpleSpace();
       }
     });
 
-    cloner = new SpaceCloner(activityRepository);
+    cloner = new StandardInteractiveSpacesDomainCloner(activityRepository);
 
     activity1 = new SimpleActivity();
     activity1.setName(ACTIVITY_1_NAME);
@@ -415,6 +420,8 @@ public class SpaceClonerTest {
   }
 
   /**
+   * Compare two spaces with each other.
+   *
    * @param srcSpace
    *          the original
    * @param clonedSpace

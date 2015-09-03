@@ -188,6 +188,12 @@
     <property name="spaceControllerRepository" ref="spaceControllerRepository" />
   </bean>
 
+  <bean id="interactivespaces.master.webapp.spring.mvc.servlet.controller.liveactivity.clone"
+    class="interactivespaces.master.ui.internal.web.liveactivity.LiveActivityCloneForm" parent="abstractControllerClass"
+  >
+    <property name="activityRepository" ref="activityRepository" />
+  </bean>
+
   <bean id="interactivespaces.master.webapp.spring.mvc.servlet.controller.liveactivity.config.edit"
     class="interactivespaces.master.ui.internal.web.liveactivity.LiveActivityConfigEditForm" parent="abstractControllerClass"
   >
@@ -207,6 +213,13 @@
 
   <bean id="interactivespaces.master.webapp.spring.mvc.servlet.controller.group.edit"
     class="interactivespaces.master.ui.internal.web.liveactivitygroup.LiveActivityGroupEditForm"
+    parent="abstractControllerClass"
+  >
+    <property name="activityRepository" ref="activityRepository" />
+  </bean>
+
+  <bean id="interactivespaces.master.webapp.spring.mvc.servlet.controller.group.clone"
+    class="interactivespaces.master.ui.internal.web.liveactivitygroup.LiveActivityGroupCloneForm"
     parent="abstractControllerClass"
   >
     <property name="activityRepository" ref="activityRepository" />
@@ -250,6 +263,12 @@
   </bean>
 
   <bean id="interactivespaces.master.webapp.spring.mvc.servlet.controller.space.edit" class="interactivespaces.master.ui.internal.web.space.SpaceEditForm"
+    parent="abstractControllerClass"
+  >
+    <property name="activityRepository" ref="activityRepository" />
+  </bean>
+
+  <bean id="interactivespaces.master.webapp.spring.mvc.servlet.controller.space.clone" class="interactivespaces.master.ui.internal.web.space.SpaceCloneForm"
     parent="abstractControllerClass"
   >
     <property name="activityRepository" ref="activityRepository" />

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 Google Inc.
+ * Copyright (C) 2015 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -13,33 +13,43 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-
 package interactivespaces.master.ui.internal.web;
 
+import java.io.Serializable;
 
 /**
- * A base class with support for form validation for domain objects.
+ * The form for simple cloning operations.
  *
  * @author Keith M. Hughes
  */
-public abstract class FormObjectValidator {
+
+public class SimpleCloneForm implements Serializable {
 
   /**
-   * The error code for a required field.
+   *  The serialization UUID.
    */
-  public static final String ERROR_CODE_REQUIRED = "required";
+  private static final long serialVersionUID = -8673809296282297486L;
+  /**
+   * The name prefix for the clone.
+   */
+  private String namePrefix;
 
   /**
-   * Check to see if a string has a value. By value, it cannot be null and it
-   * must contain some non-whitespace characters.
+   * Get the name prefix for the clone.
    *
-   * @param value
-   *          the string to check
-   *
-   * @return {@code true} if the string has a value according to the above
-   *         definition
+   * @return the name prefix
    */
-  protected boolean hasValue(String value) {
-    return value != null && !value.trim().isEmpty();
+  public String getNamePrefix() {
+    return namePrefix;
+  }
+
+  /**
+   * Set the name prefix for the clone.
+   *
+   * @param namePrefix
+   *          the name prefix
+   */
+  public void setNamePrefix(String namePrefix) {
+    this.namePrefix = namePrefix;
   }
 }
