@@ -102,7 +102,7 @@ public class SlaveXmlRpcEndpointImpl implements SlaveXmlRpcEndpoint {
       public void run() {
         doSlaveServerShutdown();
       }
-    }, 100, TimeUnit.MILLISECONDS);
+    }, 500, TimeUnit.MILLISECONDS);
 
     return Response.newSuccess("Shutdown successful.", null).toList();
   }
