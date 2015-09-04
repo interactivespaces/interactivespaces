@@ -44,10 +44,22 @@ import java.util.Vector;
  */
 public class SlaveXmlRpcEndpointImpl implements SlaveXmlRpcEndpoint {
 
-  private static final Log log = RosLogFactory.getLog(SlaveXmlRpcEndpointImpl.class);
+  /**
+   * The log to use for printing messages.
+   */
+  private static final Log LOG = RosLogFactory.getLog(SlaveXmlRpcEndpointImpl.class);
 
+  /**
+   * The slave server.
+   */
   private final SlaveServer slave;
 
+  /**
+   * Create a new SlaveXmlRpcEndpointImpl for the given SlaveServer.
+   *
+   * @param slave
+   *          the slave server
+   */
   public SlaveXmlRpcEndpointImpl(SlaveServer slave) {
     this.slave = slave;
   }
@@ -71,8 +83,15 @@ public class SlaveXmlRpcEndpointImpl implements SlaveXmlRpcEndpoint {
 
   @Override
   public List<Object> shutdown(String callerId, String message) {
-    log.info("Shutdown requested by " + callerId + " with message \"" + message + "\"");
-    slave.shutdown();
+    LOG.info("Shutdown requested by " + callerId + " with message \"" + message + "\"");
+    // Have to spawn a thread to shutdown the slave, otherwise you get a java.lang.IllegalStateException
+    // for attempting to shut down the slave from a I/O thread: https://b2.corp.google.com/issues/23760053.
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
+        slave.shutdown();
+      }
+    }).start();
     return Response.newSuccess("Shutdown successful.", null).toList();
   }
 
@@ -106,6 +125,15 @@ public class SlaveXmlRpcEndpointImpl implements SlaveXmlRpcEndpoint {
     return Response.newSuccess("Success", publications).toList();
   }
 
+  /**
+   * Update the slave server's entry for the given parameter and value.
+   *
+   * @param parameterName
+   *          the parameter name to update
+   * @param parameterValue
+   *          the new value for the parameter
+   * @return the Response for the update, which indicates success or failure.
+   */
   private List<Object> parameterUpdate(String parameterName, Object parameterValue) {
     if (slave.paramUpdate(GraphName.of(parameterName), parameterValue) > 0) {
       return Response.newSuccess("Success", null).toList();
@@ -195,9 +223,9 @@ public class SlaveXmlRpcEndpointImpl implements SlaveXmlRpcEndpoint {
       return Response.newError(e.getMessage(), null).toList();
     }
     List<Object> response = Response.newSuccess(protocol.toString(), protocol.toList()).toList();
-    if (log.isDebugEnabled()) {
-      log.debug("requestTopic(" + topic + ", " + requestedProtocols + ") response: "
-          + response.toString());
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("requestTopic(" + topic + ", " + requestedProtocols + ") response: "
+                + response.toString());
     }
     return response;
   }

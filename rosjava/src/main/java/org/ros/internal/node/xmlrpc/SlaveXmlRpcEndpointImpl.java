@@ -1,12 +1,12 @@
 /*
  * Copyright (C) 2011 Google Inc.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
  * the License at
- * 
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -43,11 +43,27 @@ import java.util.Vector;
  */
 public class SlaveXmlRpcEndpointImpl implements SlaveXmlRpcEndpoint {
 
+  /**
+   * Log DEBUG/INFO level logs if true.
+   */
   private static final boolean DEBUG = false;
-  private static final Log log = LogFactory.getLog(SlaveXmlRpcEndpointImpl.class);
 
+  /**
+   * The log to use for printing messages.
+   */
+  private static final Log LOG = LogFactory.getLog(SlaveXmlRpcEndpointImpl.class);
+
+  /**
+   * The slave server.
+   */
   private final SlaveServer slave;
 
+  /**
+   * Create a new SlaveXmlRpcEndpointImpl for the given SlaveServer.
+   *
+   * @param slave
+   *          the slave server
+   */
   public SlaveXmlRpcEndpointImpl(SlaveServer slave) {
     this.slave = slave;
   }
@@ -71,8 +87,15 @@ public class SlaveXmlRpcEndpointImpl implements SlaveXmlRpcEndpoint {
 
   @Override
   public List<Object> shutdown(String callerId, String message) {
-    log.info("Shutdown requested by " + callerId + " with message \"" + message + "\"");
-    slave.shutdown();
+    LOG.info("Shutdown requested by " + callerId + " with message \"" + message + "\"");
+    // Have to spawn a thread to shutdown the slave, otherwise you get a java.lang.IllegalStateException
+    // for attempting to shut down the slave from a I/O thread: https://b2.corp.google.com/issues/23760053.
+    getExecutorService().submit(new Runnable() {
+      @Override
+      public void run() {
+        slave.shutdown();
+      }
+    }).start();
     return Response.newSuccess("Shutdown successful.", null).toList();
   }
 
@@ -106,6 +129,15 @@ public class SlaveXmlRpcEndpointImpl implements SlaveXmlRpcEndpoint {
     return Response.newSuccess("Success", publications).toList();
   }
 
+  /**
+   * Update the slave server's entry for the given parameter and value.
+   *
+   * @param parameterName
+   *          the parameter name to update
+   * @param parameterValue
+   *          the new value for the parameter
+   * @return the Response for the update, which indicates success or failure.
+   */
   private List<Object> parameterUpdate(String parameterName, Object parameterValue) {
     if (slave.paramUpdate(new GraphName(parameterName), parameterValue) > 0) {
       return Response.newSuccess("Success", null).toList();
@@ -196,8 +228,8 @@ public class SlaveXmlRpcEndpointImpl implements SlaveXmlRpcEndpoint {
     }
     List<Object> response = Response.newSuccess(protocol.toString(), protocol.toList()).toList();
     if (DEBUG) {
-      log.info("requestTopic(" + topic + ", " + requestedProtocols + ") response: "
-          + response.toString());
+      LOG.info("requestTopic(" + topic + ", " + requestedProtocols + ") response: "
+               + response.toString());
     }
     return response;
   }
