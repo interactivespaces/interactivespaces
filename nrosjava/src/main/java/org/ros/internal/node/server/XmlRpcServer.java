@@ -62,18 +62,25 @@ public class XmlRpcServer {
   private final CountDownLatch startLatch;
 
   /**
+   * The executor service for the server.
+   */
+  private final ScheduledExecutorService executorService;
+
+  /**
    * Construct a new server.
    *
    * @param bindAddress
    *          the address to bind the server to
    * @param advertiseAddress
    *          the address to be used for advertising the server
-   * @param threadPool
+   * @param executorService
    *          the threadpool for the server
    */
-  public XmlRpcServer(BindAddress bindAddress, AdvertiseAddress advertiseAddress, ScheduledExecutorService threadPool) {
+  public XmlRpcServer(BindAddress bindAddress, AdvertiseAddress advertiseAddress,
+      ScheduledExecutorService executorService) {
     InetSocketAddress address = bindAddress.toInetSocketAddress();
-    server = new NettyXmlRpcWebServer(address.getPort(), address.getAddress(), threadPool, LOG);
+    server = new NettyXmlRpcWebServer(address.getPort(), address.getAddress(), executorService, LOG);
+    this.executorService = executorService;
     this.advertiseAddress = advertiseAddress;
     this.advertiseAddress.setPortCallable(new Callable<Integer>() {
       @Override
@@ -187,5 +194,14 @@ public class XmlRpcServer {
    */
   public int getPid() {
     return Process.getPid();
+  }
+
+  /**
+   * Get the executor service for the server.
+   *
+   * @return the executor service
+   */
+  public ScheduledExecutorService getExecutorService() {
+    return executorService;
   }
 }

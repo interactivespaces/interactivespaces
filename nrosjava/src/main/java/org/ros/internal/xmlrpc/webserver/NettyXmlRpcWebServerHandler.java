@@ -24,6 +24,7 @@ import static org.jboss.netty.handler.codec.http.HttpResponseStatus.FORBIDDEN;
 import static org.jboss.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 import org.jboss.netty.buffer.ChannelBuffers;
+import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelHandlerContext;
@@ -135,8 +136,14 @@ public class NettyXmlRpcWebServerHandler extends SimpleChannelUpstreamHandler {
       setContentLength(res, res.getContent().readableBytes());
     }
 
+    Channel channel = ctx.getChannel();
+    if (!channel.isOpen()) {
+      webServer.getLog().warn("Attempting to send XML RPC response but channel is closed");
+      return;
+    }
+
     // Send the response and close the connection if necessary.
-    ChannelFuture f = ctx.getChannel().write(res);
+    ChannelFuture f = channel.write(res);
 
     if (!isKeepAlive(req) || res.getStatus().getCode() != HttpResponseStatus.OK.getCode()
         || req.getMethod() == POST) {

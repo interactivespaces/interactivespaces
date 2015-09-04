@@ -38,8 +38,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
+import java.util.concurrent.TimeUnit;
 
 /**
+ * An XML RPC server endpoint for a slave server.
+ *
  * @author damonkohler@google.com (Damon Kohler)
  */
 public class SlaveXmlRpcEndpointImpl implements SlaveXmlRpcEndpoint {
@@ -52,7 +55,7 @@ public class SlaveXmlRpcEndpointImpl implements SlaveXmlRpcEndpoint {
   /**
    * The slave server.
    */
-  private final SlaveServer slave;
+  private final SlaveServer slaveServer;
 
   /**
    * Create a new SlaveXmlRpcEndpointImpl for the given SlaveServer.
@@ -61,44 +64,65 @@ public class SlaveXmlRpcEndpointImpl implements SlaveXmlRpcEndpoint {
    *          the slave server
    */
   public SlaveXmlRpcEndpointImpl(SlaveServer slave) {
-    this.slave = slave;
+    this.slaveServer = slave;
   }
 
   @Override
   public List<Object> getBusStats(String callerId) {
-    return slave.getBusStats(callerId);
+    return slaveServer.getBusStats(callerId);
   }
 
   @Override
   public List<Object> getBusInfo(String callerId) {
-    List<Object> busInfo = slave.getBusInfo(callerId);
+    List<Object> busInfo = slaveServer.getBusInfo(callerId);
+
     return Response.newSuccess("bus info", busInfo).toList();
   }
 
   @Override
   public List<Object> getMasterUri(String callerId) {
-    URI uri = slave.getMasterUri();
+    URI uri = slaveServer.getMasterUri();
+
     return new Response<String>(StatusCode.SUCCESS, "", uri.toString()).toList();
   }
 
   @Override
   public List<Object> shutdown(String callerId, String message) {
     LOG.info("Shutdown requested by " + callerId + " with message \"" + message + "\"");
+
     // Have to spawn a thread to shutdown the slave, otherwise you get a java.lang.IllegalStateException
     // for attempting to shut down the slave from a I/O thread: https://b2.corp.google.com/issues/23760053.
-    new Thread(new Runnable() {
+    //
+    // Potential race condition here if server shutdown happens before the response is sent out. So will do the shutdown
+    // in the future.
+    //
+    // TODO(keith): Be able to return responses but shut server down after response sent.
+    slaveServer.getExecutorService().schedule(new Runnable() {
       @Override
       public void run() {
-        slave.shutdown();
+        doSlaveServerShutdown();
       }
-    }).start();
+    }, 100, TimeUnit.MILLISECONDS);
+
     return Response.newSuccess("Shutdown successful.", null).toList();
+  }
+
+  /**
+   * Perform the slave server shutdown.
+   */
+  private void doSlaveServerShutdown() {
+    try {
+      slaveServer.shutdown();
+    } catch (Throwable e) {
+      LOG.error("Error shutting down node slave server", e);
+    }
   }
 
   @Override
   public List<Object> getPid(String callerId) {
     try {
-      int pid = slave.getPid();
+      int pid = slaveServer.getPid();
+
       return Response.newSuccess("PID: " + pid, pid).toList();
     } catch (UnsupportedOperationException e) {
       return Response.newFailure("Cannot retrieve PID on this platform.", -1).toList();
@@ -107,21 +131,23 @@ public class SlaveXmlRpcEndpointImpl implements SlaveXmlRpcEndpoint {
 
   @Override
   public List<Object> getSubscriptions(String callerId) {
-    Collection<DefaultSubscriber<?>> subscribers = slave.getSubscriptions();
+    Collection<DefaultSubscriber<?>> subscribers = slaveServer.getSubscriptions();
     List<List<String>> subscriptions = Lists.newArrayList();
     for (DefaultSubscriber<?> subscriber : subscribers) {
       subscriptions.add(subscriber.getTopicDeclarationAsList());
     }
+
     return Response.newSuccess("Success", subscriptions).toList();
   }
 
   @Override
   public List<Object> getPublications(String callerId) {
-    Collection<DefaultPublisher<?>> publishers = slave.getPublications();
+    Collection<DefaultPublisher<?>> publishers = slaveServer.getPublications();
     List<List<String>> publications = Lists.newArrayList();
     for (DefaultPublisher<?> publisher : publishers) {
       publications.add(publisher.getTopicDeclarationAsList());
     }
+
     return Response.newSuccess("Success", publications).toList();
   }
 
@@ -135,11 +161,10 @@ public class SlaveXmlRpcEndpointImpl implements SlaveXmlRpcEndpoint {
    * @return the Response for the update, which indicates success or failure.
    */
   private List<Object> parameterUpdate(String parameterName, Object parameterValue) {
-    if (slave.paramUpdate(GraphName.of(parameterName), parameterValue) > 0) {
+    if (slaveServer.paramUpdate(GraphName.of(parameterName), parameterValue) > 0) {
       return Response.newSuccess("Success", null).toList();
     }
-    return Response.newError("No subscribers for parameter key \"" + parameterName + "\".", null)
-        .toList();
+    return Response.newError("No subscribers for parameter key \"" + parameterName + "\".", null).toList();
   }
 
   @Override
@@ -203,7 +228,8 @@ public class SlaveXmlRpcEndpointImpl implements SlaveXmlRpcEndpoint {
         }
         publisherUris.add(uri);
       }
-      slave.publisherUpdate(callerId, topicName, publisherUris);
+      slaveServer.publisherUpdate(callerId, topicName, publisherUris);
+
       return Response.newSuccess("Publisher update received.", 0).toList();
     } catch (URISyntaxException e) {
       return Response.newError("Invalid URI sent in update.", 0).toList();
@@ -216,17 +242,19 @@ public class SlaveXmlRpcEndpointImpl implements SlaveXmlRpcEndpoint {
     for (int i = 0; i < protocols.length; i++) {
       requestedProtocols.add((String) ((Object[]) protocols[i])[0]);
     }
+
     ProtocolDescription protocol;
     try {
-      protocol = slave.requestTopic(topic, requestedProtocols);
+      protocol = slaveServer.requestTopic(topic, requestedProtocols);
     } catch (ServerException e) {
       return Response.newError(e.getMessage(), null).toList();
     }
+
     List<Object> response = Response.newSuccess(protocol.toString(), protocol.toList()).toList();
     if (LOG.isDebugEnabled()) {
-      LOG.debug("requestTopic(" + topic + ", " + requestedProtocols + ") response: "
-                + response.toString());
+      LOG.debug("requestTopic(" + topic + ", " + requestedProtocols + ") response: " + response.toString());
     }
+
     return response;
   }
 }

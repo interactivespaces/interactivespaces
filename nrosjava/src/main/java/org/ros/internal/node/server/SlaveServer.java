@@ -43,6 +43,8 @@ import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
+ * An XML RPC server for the ROS slave server.
+ *
  * @author damonkohler@google.com (Damon Kohler)
  */
 public class SlaveServer extends XmlRpcServer {
@@ -53,9 +55,27 @@ public class SlaveServer extends XmlRpcServer {
   private final ParameterManager parameterManager;
   private final TcpRosServer tcpRosServer;
 
-  public SlaveServer(GraphName nodeName, BindAddress tcpRosBindAddress,
-      AdvertiseAddress tcpRosAdvertiseAddress, BindAddress xmlRpcBindAddress,
-      AdvertiseAddress xmlRpcAdvertiseAddress, MasterClient master,
+  /**
+   * Construct a new slave server.
+   *
+   * @param nodeName
+   *          the node name for the node this will be the slave server for
+   * @param tcpRosBindAddress
+   *          the bind address for TCP ros connections
+   * @param tcpRosAdvertiseAddress
+   *          the TCP-based ROS advertising address
+   * @param xmlRpcBindAddress
+   *          the XML RPC bind address
+   * @param xmlRpcAdvertiseAddress
+   *          the advertise address for the XML RPC server
+   * @param master
+   * @param topicParticipantManager
+   * @param serviceManager
+   * @param parameterManager
+   * @param executorService
+   */
+  public SlaveServer(GraphName nodeName, BindAddress tcpRosBindAddress, AdvertiseAddress tcpRosAdvertiseAddress,
+      BindAddress xmlRpcBindAddress, AdvertiseAddress xmlRpcAdvertiseAddress, MasterClient master,
       TopicParticipantManager topicParticipantManager, ServiceManager serviceManager,
       ParameterManager parameterManager, ScheduledExecutorService executorService) {
     super(xmlRpcBindAddress, xmlRpcAdvertiseAddress, executorService);
@@ -64,22 +84,25 @@ public class SlaveServer extends XmlRpcServer {
     this.topicParticipantManager = topicParticipantManager;
     this.parameterManager = parameterManager;
     this.tcpRosServer =
-        new TcpRosServer(tcpRosBindAddress, tcpRosAdvertiseAddress, topicParticipantManager,
-            serviceManager, executorService);
+        new TcpRosServer(tcpRosBindAddress, tcpRosAdvertiseAddress, topicParticipantManager, serviceManager,
+            executorService);
   }
 
+  /**
+   * Get the TCP-based ROS advertise address for the server.
+   *
+   * @return the advertise address
+   */
   public AdvertiseAddress getTcpRosAdvertiseAddress() {
     return tcpRosServer.getAdvertiseAddress();
   }
 
   /**
-   * Start the XML-RPC server. This start() routine requires that the
-   * {@link TcpRosServer} is initialized first so that the slave server returns
-   * correct information when topics are requested.
+   * Start the XML-RPC server. This start() routine requires that the {@link TcpRosServer} is initialized first so that
+   * the slave server returns correct information when topics are requested.
    */
   public void start() {
-    super.start(org.ros.internal.node.xmlrpc.SlaveXmlRpcEndpointImpl.class,
-        new SlaveXmlRpcEndpointImpl(this));
+    super.start(org.ros.internal.node.xmlrpc.SlaveXmlRpcEndpointImpl.class, new SlaveXmlRpcEndpointImpl(this));
     tcpRosServer.start();
   }
 
@@ -100,8 +123,7 @@ public class SlaveServer extends XmlRpcServer {
     // integer for now is sufficient.
     int id = 0;
     for (DefaultPublisher<?> publisher : getPublications()) {
-      for (SubscriberIdentifier subscriberIdentifier : topicParticipantManager
-          .getPublisherConnections(publisher)) {
+      for (SubscriberIdentifier subscriberIdentifier : topicParticipantManager.getPublisherConnections(publisher)) {
         List<String> publisherBusInfo = Lists.newArrayList();
         publisherBusInfo.add(Integer.toString(id));
         publisherBusInfo.add(subscriberIdentifier.getNodeIdentifier().getName().toString());
@@ -115,8 +137,7 @@ public class SlaveServer extends XmlRpcServer {
       }
     }
     for (DefaultSubscriber<?> subscriber : getSubscriptions()) {
-      for (PublisherIdentifier publisherIdentifer : topicParticipantManager
-          .getSubscriberConnections(subscriber)) {
+      for (PublisherIdentifier publisherIdentifer : topicParticipantManager.getSubscriberConnections(subscriber)) {
         List<String> subscriberBusInfo = Lists.newArrayList();
         subscriberBusInfo.add(Integer.toString(id));
         // Subscriber connection PublisherIdentifiers are populated with node
@@ -140,8 +161,7 @@ public class SlaveServer extends XmlRpcServer {
   }
 
   /**
-   * @return PID of this process if available, throws
-   *         {@link UnsupportedOperationException} otherwise.
+   * @return PID of this process if available, throws {@link UnsupportedOperationException} otherwise.
    */
   @Override
   public int getPid() {
@@ -176,8 +196,7 @@ public class SlaveServer extends XmlRpcServer {
     }
   }
 
-  public ProtocolDescription requestTopic(String topicName, Collection<String> protocols)
-      throws ServerException {
+  public ProtocolDescription requestTopic(String topicName, Collection<String> protocols) throws ServerException {
     // TODO(damonkohler): Use NameResolver.
     // Canonicalize topic name.
     GraphName graphName = GraphName.of(topicName).toGlobal();
