@@ -29,6 +29,7 @@ public class SimpleCloneForm implements Serializable {
    *  The serialization UUID.
    */
   private static final long serialVersionUID = -8673809296282297486L;
+
   /**
    * The name prefix for the clone.
    */
