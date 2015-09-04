@@ -302,6 +302,7 @@ public class StandardInteractiveSpacesDomainClonerTest {
     liveActivity.setController(controller);
     liveActivity.setDescription(DESCRIPTION);
     liveActivity.setMetadata(metadata);
+    liveActivity.setName("Live " + activity.getName());
 
     return liveActivity;
   }
@@ -373,7 +374,7 @@ public class StandardInteractiveSpacesDomainClonerTest {
       SpaceController controller) {
     assertEquals(srcLiveActivity.getActivity(), clonedLiveActivity.getActivity());
     assertEquals(controller, clonedLiveActivity.getController());
-    assertEquals(CLONE_NAME_PREFIX + " " + srcLiveActivity.getActivity().getName(),
+    assertEquals(CLONE_NAME_PREFIX + " " + srcLiveActivity.getName(),
         clonedLiveActivity.getName());
     assertEquals(DESCRIPTION, clonedLiveActivity.getDescription());
     assertEquals(metadata, clonedLiveActivity.getMetadata());
