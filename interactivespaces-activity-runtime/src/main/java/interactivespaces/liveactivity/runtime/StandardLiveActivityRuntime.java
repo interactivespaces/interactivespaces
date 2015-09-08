@@ -296,13 +296,13 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
   @Override
   public void startupLiveActivity(String uuid) {
     try {
-      LiveActivityRunner runner = getLiveActivityRunnerByUuid(uuid, true);
-      if (runner != null) {
+      LiveActivityRunner liveActivityRunner = getLiveActivityRunnerByUuid(uuid, true);
+      if (liveActivityRunner != null) {
         getSpaceEnvironment().getExtendedLog().info(
-            String.format("Starting up live activity: %s", runner.getDisplayName()));
-        ActivityStatus status = runner.getCachedActivityStatus();
+            String.format("Starting up live activity: %s", liveActivityRunner.getDisplayName()));
+        ActivityStatus status = liveActivityRunner.getCachedActivityStatus();
         if (!status.getState().isRunning()) {
-          attemptActivityStartup(runner);
+          attemptActivityStartup(liveActivityRunner);
         } else {
           // The activity is running so just report what it is doing
           publishActivityStatus(uuid, status);
@@ -324,10 +324,11 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
   @Override
   public void shutdownLiveActivity(final String uuid) {
     try {
-      LiveActivityRunner runner = getLiveActivityRunnerByUuid(uuid, false);
-      if (runner != null) {
-        getSpaceEnvironment().getExtendedLog().formatInfo("Shutting down activity: %s", runner.getDisplayName());
-        attemptActivityShutdown(runner);
+      LiveActivityRunner liveActivityRunner = getLiveActivityRunnerByUuid(uuid, false);
+      if (liveActivityRunner != null) {
+        getSpaceEnvironment().getExtendedLog().formatInfo("Shutting down activity: %s",
+            liveActivityRunner.getDisplayName());
+        attemptActivityShutdown(liveActivityRunner);
       } else {
         // The activity hasn't been active. Make sure it really exists then
         // send that it is ready.
@@ -355,14 +356,14 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
 
   @Override
   public void statusLiveActivity(String uuid) {
-    LiveActivityRunner runner = getLiveActivityRunnerByUuid(uuid, false);
-    if (runner != null) {
-      getSpaceEnvironment().getExtendedLog()
-          .formatInfo("Getting status of live activity: %s", runner.getDisplayName());
-      final ActivityStatus activityStatus = runner.sampleActivityStatus();
+    LiveActivityRunner liveActivityRunner = getLiveActivityRunnerByUuid(uuid, false);
+    if (liveActivityRunner != null) {
+      getSpaceEnvironment().getExtendedLog().formatInfo("Getting status of live activity: %s",
+          liveActivityRunner.getDisplayName());
+      final ActivityStatus activityStatus = liveActivityRunner.sampleActivityStatus();
       getSpaceEnvironment().getExtendedLog().formatInfo("Reporting live activity status %s: %s", activityStatus,
-          runner.getDisplayName());
-      publishActivityStatus(runner.getUuid(), activityStatus);
+          liveActivityRunner.getDisplayName());
+      publishActivityStatus(liveActivityRunner.getUuid(), activityStatus);
     } else {
       InstalledLiveActivity liveActivity = liveActivityRepository.getInstalledLiveActivityByUuid(uuid);
       if (liveActivity != null) {
@@ -383,10 +384,11 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
   public void activateLiveActivity(String uuid) {
     try {
       // Can create since can immediately request activate
-      LiveActivityRunner runner = getLiveActivityRunnerByUuid(uuid, true);
-      if (runner != null) {
-        getSpaceEnvironment().getExtendedLog().formatInfo("Activating live activity: %s", runner.getDisplayName());
-        attemptActivityActivate(runner);
+      LiveActivityRunner liveActivityRunner = getLiveActivityRunnerByUuid(uuid, true);
+      if (liveActivityRunner != null) {
+        getSpaceEnvironment().getExtendedLog().formatInfo("Activating live activity: %s",
+            liveActivityRunner.getDisplayName());
+        attemptActivityActivate(liveActivityRunner);
       } else {
         getSpaceEnvironment().getExtendedLog().formatError(
             "Activation of live activity failed, does not exist on controller: %s", uuid);
@@ -405,11 +407,12 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
   @Override
   public void deactivateLiveActivity(String uuid) {
     try {
-      LiveActivityRunner runner = getLiveActivityRunnerByUuid(uuid, false);
-      if (runner != null) {
-        getSpaceEnvironment().getExtendedLog().formatInfo("Deactivating live activity: %s", runner.getDisplayName());
+      LiveActivityRunner liveActivityRunner = getLiveActivityRunnerByUuid(uuid, false);
+      if (liveActivityRunner != null) {
+        getSpaceEnvironment().getExtendedLog().formatInfo("Deactivating live activity: %s",
+            liveActivityRunner.getDisplayName());
 
-        attemptActivityDeactivate(runner);
+        attemptActivityDeactivate(liveActivityRunner);
       } else {
         getSpaceEnvironment().getExtendedLog().formatError(
             "Deactivation of live activity failed, does not exist on controller: %s", uuid);
@@ -428,11 +431,12 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
   @Override
   public void configureLiveActivity(String uuid, Map<String, String> configuration) {
     try {
-      LiveActivityRunner runner = getLiveActivityRunnerByUuid(uuid, true);
-      if (runner != null) {
-        getSpaceEnvironment().getExtendedLog().formatInfo("Configuring live activity: %s", runner.getDisplayName());
+      LiveActivityRunner liveActivityRunner = getLiveActivityRunnerByUuid(uuid, true);
+      if (liveActivityRunner != null) {
+        getSpaceEnvironment().getExtendedLog().formatInfo("Configuring live activity: %s",
+            liveActivityRunner.getDisplayName());
 
-        runner.updateConfiguration(configuration);
+        liveActivityRunner.updateConfiguration(configuration);
       } else {
         getSpaceEnvironment().getExtendedLog().formatError(
             "Configuration of live activity failed, does not exist on controller: %s", uuid);
@@ -450,16 +454,17 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
   @Override
   public void cleanLiveActivityTmpData(String uuid) {
     try {
-      LiveActivityRunner runner = getLiveActivityRunnerByUuid(uuid);
-      if (runner != null) {
-        if (!runner.getCachedActivityStatus().getState().isRunning()) {
+      LiveActivityRunner liveActivityRunner = getLiveActivityRunnerByUuid(uuid);
+      if (liveActivityRunner != null) {
+        if (!liveActivityRunner.getCachedActivityStatus().getState().isRunning()) {
           getSpaceEnvironment().getExtendedLog().formatInfo(
-              "Cleaning live activity tmp directory for live activity: %s", runner.getDisplayName());
+              "Cleaning live activity tmp directory for live activity: %s", liveActivityRunner.getDisplayName());
 
           liveActivityStorageManager.cleanTmpActivityDataDirectory(uuid);
         } else {
           getSpaceEnvironment().getExtendedLog().formatWarn(
-              "Ignoring attempt to clean activity tmp directory for a running activity: %s", runner.getDisplayName());
+              "Ignoring attempt to clean activity tmp directory for a running activity: %s",
+              liveActivityRunner.getDisplayName());
         }
       }
     } catch (Throwable e) {
@@ -473,17 +478,17 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
   @Override
   public void cleanLiveActivityPermanentData(String uuid) {
     try {
-      LiveActivityRunner runner = getLiveActivityRunnerByUuid(uuid);
-      if (runner != null) {
-        if (!runner.getCachedActivityStatus().getState().isRunning()) {
+      LiveActivityRunner liveActivityRunner = getLiveActivityRunnerByUuid(uuid);
+      if (liveActivityRunner != null) {
+        if (!liveActivityRunner.getCachedActivityStatus().getState().isRunning()) {
           getSpaceEnvironment().getExtendedLog().formatInfo(
-              "Cleaning activity permanent directory for live activity: %s", runner.getDisplayName());
+              "Cleaning activity permanent directory for live activity: %s", liveActivityRunner.getDisplayName());
 
           liveActivityStorageManager.cleanPermanentActivityDataDirectory(uuid);
         } else {
           getSpaceEnvironment().getExtendedLog().formatWarn(
               "Ignoring attempt to clean activity permanent data directory for a running live activity: %s",
-              runner.getDisplayName());
+              liveActivityRunner.getDisplayName());
         }
       }
     } catch (Throwable e) {
@@ -526,16 +531,18 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
   }
 
   @Override
-  public void onNoInstanceActivityStatusEvent(LiveActivityRunner runner) {
+  public void onNoInstanceActivityStatusEvent(LiveActivityRunner liveActivityRunner) {
     // The only thing that should come in here are errors
-    ActivityStatus status = runner.getCachedActivityStatus();
+    ActivityStatus status = liveActivityRunner.getCachedActivityStatus();
     if (status.getState().isError()) {
-      publishActivityStatus(runner.getUuid(), status);
-      alertStatusManager.announceLiveActivityStatus(runner);
+      publishActivityStatus(liveActivityRunner.getUuid(), status);
+      alertStatusManager.announceLiveActivityStatus(liveActivityRunner);
     } else {
-      getSpaceEnvironment().getExtendedLog().formatWarn(
-          "A live activity runner for live activity %s has a no instance status event that isn't an error: %s",
-          runner.getUuid(), status);
+      getSpaceEnvironment()
+          .getExtendedLog()
+          .formatWarn(
+              "A live activity liveActivityRunner for live activity %s has a no instance status event that isn't an error: %s",
+              liveActivityRunner.getUuid(), status);
     }
   }
 
@@ -601,8 +608,8 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
   @Override
   public boolean hasLiveActivitiesRunning() {
     synchronized (liveActivityRunners) {
-      for (LiveActivityRunner runner : liveActivityRunners.values()) {
-        if (isLiveActivityRunning(runner)) {
+      for (LiveActivityRunner liveActivityRunner : liveActivityRunners.values()) {
+        if (isLiveActivityRunning(liveActivityRunner)) {
           return true;
         }
       }
@@ -614,21 +621,21 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
   @Override
   public boolean isLiveActivityRunning(String uuid) {
     synchronized (liveActivityRunners) {
-      LiveActivityRunner runner = liveActivityRunners.get(uuid);
-      return runner != null && isLiveActivityRunning(runner);
+      LiveActivityRunner liveActivityRunner = liveActivityRunners.get(uuid);
+      return liveActivityRunner != null && isLiveActivityRunning(liveActivityRunner);
     }
   }
 
   /**
    * Is the given live activity runner running?
    *
-   * @param runner
+   * @param liveActivityRunner
    *          the runner to check
    *
    * @return {@code true} if the runner is officially running
    */
-  private boolean isLiveActivityRunning(LiveActivityRunner runner) {
-    ActivityState state = runner.getCachedActivityStatus().getState();
+  private boolean isLiveActivityRunning(LiveActivityRunner liveActivityRunner) {
+    ActivityState state = liveActivityRunner.getCachedActivityStatus().getState();
     return state.isRunning() || state.isTransitional();
   }
 
@@ -645,23 +652,23 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
    */
   @VisibleForTesting
   LiveActivityRunner getLiveActivityRunnerByUuid(String uuid, boolean create) {
-    LiveActivityRunner runner = null;
+    LiveActivityRunner liveActivityRunner = null;
     synchronized (liveActivityRunners) {
-      runner = liveActivityRunners.get(uuid);
-      if (runner == null && create) {
-        runner = newLiveActivityRunner(uuid);
+      liveActivityRunner = liveActivityRunners.get(uuid);
+      if (liveActivityRunner == null && create) {
+        liveActivityRunner = newLiveActivityRunner(uuid);
 
-        if (runner != null) {
-          addLiveActivityRunner(uuid, runner);
+        if (liveActivityRunner != null) {
+          addLiveActivityRunner(uuid, liveActivityRunner);
         }
       }
     }
 
-    if (runner == null) {
+    if (liveActivityRunner == null) {
       getSpaceEnvironment().getExtendedLog().formatWarn("Could not find live activity runner with uuid %s", uuid);
     }
 
-    return runner;
+    return liveActivityRunner;
   }
 
   /**
@@ -714,12 +721,12 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
    *
    * @param uuid
    *          uuid of the activity
-   * @param runner
+   * @param liveActivityRunner
    *          the live activity runner
    */
   @VisibleForTesting
-  void addLiveActivityRunner(String uuid, LiveActivityRunner runner) {
-    liveActivityRunners.put(uuid, runner);
+  void addLiveActivityRunner(String uuid, LiveActivityRunner liveActivityRunner) {
+    liveActivityRunners.put(uuid, liveActivityRunner);
   }
 
   /**
@@ -739,11 +746,11 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
           configurationManager.newLiveActivityConfiguration(liveActivity, activityFilesystem);
       activityConfiguration.load();
 
-      LiveActivityRunner runner =
+      LiveActivityRunner liveActivityRunner =
           liveActivityRunnerFactory.newLiveActivityRunner(liveActivity, activityFilesystem, activityConfiguration,
               this, this);
 
-      return runner;
+      return liveActivityRunner;
     } else {
       return null;
     }
@@ -752,37 +759,38 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
   /**
    * Make sure that the runner is not stale. if it is, create a new one.
    *
-   * @param runner
+   * @param liveActivityRunner
    *          the runner to check
    *
    * @return a runner for the activity that is not stale
    */
-  private LiveActivityRunner ensureRunnerNotStale(LiveActivityRunner runner) {
+  private LiveActivityRunner ensureRunnerNotStale(LiveActivityRunner liveActivityRunner) {
     synchronized (liveActivityRunners) {
-      if (runner.isStale()) {
-        String uuid = runner.getUuid();
-        runner = newLiveActivityRunner(uuid);
-        liveActivityRunners.put(uuid, runner);
+      if (liveActivityRunner.isStale()) {
+        String uuid = liveActivityRunner.getUuid();
+        liveActivityRunner = newLiveActivityRunner(uuid);
+        liveActivityRunners.put(uuid, liveActivityRunner);
       }
 
-      return runner;
+      return liveActivityRunner;
     }
   }
 
   /**
    * Start up an activity.
    *
-   * @param runner
+   * @param liveActivityRunner
    *          the runner for the live activity to start up
    */
-  private void attemptActivityStartup(LiveActivityRunner runner) {
-    String uuid = runner.getUuid();
+  private void attemptActivityStartup(LiveActivityRunner liveActivityRunner) {
+    String uuid = liveActivityRunner.getUuid();
     getSpaceEnvironment().getExtendedLog().formatInfo("Attempting startup of activity %s", uuid);
 
-    runner = ensureRunnerNotStale(runner);
+    liveActivityRunner = ensureRunnerNotStale(liveActivityRunner);
 
-    attemptActivityStateTransition(runner, ActivityStateTransition.STARTUP,
-        "Attempt to startup live activity %s which was running, sending RUNNING", runner.getCachedActivityStatus());
+    attemptActivityStateTransition(liveActivityRunner, ActivityStateTransition.STARTUP,
+        "Attempt to startup live activity %s which was running, sending RUNNING",
+        liveActivityRunner.getCachedActivityStatus());
   }
 
   /**
@@ -819,29 +827,37 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
    * <p>
    * This will start moving towards the goal.
    *
-   * @param runner
+   * @param liveActivityRunner
    *          the runner for the activity to go to startup
    */
   @SuppressWarnings("unchecked")
-  private void setupSequencedActivateTarget(LiveActivityRunner runner) {
-    runner = ensureRunnerNotStale(runner);
+  private void setupSequencedActivateTarget(LiveActivityRunner liveActivityRunner) {
+    liveActivityRunner = ensureRunnerNotStale(liveActivityRunner);
 
-    String uuid = runner.getUuid();
+    String uuid = liveActivityRunner.getUuid();
 
     SimpleGoalStateTransitioner<ActivityState, ActivityControl> transitioner =
-        new SimpleGoalStateTransitioner<ActivityState, ActivityControl>(runner, getSpaceEnvironment().getLog())
-            .addTransitions(ActivityStateTransition.STARTUP, ActivityStateTransition.ACTIVATE);
+        new SimpleGoalStateTransitioner<ActivityState, ActivityControl>(liveActivityRunner, getSpaceEnvironment()
+            .getLog()).addTransitions(ActivityStateTransition.STARTUP, ActivityStateTransition.ACTIVATE);
     activityStateTransitioners.addTransitioner(uuid, transitioner);
 
-    startupActivitySequence(runner, uuid);
+    startupActivitySequence(liveActivityRunner, uuid);
   }
 
-  private void startupActivitySequence(final LiveActivityRunner activity, final String uuid) {
+  /**
+   * Startup an activity sequence.
+   *
+   * @param liveActivityRunner
+   *          the runner for the live activity
+   * @param uuid
+   *          the UUID for the live activity
+   */
+  private void startupActivitySequence(final LiveActivityRunner liveActivityRunner, final String uuid) {
     // TODO(keith): Android hates garbage collection. This may need an object pool.
     eventQueue.addEvent(new Runnable() {
       @Override
       public void run() {
-        activityStateTransitioners.transition(uuid, activity.sampleActivityStatus().getState());
+        activityStateTransitioners.transition(uuid, liveActivityRunner.sampleActivityStatus().getState());
       }
     });
   }
@@ -861,7 +877,7 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
   /**
    * Attempt to do a state transition on an activity.
    *
-   * @param runner
+   * @param liveActivityRunner
    *          the runner for the activity
    * @param transition
    *          the transition to take place
@@ -872,22 +888,24 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
    *
    * @return {@code true} if the transition actually happened
    */
-  private boolean attemptActivityStateTransition(LiveActivityRunner runner,
+  private boolean attemptActivityStateTransition(LiveActivityRunner liveActivityRunner,
       SimpleGoalStateTransition<ActivityState, ActivityControl> transition, String noopMessage,
       ActivityStatus noopStatus) {
-    TransitionResult transitionResult = transition.attemptTransition(runner.sampleActivityStatus().getState(), runner);
+    TransitionResult transitionResult =
+        transition.attemptTransition(liveActivityRunner.sampleActivityStatus().getState(), liveActivityRunner);
 
     if (transitionResult == TransitionResult.OK) {
       return true;
     } else if (transitionResult == TransitionResult.ILLEGAL) {
-      reportIllegalActivityStateTransition(runner, transition);
+      reportIllegalActivityStateTransition(liveActivityRunner, transition);
     } else if (transitionResult == TransitionResult.NOOP) {
       // If didn't do anything, report the message requested.
-      getSpaceEnvironment().getExtendedLog().warn(String.format(noopMessage, runner.getUuid()));
-      publishActivityStatus(runner.getUuid(), noopStatus);
+      getSpaceEnvironment().getExtendedLog().warn(String.format(noopMessage, liveActivityRunner.getUuid()));
+      publishActivityStatus(liveActivityRunner.getUuid(), noopStatus);
     } else {
       getSpaceEnvironment().getExtendedLog().formatWarn(
-          "Unexpected activity state transition %s for live activity %s", transitionResult, runner.getUuid());
+          "Unexpected activity state transition %s for live activity %s", transitionResult,
+          liveActivityRunner.getUuid());
     }
 
     return false;
@@ -942,9 +960,9 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
    */
   private void handleActivityInstall(String uuid) {
     synchronized (liveActivityRunners) {
-      LiveActivityRunner runner = liveActivityRunners.get(uuid);
-      if (runner != null) {
-        runner.markStale();
+      LiveActivityRunner liveActivityRunner = liveActivityRunners.get(uuid);
+      if (liveActivityRunner != null) {
+        liveActivityRunner.markStale();
       }
     }
   }
