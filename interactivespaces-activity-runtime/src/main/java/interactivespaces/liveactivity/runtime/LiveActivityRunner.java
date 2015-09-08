@@ -111,4 +111,20 @@ public interface LiveActivityRunner extends ActivityControl {
    * @return the display name
    */
   String getDisplayName();
+
+  /**
+   * Mark the live activity runner as stale.
+   *
+   * <p>
+   * "Stale" implies that the live activity underlying the runner has changed and the runner has potentially wrong
+   * information.
+   */
+  void markStale();
+
+  /**
+   * Is the live activity runner stale?
+   *
+   * @return {@code true} if stale
+   */
+  boolean isStale();
 }

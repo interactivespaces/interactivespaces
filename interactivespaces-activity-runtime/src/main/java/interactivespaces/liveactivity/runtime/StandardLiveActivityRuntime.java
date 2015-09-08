@@ -750,17 +750,39 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
   }
 
   /**
+   * Make sure that the runner is not stale. if it is, create a new one.
+   *
+   * @param runner
+   *          the runner to check
+   *
+   * @return a runner for the activity that is not stale
+   */
+  private LiveActivityRunner ensureRunnerNotStale(LiveActivityRunner runner) {
+    synchronized (liveActivityRunners) {
+      if (runner.isStale()) {
+        String uuid = runner.getUuid();
+        runner = newLiveActivityRunner(uuid);
+        liveActivityRunners.put(uuid, runner);
+      }
+
+      return runner;
+    }
+  }
+
+  /**
    * Start up an activity.
    *
-   * @param activity
-   *          the activity to start up
+   * @param runner
+   *          the runner for the live activity to start up
    */
-  private void attemptActivityStartup(LiveActivityRunner activity) {
-    String uuid = activity.getUuid();
+  private void attemptActivityStartup(LiveActivityRunner runner) {
+    String uuid = runner.getUuid();
     getSpaceEnvironment().getExtendedLog().formatInfo("Attempting startup of activity %s", uuid);
 
-    attemptActivityStateTransition(activity, ActivityStateTransition.STARTUP,
-        "Attempt to startup live activity %s which was running, sending RUNNING", activity.getCachedActivityStatus());
+    runner = ensureRunnerNotStale(runner);
+
+    attemptActivityStateTransition(runner, ActivityStateTransition.STARTUP,
+        "Attempt to startup live activity %s which was running, sending RUNNING", runner.getCachedActivityStatus());
   }
 
   /**
@@ -783,7 +805,7 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
    */
   private void attemptActivityActivate(LiveActivityRunner activity) {
     if (ActivityStateTransition.STARTUP.canTransition(activity.sampleActivityStatus().getState()) == TransitionResult.OK) {
-      setupSequencedActiveTarget(activity);
+      setupSequencedActivateTarget(activity);
     } else {
       attemptActivityStateTransition(activity, ActivityStateTransition.ACTIVATE,
           "Attempt to activate live activity %s which was activated, sending ACTIVE",
@@ -797,18 +819,24 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
    * <p>
    * This will start moving towards the goal.
    *
-   * @param activity
-   *          the activity to go to startup
+   * @param runner
+   *          the runner for the activity to go to startup
    */
   @SuppressWarnings("unchecked")
-  private void setupSequencedActiveTarget(final LiveActivityRunner activity) {
-    final String uuid = activity.getUuid();
+  private void setupSequencedActivateTarget(LiveActivityRunner runner) {
+    runner = ensureRunnerNotStale(runner);
+
+    String uuid = runner.getUuid();
 
     SimpleGoalStateTransitioner<ActivityState, ActivityControl> transitioner =
-        new SimpleGoalStateTransitioner<ActivityState, ActivityControl>(activity, getSpaceEnvironment().getLog())
+        new SimpleGoalStateTransitioner<ActivityState, ActivityControl>(runner, getSpaceEnvironment().getLog())
             .addTransitions(ActivityStateTransition.STARTUP, ActivityStateTransition.ACTIVATE);
     activityStateTransitioners.addTransitioner(uuid, transitioner);
 
+    startupActivitySequence(runner, uuid);
+  }
+
+  private void startupActivitySequence(final LiveActivityRunner activity, final String uuid) {
     // TODO(keith): Android hates garbage collection. This may need an object pool.
     eventQueue.addEvent(new Runnable() {
       @Override
@@ -913,7 +941,12 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
    *          UUID of the installed activity.
    */
   private void handleActivityInstall(String uuid) {
-    // Nothing to do right now
+    synchronized (liveActivityRunners) {
+      LiveActivityRunner runner = liveActivityRunners.get(uuid);
+      if (runner != null) {
+        runner.markStale();
+      }
+    }
   }
 
   /**

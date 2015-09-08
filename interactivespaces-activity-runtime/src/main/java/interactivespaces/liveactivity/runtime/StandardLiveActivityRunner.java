@@ -101,6 +101,11 @@ public class StandardLiveActivityRunner implements LiveActivityRunner {
   private InstanceLockState instanceLockState;
 
   /**
+   * {@code true} if the runner is stale.
+   */
+  private boolean stale;
+
+  /**
    * Construct a new active activity.
    *
    * @param installedActivity
@@ -374,6 +379,16 @@ public class StandardLiveActivityRunner implements LiveActivityRunner {
   @VisibleForTesting
   public ActivityWrapper getActivityWrapper() {
     return activityWrapper;
+  }
+
+  @Override
+  public void markStale() {
+    stale = true;
+  }
+
+  @Override
+  public boolean isStale() {
+    return stale;
   }
 
   /**
