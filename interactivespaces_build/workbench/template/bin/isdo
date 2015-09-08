@@ -453,7 +453,7 @@ class Command:
       print_error('No files provided for command {}'.format(self.__class__.__name__), fatal=fatal)
 
   def validate_has_builds(self, fatal=True):
-    if not self.config.built_files and not self.config.zip_generated:
+    if not self.config.built_files and not self.config.zips:
       print_error('No project zip files provided for command {}'.format(self.__class__.__name__), fatal=fatal)
 
   def validate_has_controller(self, fatal=True):
@@ -492,7 +492,9 @@ class BuildCommand(Command):
 
   def validate(self, *args, **kwargs):
     self.validate_has_projects()
-    self.config.zip_generated = True
+    if self.config.zips:
+      print_fatal('You can only use --build or --zip, not both!')
+    self.config.zips = True
 
   def requires_server(self):
     return False
