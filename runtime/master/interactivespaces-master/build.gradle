@@ -18,8 +18,8 @@ dependencies {
 
   compile project(':interactivespaces-core')
   compile project(':interactivespaces-system')
-  compile project(':interactivespaces-master-controller')
-  compile project(':interactivespaces-database')
+  compile project(':runtime:common:interactivespaces-master-controller')
+  compile project(':runtime:master:interactivespaces-database')
   compile project(':service:interactivespaces-service-alert')
   compile project(':service:interactivespaces-service-script')
   compile project(':service:interactivespaces-service-scheduler')

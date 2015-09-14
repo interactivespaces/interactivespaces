@@ -28,13 +28,13 @@ configurations {
 dependencies {
   izpack 'org.codehaus.izpack:izpack-standalone-compiler:4.3.5'
 
-  bootstrap project(":interactivespaces-master")
+  bootstrap project(":runtime:master:interactivespaces-master")
 
   bootstrap project(":service:interactivespaces-service-script")
   bootstrap project(":service:interactivespaces-service-scheduler")
   bootstrap project(":service:interactivespaces-service-alert-notifier-mail")
 
-  bootstrap project(":interactivespaces-master-webapp")
+  bootstrap project(":runtime:master:interactivespaces-master-webapp")
 
   bootstrap 'org.apache.felix:org.apache.felix.gogo.shell:0.10.0'
   

@@ -33,9 +33,9 @@ configurations {
 dependencies {
   izpack 'org.codehaus.izpack:izpack-standalone-compiler:4.3.5'
 
-  bootstrap project(":interactivespaces-controller")
+  bootstrap project(":runtime:activity:interactivespaces-space-controller")
 
-  bootstrap project(":interactivespaces-activity-wrapper-script")
+  bootstrap project(":runtime:activity:interactivespaces-activity-wrapper-script")
 
   bootstrap project(":service:interactivespaces-service-script")
   bootstrap project(":service:interactivespaces-service-scheduler")
@@ -74,7 +74,7 @@ dependencies {
 
   extrasSupport('com.nativelibs4java:bridj:0.7.0') { exclude module: 'dx' }
 
-  extrasDevStandalone project(':interactivespaces-activity-runtime-standalone')
+  extrasDevStandalone project(':runtime:activity:interactivespaces-activity-runtime-standalone')
 }
 
 task cleanContainers(type: Exec) {

@@ -23,14 +23,13 @@ configurations {
   bootstrap
   system
   launcher
-//  extrasAndroid
   extrasTesting
 }
 
 dependencies {
   izpack 'org.codehaus.izpack:izpack-standalone-compiler:4.3.5'
 
-  bootstrap project(":interactivespaces-workbench")
+  bootstrap project(":workbench:interactivespaces-workbench")
 
   system 'org.apache.commons:com.springsource.org.apache.commons.logging:1.1.1'
   system 'org.apache.log4j:com.springsource.org.apache.log4j:1.2.16'
@@ -40,8 +39,7 @@ dependencies {
 
   launcher project(':interactivespaces-launcher')
 
-//  extrasAndroid project(':service:interactivespaces-service-androidos')
-  extrasTesting project(':interactivespaces-workbench-testing')
+  extrasTesting project(':workbench:interactivespaces-workbench-testing')
 }
 
 task cleanContainers(type: Exec) {
@@ -72,13 +70,6 @@ task copyExamples(type:Copy) {
 }
 
 task copyNeededComponents(dependsOn: [copyCore, copyExamples])
-
-/*
-task copyContainerDependenciesExtrasAndroid(type: Copy) {
-  into "${project.ext.containerBuildTarget}/extras/android"
-  from configurations.extrasAndroid - configurations.bootstrap
-}
-*/
 
 task copyContainerDependenciesExtrasTesting(type: Copy) {
   into "${project.ext.containerBuildTarget}/extras/testing"

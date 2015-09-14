@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 Google Inc.
+ * Copyright (C) 2012 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,33 +14,30 @@
  */
 
 dependencies {
-  compile project(':interactivespaces-core')
   compile project(':interactivespaces-system')
-  compile project(':interactivespaces-activity-runtime')
+  compile project(':runtime:activity:interactivespaces-activity-runtime')
+  compile project(':service:interactivespaces-service-script')
 
   provided 'org.apache.felix:org.apache.felix.framework:5.0.0'
 
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.9.5'
-  testCompile 'org.apache.felix:org.apache.felix.framework:5.0.0'
 }
 
 jar {
   manifest {
     version = osgiVersion
-    symbolicName = 'interactivespaces.activity.runtime.standalone'
+    symbolicName = 'interactivespaces.controller.activity.wrapper.script'
 
     instruction 'Bundle-Activator',
-        'interactivespaces.liveactivity.runtime.standalone.osgi.StandaloneBundleActivator'
-
-    instruction 'InteractiveSpaces-StartLevel',
-        'STARTUP_LEVEL_LAST'
+        'interactivespaces.controller.activity.wrapper.internal.script.osgi.OsgiScriptActivityWrapperActivator'
 
     instruction 'Export-Package',
         'interactivespaces.*'
 
     instruction 'Import-Package',
         'org.apache.commons.logging.impl',
+        'org.apache.felix.service.command;status=provisional',
         'interactivespaces.evaluation',
         '*'
   }

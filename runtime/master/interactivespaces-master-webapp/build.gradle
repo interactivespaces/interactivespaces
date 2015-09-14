@@ -15,9 +15,9 @@
  
 dependencies {
   compile project(':interactivespaces-core')
-  compile project(':interactivespaces-master')
+  compile project(':runtime:master:interactivespaces-master')
 
-  runtime project(':interactivespaces-database')
+  runtime project(':runtime:master:interactivespaces-database')
 
   compile('org.springframework:spring-web:3.1.1.RELEASE') {
     exclude group: 'commons-logging' 

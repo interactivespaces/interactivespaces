@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2012 Google Inc.
+ * Copyright (C) 2015 Google Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,17 +14,12 @@
  */
 
 dependencies {
-  compile project(':rosjava:rosjava_osgi_node')
-
   compile project(':interactivespaces-core')
   compile project(':interactivespaces-system')
-  compile project(':interactivespaces-activity-runtime')
-  compile project(':interactivespaces-master-controller')
-  
-  runtime 'org.apache.felix:org.apache.felix.configadmin:1.2.8'
-                  
+  compile project(':runtime:activity:interactivespaces-activity-runtime')
+
   provided 'org.apache.felix:org.apache.felix.framework:5.0.0'
-  
+
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.9.5'
   testCompile 'org.apache.felix:org.apache.felix.framework:5.0.0'
@@ -33,19 +28,21 @@ dependencies {
 jar {
   manifest {
     version = osgiVersion
-    symbolicName = 'interactivespaces.controller'
-	
-	instruction 'Bundle-Activator',
-		'interactivespaces.controller.runtime.internal.osgi.OsgiControllerActivator'
+    symbolicName = 'interactivespaces.activity.runtime.standalone'
+
+    instruction 'Bundle-Activator',
+        'interactivespaces.liveactivity.runtime.standalone.osgi.StandaloneBundleActivator'
+
+    instruction 'InteractiveSpaces-StartLevel',
+        'STARTUP_LEVEL_LAST'
 
     instruction 'Export-Package',
-		'interactivespaces.*'
-		
+        'interactivespaces.*'
+
     instruction 'Import-Package',
-		'org.apache.commons.logging.impl',
-		//'org.apache.felix.service.command;status=provisional',
-		'interactivespaces.evaluation',
-		'*'
+        'org.apache.commons.logging.impl',
+        'interactivespaces.evaluation',
+        '*'
   }
 }
 
