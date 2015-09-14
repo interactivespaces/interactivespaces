@@ -54,6 +54,7 @@ allprojects {
     containerBuildTarget = 'build/staging'
 
     nonjavaProjects = [ 
+      'rosjava',
       'interactivespaces_docs', 
       'interactivespaces-controller-android', 
       'service',

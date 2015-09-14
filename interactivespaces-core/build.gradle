@@ -14,7 +14,7 @@
  */
 
 dependencies {
-  compile project(':rosjava_osgi')
+  compile project(':rosjava:rosjava_osgi')
   compile project(':interactivespaces-bootstrap-core')
 
   compile('com.google.guava:guava:18.0') {

@@ -14,38 +14,21 @@
  */
 
 dependencies {
-  compile project(':rosjava:rosjava_osgi_node')
-
-  compile project(':interactivespaces-core')
-  compile project(':interactivespaces-system')
-  compile project(':interactivespaces-activity-runtime')
-  compile project(':interactivespaces-master-controller')
+  compile project(':rosjava:rosjava_osgi')
   
-  runtime 'org.apache.felix:org.apache.felix.configadmin:1.2.8'
-                  
   provided 'org.apache.felix:org.apache.felix.framework:5.0.0'
-  
+
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.9.5'
-  testCompile 'org.apache.felix:org.apache.felix.framework:5.0.0'
 }
 
 jar {
   manifest {
     version = osgiVersion
-    symbolicName = 'interactivespaces.controller'
-	
-	instruction 'Bundle-Activator',
-		'interactivespaces.controller.runtime.internal.osgi.OsgiControllerActivator'
+    symbolicName = 'org.ros.osgi.master'
 
     instruction 'Export-Package',
-		'interactivespaces.*'
-		
-    instruction 'Import-Package',
-		'org.apache.commons.logging.impl',
-		//'org.apache.felix.service.command;status=provisional',
-		'interactivespaces.evaluation',
-		'*'
-  }
+        'org.ros.osgi.master.*'
+ }
 }
 
