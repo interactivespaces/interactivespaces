@@ -36,6 +36,8 @@ dependencies {
   bootstrap project(":runtime:activity:interactivespaces-space-controller")
 
   bootstrap project(":runtime:activity:interactivespaces-activity-wrapper-script")
+  
+  bootstrap project(":activityapi:interactivespaces-interaction")
 
   bootstrap project(":service:interactivespaces-service-script")
   bootstrap project(":service:interactivespaces-service-scheduler")
@@ -47,7 +49,6 @@ dependencies {
   bootstrap project(":service:interactivespaces-service-mail-receiver")
   bootstrap project(":service:interactivespaces-service-mail-sender")
   bootstrap project(":service:interactivespaces-service-template")
-  bootstrap project(":interactivespaces-interaction")
 
   bootstrap 'org.apache.felix:org.apache.felix.gogo.shell:0.10.0'
 

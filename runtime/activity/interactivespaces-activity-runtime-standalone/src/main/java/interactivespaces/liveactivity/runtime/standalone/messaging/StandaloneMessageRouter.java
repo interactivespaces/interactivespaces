@@ -18,12 +18,12 @@ package interactivespaces.liveactivity.runtime.standalone.messaging;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.activity.SupportedActivity;
 import interactivespaces.activity.component.ros.RosActivityComponent;
 import interactivespaces.activity.component.route.MessageRouterSupportedMessageTypes;
 import interactivespaces.activity.component.route.RoutableInputMessageListener;
 import interactivespaces.activity.component.route.ros.BaseRosMessageRouterActivityComponent;
 import interactivespaces.activity.component.route.ros.RosMessageRouterActivityComponent;
+import interactivespaces.activity.impl.SupportedActivity;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.liveactivity.runtime.standalone.development.DevelopmentStandaloneLiveActivityRuntime;
 import interactivespaces.liveactivity.runtime.standalone.messaging.MessageUtils.MessageMap;

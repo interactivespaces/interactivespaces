@@ -24,9 +24,8 @@ import interactivespaces.workbench.project.ProjectConfigurationProperty;
 import interactivespaces.workbench.project.activity.type.ProjectType;
 import interactivespaces.workbench.project.java.JavaProjectType;
 
-import com.google.common.collect.Lists;
-
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -84,12 +83,12 @@ public class ActivityProject extends Project {
   /**
    * Extra configuration parameters for the activity.
    */
-  private final List<SimpleConfigurationParameter> extraConfigurationParameters = Lists.newArrayList();
+  private final List<SimpleConfigurationParameter> extraConfigurationParameters = new ArrayList<>();
 
   /**
    * Configuration properties for the activity.
    */
-  private final List<ProjectConfigurationProperty> configurationProperties = Lists.newArrayList();
+  private final List<ProjectConfigurationProperty> configurationProperties = new ArrayList<>();
 
   /**
    * The file support to use.

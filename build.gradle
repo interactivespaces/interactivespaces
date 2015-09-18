@@ -53,18 +53,27 @@ allprojects {
     // When building the containers, where do we build?
     containerBuildTarget = 'build/staging'
 
+    // Project paths of non-Java projects
     nonjavaProjects = [ 
-      'rosjava',
-      'common',
-      'runtime',
-      'activity',
-      'interactivespaces_docs', 
-      'service',
-      'interactivespaces_build', 
-      'master', 'controller', 'workbench'
+      ':rosjava',
+      ':common',
+      ':runtime',
+      ':runtime:common',
+      ':runtime:master',
+      ':runtime:activity',
+      ':activityapi',
+      ':workbench',
+      ':service',
+      ':interactivespaces_docs', 
+      ':interactivespaces_build',   
+      ':interactivespaces_build:master',
+      ':interactivespaces_build:controller',
+      ':interactivespaces_build:workbench'
     ]
 
-    javaProjects = rootProject.subprojects.findResults { (!nonjavaProjects.contains(it.name)) ? it : null }
+    javaProjects = rootProject.subprojects.findResults {
+      (!nonjavaProjects.contains(it.path)) ? it : null
+    }
 
     if (project.hasProperty("buildTypeProp")) {
       buildType = project.buildTypeProp
@@ -104,7 +113,7 @@ subprojects {
     extrasBuildFolder = "build/staging/controller/extras"
   }
 
-  if (!ext.nonjavaProjects.contains(name)) {
+  if (!ext.nonjavaProjects.contains(path)) {
     apply plugin: 'java'
     apply plugin: 'maven'
     apply plugin: 'eclipse'

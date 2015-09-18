@@ -15,7 +15,10 @@
 
 dependencies {
   compile project(':interactivespaces-core')
+  compile project(':interactivespaces-domain')
   compile project(':interactivespaces-system')
+
+  compile project(':activityapi:interactivespaces-activity-core')
 
   testCompile 'junit:junit:4.8.2'
   testCompile 'org.mockito:mockito-all:1.9.5'

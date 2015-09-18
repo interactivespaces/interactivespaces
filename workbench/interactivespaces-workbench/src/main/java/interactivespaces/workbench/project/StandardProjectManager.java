@@ -16,16 +16,10 @@
 
 package interactivespaces.workbench.project;
 
-import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.domain.support.ActivityDescription;
-import interactivespaces.domain.support.ActivityDescriptionReader;
-import interactivespaces.domain.support.JdomActivityDescriptionReader;
-import interactivespaces.resource.Version;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.workbench.InteractiveSpacesWorkbench;
-import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.project.jdom.JdomProjectReader;
 import interactivespaces.workbench.project.source.SimpleSource;
 import interactivespaces.workbench.project.source.Source;
@@ -33,7 +27,6 @@ import interactivespaces.workbench.project.source.Source;
 import org.apache.commons.logging.Log;
 
 import java.io.File;
-import java.io.FileInputStream;
 
 /**
  * A basic {@link ProjectManager}.
@@ -74,11 +67,7 @@ public class StandardProjectManager implements ProjectManager {
 
   @Override
   public boolean isProjectFolder(File baseDir) {
-    File projectFile = getProjectFile(baseDir);
-    if (projectFile.exists()) {
-      return true;
-    }
-    return getActivityProjectFile(baseDir).exists();
+    return getProjectFile(baseDir).exists();
   }
 
   @Override
@@ -86,11 +75,6 @@ public class StandardProjectManager implements ProjectManager {
     File projectFile = getProjectFile(baseProjectDir);
     if (projectFile.exists()) {
       return readProjectFile(projectFile, log);
-    }
-
-    File activityFile = getActivityProjectFile(baseProjectDir);
-    if (activityFile.exists()) {
-      return convertActivity(activityFile);
     }
 
     throw new SimpleInteractiveSpacesException(String.format(
@@ -125,39 +109,6 @@ public class StandardProjectManager implements ProjectManager {
     project.getConfiguration().setParent(workbench.getWorkbenchConfig());
   }
 
-  /**
-   * Get an activity file and convert it to a project.
-   *
-   * @param activityFile
-   *          the activity file
-   *
-   * @return the project
-   */
-  private Project convertActivity(File activityFile) {
-    ActivityDescriptionReader reader = new JdomActivityDescriptionReader();
-    FileInputStream activityDescriptionStream = null;
-    try {
-      activityDescriptionStream = new FileInputStream(activityFile);
-      ActivityDescription activity = reader.readDescription(activityDescriptionStream);
-
-      Project project = new ActivityProject();
-      project.setBaseDirectory(activityFile.getParentFile());
-      project.setName(activity.getName());
-      project.setDescription(activity.getDescription());
-      project.setBuilderType(activity.getBuilderType());
-      project.setIdentifyingName(activity.getIdentifyingName());
-      project.setVersion(Version.parseVersion(activity.getVersion()));
-      project.setType(ActivityProject.PROJECT_TYPE_NAME);
-
-      postProcessProject(project);
-
-      return project;
-    } catch (Exception e) {
-      throw new InteractiveSpacesException(String.format("Cannot read activity description file %s",
-          activityFile.getAbsolutePath()), e);
-    }
-  }
-
   @Override
   public Source getProjectXmlSource(Project project) {
     Source source = new SimpleSource();
@@ -184,17 +135,5 @@ public class StandardProjectManager implements ProjectManager {
    */
   private File getProjectFile(File baseDir) {
     return fileSupport.newFile(baseDir, FILE_NAME_PROJECT);
-  }
-
-  /**
-   * Get the activity description file from the base project folder.
-   *
-   * @param baseDir
-   *          the base project folder
-   *
-   * @return the file for the project file
-   */
-  private File getActivityProjectFile(File baseDir) {
-    return fileSupport.newFile(baseDir, FILE_NAME_ACTIVITY);
   }
 }

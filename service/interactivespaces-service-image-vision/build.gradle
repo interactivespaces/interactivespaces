@@ -21,7 +21,7 @@ ext {
 dependencies {
   compile project(':interactivespaces-core')
   compile project(':interactivespaces-system')
-  compile project(':interactivespaces-interaction')
+  compile project(':activityapi:interactivespaces-interaction')
 
   provided 'org.apache.felix:org.apache.felix.framework:5.0.0'
 

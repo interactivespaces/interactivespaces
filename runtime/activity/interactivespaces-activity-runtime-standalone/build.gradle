@@ -15,6 +15,7 @@
 
 dependencies {
   compile project(':interactivespaces-core')
+  compile project(':interactivespaces-domain')
   compile project(':interactivespaces-system')
   compile project(':runtime:activity:interactivespaces-activity-runtime')
 

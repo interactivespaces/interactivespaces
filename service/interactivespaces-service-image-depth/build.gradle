@@ -21,7 +21,7 @@ ext {
 dependencies {
   compile project(':interactivespaces-core')
   compile project(':interactivespaces-system')
-  compile project(':interactivespaces-interaction')
+  compile project(':activityapi:interactivespaces-interaction')
   compile project(':service:interactivespaces-service-image-depth-openni2')
 
   compile('com.nativelibs4java:bridj:0.7.0') { exclude module: 'dx'  }

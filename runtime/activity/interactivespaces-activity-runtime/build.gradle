@@ -17,6 +17,8 @@ dependencies {
   compile project(':interactivespaces-core')
   compile project(':interactivespaces-system')
   
+  compile project(':runtime:common:interactivespaces-master-controller')
+ 
   provided 'org.apache.felix:org.apache.felix.framework:5.0.0'
   
   testCompile 'junit:junit:4.8.2'

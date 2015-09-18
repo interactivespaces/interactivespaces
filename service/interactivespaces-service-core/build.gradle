@@ -16,6 +16,8 @@
 dependencies {
   compile project(':interactivespaces-core')
   compile project(':interactivespaces-system')
+
+  compile project(':activityapi:interactivespaces-activity-core')
   
   runtime 'org.apache.servicemix.bundles:org.apache.servicemix.bundles.rome:1.0_1'
 

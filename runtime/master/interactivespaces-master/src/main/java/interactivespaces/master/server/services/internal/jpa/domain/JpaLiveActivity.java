@@ -211,8 +211,10 @@ public class JpaLiveActivity implements LiveActivity {
   }
 
   @Override
-  public void setConfiguration(ActivityConfiguration configuration) {
+  public LiveActivity setConfiguration(ActivityConfiguration configuration) {
     this.configuration = (JpaActivityConfiguration) configuration;
+
+    return this;
   }
 
   @Override
@@ -221,8 +223,10 @@ public class JpaLiveActivity implements LiveActivity {
   }
 
   @Override
-  public void setLastDeployDate(Date lastDeployDate) {
+  public LiveActivity setLastDeployDate(Date lastDeployDate) {
     this.lastDeployDate = lastDeployDate;
+
+    return this;
   }
 
   @Override
@@ -237,8 +241,7 @@ public class JpaLiveActivity implements LiveActivity {
   }
 
   @Override
-  public void setMetadata(Map<String, Object> m) {
-
+  public LiveActivity setMetadata(Map<String, Object> m) {
     synchronized (metadata) {
       metadata.clear();
 
@@ -247,6 +250,8 @@ public class JpaLiveActivity implements LiveActivity {
             .toString()));
       }
     }
+
+    return this;
   }
 
   @Override

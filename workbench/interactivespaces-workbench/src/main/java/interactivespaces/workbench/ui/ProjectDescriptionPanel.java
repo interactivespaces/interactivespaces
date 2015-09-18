@@ -16,11 +16,11 @@
 
 package interactivespaces.workbench.ui;
 
-import interactivespaces.domain.support.ActivityIdentifyingNameValidator;
+import interactivespaces.domain.support.IdentifyingNameValidator;
 import interactivespaces.domain.support.DomainValidationResult;
+import interactivespaces.domain.support.VersionValidator;
 import interactivespaces.domain.support.DomainValidationResult.DomainValidationResultType;
 import interactivespaces.resource.Version;
-import interactivespaces.resource.VersionValidator;
 import interactivespaces.workbench.project.Project;
 import interactivespaces.workbench.project.activity.ActivityProject;
 import interactivespaces.workbench.ui.validation.ValidationMessageDisplay;
@@ -84,7 +84,7 @@ public class ProjectDescriptionPanel extends JPanel {
   /**
    * The validator for identifying names.
    */
-  private final ActivityIdentifyingNameValidator identifyingNameValidator;
+  private final IdentifyingNameValidator identifyingNameValidator;
 
   /**
    * The validator for version numbers.
@@ -174,7 +174,7 @@ public class ProjectDescriptionPanel extends JPanel {
     projectVersionInput.addKeyListener(verifyingKeyListener);
     add(projectVersionInput, gbc);
 
-    identifyingNameValidator = new ActivityIdentifyingNameValidator();
+    identifyingNameValidator = new IdentifyingNameValidator();
     versionValidator = new VersionValidator();
   }
 

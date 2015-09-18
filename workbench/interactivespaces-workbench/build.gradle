@@ -13,11 +13,9 @@
  * the License.
  */
 
-import com.sun.java.util.jar.pack.Instruction;
-
 dependencies {
   compile project(':interactivespaces-core')
-  //compile project(':interactivespaces-controller')
+  compile project(':interactivespaces-domain')
 
   compile 'org.apache.felix:org.apache.felix.framework:5.0.0'
   
