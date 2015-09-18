@@ -236,6 +236,8 @@ def parse_command_line(arguments):
   config.commands = {}
   config.live_activity_generated = False
   config.activity_generated = False
+  
+  build_or_zip = False
 
   while arguments:
     argument = arguments.pop(0)
@@ -294,9 +296,11 @@ def parse_command_line(arguments):
       config.all = True
 
     elif argument in ['--zip', '-z']:
+      build_or_zip = True
       config.zips.append(arguments.pop(0))
 
     elif argument in ['--build', '-b']:
+      build_or_zip = True
       config.commands[BuildCommand] = BuildCommand()
 
     elif argument in ['--shutdown', '-s']:
@@ -377,6 +381,12 @@ def parse_command_line(arguments):
       config.folders.append(arguments.pop(0))
     else:
       config.folders.append(argument)
+
+  if not config.folders:
+    config.folders.append(os.getcwd())
+
+  if not build_or_zip:
+    config.zips.extend(config.folders)
 
   config.known_controllers = {}
   config.known_activities = {}
