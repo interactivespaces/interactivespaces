@@ -14,10 +14,9 @@
  * the License.
  */
 
-package interactivespaces.activity.impl;
+package interactivespaces.activity;
 
 import interactivespaces.InteractiveSpacesException;
-import interactivespaces.activity.Activity;
 import interactivespaces.activity.annotation.ConfigurationPropertyAnnotationProcessor;
 import interactivespaces.activity.component.ActivityComponent;
 import interactivespaces.util.concurrency.ManagedCommands;

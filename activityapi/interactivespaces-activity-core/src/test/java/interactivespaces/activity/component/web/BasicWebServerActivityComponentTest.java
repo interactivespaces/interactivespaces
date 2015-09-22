@@ -16,8 +16,8 @@
 
 package interactivespaces.activity.component.web;
 
+import interactivespaces.activity.SupportedActivity;
 import interactivespaces.activity.component.ActivityComponentContext;
-import interactivespaces.activity.impl.SupportedActivity;
 import interactivespaces.service.web.server.WebServerWebSocketHandler;
 
 import org.apache.commons.logging.Log;

@@ -17,7 +17,7 @@
 package interactivespaces.activity.ros;
 
 import interactivespaces.activity.Activity;
-import interactivespaces.activity.impl.SupportedActivity;
+import interactivespaces.activity.SupportedActivity;
 
 import org.ros.node.ConnectedNode;
 import org.ros.osgi.common.RosEnvironment;

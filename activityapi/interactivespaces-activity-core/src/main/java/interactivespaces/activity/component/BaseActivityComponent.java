@@ -16,9 +16,9 @@
 
 package interactivespaces.activity.component;
 
+import interactivespaces.activity.SupportedActivity;
 import interactivespaces.activity.execution.ActivityExecutionContext;
 import interactivespaces.activity.execution.ActivityMethodInvocation;
-import interactivespaces.activity.impl.SupportedActivity;
 import interactivespaces.configuration.Configuration;
 
 import com.google.common.collect.ImmutableList;

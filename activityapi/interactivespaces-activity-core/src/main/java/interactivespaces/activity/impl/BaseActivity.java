@@ -19,6 +19,7 @@ package interactivespaces.activity.impl;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivityState;
+import interactivespaces.activity.SupportedActivity;
 import interactivespaces.activity.annotation.ConfigurationPropertyAnnotationProcessor;
 import interactivespaces.activity.annotation.StandardConfigurationPropertyAnnotationProcessor;
 import interactivespaces.activity.component.ActivityComponent;

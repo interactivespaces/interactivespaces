@@ -18,7 +18,7 @@ package interactivespaces.activity.component;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
-import interactivespaces.activity.impl.SupportedActivity;
+import interactivespaces.activity.SupportedActivity;
 import interactivespaces.util.InteractiveSpacesUtilities;
 import interactivespaces.util.graph.DependencyResolver;
 

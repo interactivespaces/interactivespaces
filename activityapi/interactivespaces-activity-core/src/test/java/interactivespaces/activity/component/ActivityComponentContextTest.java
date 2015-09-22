@@ -16,7 +16,7 @@
 
 package interactivespaces.activity.component;
 
-import interactivespaces.activity.impl.SupportedActivity;
+import interactivespaces.activity.SupportedActivity;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.util.InteractiveSpacesUtilities;
 
