@@ -18,12 +18,12 @@ package interactivespaces.liveactivity.runtime.standalone.messaging;
 
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.activity.SupportedActivity;
 import interactivespaces.activity.component.ros.RosActivityComponent;
 import interactivespaces.activity.component.route.MessageRouterSupportedMessageTypes;
 import interactivespaces.activity.component.route.RoutableInputMessageListener;
 import interactivespaces.activity.component.route.ros.BaseRosMessageRouterActivityComponent;
 import interactivespaces.activity.component.route.ros.RosMessageRouterActivityComponent;
-import interactivespaces.activity.impl.SupportedActivity;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.liveactivity.runtime.standalone.development.DevelopmentStandaloneLiveActivityRuntime;
 import interactivespaces.liveactivity.runtime.standalone.messaging.MessageUtils.MessageMap;
@@ -38,6 +38,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 
+import interactivespaces_msgs.GenericMessage;
 import org.apache.commons.logging.Log;
 
 import java.io.File;
@@ -46,8 +47,6 @@ import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
-
-import interactivespaces_msgs.GenericMessage;
 
 /**
  * A standalone message router that uses multicast.
