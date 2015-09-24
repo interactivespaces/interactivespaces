@@ -73,7 +73,7 @@ public class ManagedResourcesTest {
     ManagedResource resource2 = Mockito.mock(ManagedResource.class);
     ManagedResource resource3 = Mockito.mock(ManagedResource.class);
 
-    Exception e = new RuntimeException();
+    Error e = new Error();
     Mockito.doThrow(e).when(resource2).startup();
 
     resources.addResource(resource1);
@@ -105,7 +105,7 @@ public class ManagedResourcesTest {
     ManagedResource resource2 = Mockito.mock(ManagedResource.class);
     ManagedResource resource3 = Mockito.mock(ManagedResource.class);
 
-    Exception e = new RuntimeException();
+    Error e = new Error();
     Mockito.doThrow(e).when(resource2).shutdown();
 
     resources.addResource(resource1);
