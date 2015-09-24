@@ -277,6 +277,10 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
     } catch (Throwable e) {
       componentContext.shutdownAndClearRunningComponents();
       componentContext.endStartupPhase(false);
+
+      managedCommands.shutdownAll();
+      managedResources.shutdownResourcesAndClear();
+
       logException("Could not startup activity", e);
 
       setActivityStatus(ActivityState.STARTUP_FAILURE, null, e);
@@ -554,8 +558,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
       cleanShutdown = false;
     }
 
-    managedResources.shutdownResources();
-    managedResources.clear();
+    managedResources.shutdownResourcesAndClear();
 
     if (cleanShutdown) {
       setActivityStatus(ActivityState.READY, "Post clean shutdown");

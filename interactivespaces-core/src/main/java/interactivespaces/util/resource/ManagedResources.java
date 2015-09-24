@@ -18,10 +18,9 @@ package interactivespaces.util.resource;
 
 import interactivespaces.InteractiveSpacesException;
 
-import com.google.common.collect.Lists;
-
 import org.apache.commons.logging.Log;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,8 +28,8 @@ import java.util.List;
  * A collection of {@link ManagedResource} instances.
  *
  * <p>
- * The collection will start up and shut down the resources when it is started
- * up and shut down. Do not worry about these lifecycle events.
+ * The collection will start up and shut down the resources when it is started up and shut down. Do not worry about
+ * these lifecycle events.
  *
  * @author Keith M. Hughes
  */
@@ -39,7 +38,7 @@ public class ManagedResources {
   /**
    * The managed resources.
    */
-  private final List<ManagedResource> resources = Lists.newArrayList();
+  private final List<ManagedResource> resources = new ArrayList<>();
 
   /**
    * Logger for the managed resources.
@@ -72,7 +71,7 @@ public class ManagedResources {
       try {
         // Will only add if starts up properly
         resource.startup();
-      } catch (Exception e) {
+      } catch (Throwable e) {
         throw new InteractiveSpacesException("Could not start up managed resource", e);
       }
     }
@@ -93,8 +92,7 @@ public class ManagedResources {
    * Clear all resources from the collection.
    *
    * <p>
-   * The collection is cleared. No lifecycle methods are called on the
-   * resources.
+   * The collection is cleared. No lifecycle methods are called on the resources.
    */
   public synchronized void clear() {
     resources.clear();
@@ -104,23 +102,21 @@ public class ManagedResources {
    * Attempt to startup all resources in the manager.
    *
    * <p>
-   * If all resources don't start up, all resources that were started will be
-   * shut down.
+   * If all resources don't start up, all resources that were started will be shut down.
    *
    * <p>
-   * Do not call {@link #shutdownResources()} or
-   * {@link #shutdownResourcesAndClear()} if an exception is thrown out of this
-   * method.
+   * Do not call {@link #shutdownResources()} or {@link #shutdownResourcesAndClear()} if an exception is thrown out of
+   * this method.
    */
   public synchronized void startupResources() {
-    List<ManagedResource> startedResources = Lists.newArrayList();
+    List<ManagedResource> startedResources = new ArrayList<>();
 
     for (ManagedResource resource : resources) {
       try {
         resource.startup();
 
         startedResources.add(resource);
-      } catch (Exception e) {
+      } catch (Throwable e) {
         shutdownResources(startedResources);
 
         throw new InteractiveSpacesException("Could not start up all managed resources", e);
@@ -134,8 +130,7 @@ public class ManagedResources {
    * Shut down all resources.
    *
    * <p>
-   * This will make a best attempt. A shutdown will be attempted on all
-   * resources, even if some throw an exception.
+   * This will make a best attempt. A shutdown will be attempted on all resources, even if some throw an exception.
    */
   public synchronized void shutdownResources() {
     shutdownResources(resources);
@@ -145,8 +140,7 @@ public class ManagedResources {
    * Shut down all resources and clear from the collection.
    *
    * <p>
-   * This will make a best attempt. A shutdown will be attempted on all
-   * resources, even if some throw an exception.
+   * This will make a best attempt. A shutdown will be attempted on all resources, even if some throw an exception.
    */
   public synchronized void shutdownResourcesAndClear() {
     shutdownResources();
@@ -163,7 +157,7 @@ public class ManagedResources {
     for (ManagedResource resource : resources) {
       try {
         resource.shutdown();
-      } catch (Exception e) {
+      } catch (Throwable e) {
         log.error("Could not shut down resource", e);
       }
     }

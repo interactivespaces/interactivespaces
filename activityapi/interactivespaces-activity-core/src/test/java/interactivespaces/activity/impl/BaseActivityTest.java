@@ -33,9 +33,9 @@ import interactivespaces.configuration.Configuration;
 import interactivespaces.configuration.SimpleConfiguration;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 import interactivespaces.time.TimeProvider;
+import interactivespaces.util.resource.ManagedResource;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 import org.apache.commons.logging.Log;
 import org.junit.After;
@@ -69,6 +69,7 @@ public class BaseActivityTest {
   private ActivityRuntime activityRuntime;
 
   private ActivityComponent component;
+  private ManagedResource resource;
 
   private SimpleConfiguration configuration;
 
@@ -78,18 +79,19 @@ public class BaseActivityTest {
   private InOrder componentInOrder;
 
   private List<ActivityComponent> componentsToAdd;
+  private List<ManagedResource> resourcesToAdd;
 
   /**
    * Setup for all tests.
    */
   @Before
   public void setup() {
-    componentsToAdd = Lists.newArrayList();
+    componentsToAdd = new ArrayList<>();
+    resourcesToAdd = new ArrayList<>();
 
     executorService = new DefaultScheduledExecutorService();
 
-    InteractiveSpacesEnvironment spaceEnvironment =
-        Mockito.mock(InteractiveSpacesEnvironment.class);
+    InteractiveSpacesEnvironment spaceEnvironment = Mockito.mock(InteractiveSpacesEnvironment.class);
     TimeProvider timeProvider = Mockito.mock(TimeProvider.class);
     Mockito.when(spaceEnvironment.getTimeProvider()).thenReturn(timeProvider);
     Mockito.when(timeProvider.getCurrentTime()).thenReturn(CURRENT_MOCK_TIME);
@@ -99,9 +101,13 @@ public class BaseActivityTest {
     activityRuntime = Mockito.mock(ActivityRuntime.class);
     configuration = new SimpleConfiguration(null);
     executionContext = Mockito.mock(ActivityExecutionContext.class);
+
     component = Mockito.spy(new MyBaseActivityComponent("component1"));
     componentsToAdd.add(component);
     componentInOrder = Mockito.inOrder(component);
+
+    resource = Mockito.mock(ManagedResource.class);
+    resourcesToAdd.add(resource);
 
     Mockito.when(component.getName()).thenReturn("component");
     Mockito.when(component.getDependencies()).thenReturn(new ArrayList<String>());
@@ -144,6 +150,8 @@ public class BaseActivityTest {
     assertEquals(ActivityState.RUNNING, activity.getActivityStatus().getState());
 
     assertTrue(activity.getActivityComponentContext().areHandlersAllowed());
+
+    Mockito.verify(resource).startup();
   }
 
   /**
@@ -191,6 +199,8 @@ public class BaseActivityTest {
     ActivityComponentContext activityComponentContext = activity.getActivityComponentContext();
     assertFalse(activityComponentContext.areHandlersAllowed());
     assertTrue(activityComponentContext.waitOnNoProcessingHandlings(SAMPLE_TIME, SAMPLE_TIME * 2));
+
+    Mockito.verify(resource).shutdown();
   }
 
   /**
@@ -217,6 +227,8 @@ public class BaseActivityTest {
     assertTrue(activityComponentContext.areProcessingHandlers());
 
     Mockito.verify(log, Mockito.times(1)).warn(Mockito.anyString());
+
+    Mockito.verify(resource).shutdown();
   }
 
   /**
@@ -266,11 +278,7 @@ public class BaseActivityTest {
   @Test
   public void testBrokenComponentConfigure() {
     Error e = new Error();
-    Mockito
-        .doThrow(e)
-        .when(component)
-        .configureComponent((Configuration) Mockito.anyObject()
-        );
+    Mockito.doThrow(e).when(component).configureComponent((Configuration) Mockito.anyObject());
 
     activity.startup();
 
@@ -285,6 +293,9 @@ public class BaseActivityTest {
     componentInOrder.verify(component).configureComponent(configuration);
 
     assertFalse(activity.getActivityComponentContext().areHandlersAllowed());
+
+    Mockito.verify(resource).startup();
+    Mockito.verify(resource).shutdown();
   }
 
   /**
@@ -309,11 +320,14 @@ public class BaseActivityTest {
     componentInOrder.verify(component).startupComponent();
 
     assertFalse(activity.getActivityComponentContext().areHandlersAllowed());
+
+    Mockito.verify(resource).startup();
+    Mockito.verify(resource).shutdown();
   }
 
   /**
-   * Test that a broken component startup works when there are two components
-   * and the second one craps out. The first one should then shut down.
+   * Test that a broken component startup works when there are two components and the second one craps out. The first
+   * one should then shut down.
    */
   @Test
   public void testBrokenComponentStartupWithComponentShutdown() {
@@ -349,6 +363,27 @@ public class BaseActivityTest {
     Mockito.verify(component2, Mockito.never()).shutdownComponent();
 
     assertFalse(activity.getActivityComponentContext().areHandlersAllowed());
+
+    Mockito.verify(resource).startup();
+    Mockito.verify(resource).shutdown();
+  }
+
+  /**
+   * Test that a broken resource startup fails the activity startup.
+   */
+  @Test
+  public void testBrokenManagedResourceFailsStartup() {
+    Error e = new Error();
+    Mockito.doThrow(e).when(resource).startup();
+
+    activity.startup();
+
+    activityInOrder.verify(activity).onActivitySetup();
+    Mockito.verify(activity, Mockito.never()).onActivityStartup();
+    Mockito.verify(activity, Mockito.never()).onActivityPostStartup();
+
+    assertEquals(ActivityState.STARTUP_FAILURE, activity.getActivityStatus().getState());
+    Mockito.verify(log, Mockito.atLeast(1)).error(Mockito.anyString(), Mockito.any(Throwable.class));
   }
 
   /**
@@ -373,11 +408,13 @@ public class BaseActivityTest {
     componentInOrder.verify(component).startupComponent();
 
     assertFalse(activity.getActivityComponentContext().areHandlersAllowed());
+
+    Mockito.verify(resource).startup();
+    Mockito.verify(resource).shutdown();
   }
 
   /**
-   * Test that a clean startup with broken Post Startup will actually end up
-   * with a running activity.
+   * Test that a clean startup with broken Post Startup will actually end up with a running activity.
    */
   @Test
   public void testBrokenPostStartup() {
@@ -400,7 +437,10 @@ public class BaseActivityTest {
 
     // Make sure the failure is logged.
     Mockito.verify(log, Mockito.times(1)).error(Mockito.anyString(), Mockito.eq(e));
-  }
+
+    Mockito.verify(resource).startup();
+    Mockito.verify(resource, Mockito.times(0)).shutdown();
+ }
 
   /**
    * Test that a broken onActivate works.
@@ -459,7 +499,9 @@ public class BaseActivityTest {
     componentInOrder.verify(component).shutdownComponent();
 
     assertFalse(activity.getActivityComponentContext().areHandlersAllowed());
-  }
+
+    Mockito.verify(resource).shutdown();
+ }
 
   /**
    * Test that a broken onShutdown works.
@@ -484,6 +526,8 @@ public class BaseActivityTest {
     componentInOrder.verify(component).shutdownComponent();
 
     assertFalse(activity.getActivityComponentContext().areHandlersAllowed());
+
+    Mockito.verify(resource).shutdown();
   }
 
   /**
@@ -509,6 +553,8 @@ public class BaseActivityTest {
     componentInOrder.verify(component).shutdownComponent();
 
     assertFalse(activity.getActivityComponentContext().areHandlersAllowed());
+
+    Mockito.verify(resource).shutdown();
   }
 
   /**
@@ -535,8 +581,12 @@ public class BaseActivityTest {
   private class MyBaseActivity extends BaseActivity {
     @Override
     public void onActivitySetup() {
-      for (ActivityComponent c : componentsToAdd) {
-        addActivityComponent(c);
+      for (ActivityComponent component : componentsToAdd) {
+        addActivityComponent(component);
+      }
+
+      for (ManagedResource resource : resourcesToAdd) {
+        addManagedResource(resource);
       }
     }
   }
