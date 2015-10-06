@@ -19,10 +19,10 @@ package interactivespaces.liveactivity.runtime.logging;
 import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
 import interactivespaces.system.InteractiveSpacesEnvironment;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 
 import org.apache.commons.logging.Log;
-
-import java.io.File;
 
 /**
  * A {@link LiveActivityLogFactory} which uses the {@link InteractiveSpacesEnvironment} to get a logger.
@@ -47,6 +47,11 @@ public class InteractiveSpacesEnvironmentLiveActivityLogFactory implements LiveA
   private InteractiveSpacesEnvironment spaceEnvironment;
 
   /**
+   * The file support to be used by the factory.
+   */
+  private FileSupport fileSupport = FileSupportImpl.INSTANCE;
+
+  /**
    * Create a new activity log factory for the given space environment.
    *
    * @param spaceEnvironment
@@ -57,8 +62,14 @@ public class InteractiveSpacesEnvironmentLiveActivityLogFactory implements LiveA
   }
 
   @Override
-  public Log createLogger(InstalledLiveActivity activity, String level, ActivityFilesystem activityFilesystem) {
-    return spaceEnvironment.getLog(ACTIVITY_LOG_PREFIX + "." + activity.getUuid(), level,
-            new File(activityFilesystem.getLogDirectory(), ACTIVITY_LOG_FILENAME).getAbsolutePath());
+  public Log
+      createLogger(InstalledLiveActivity installedActivity, String level, ActivityFilesystem activityFilesystem) {
+    return spaceEnvironment.getLog(ACTIVITY_LOG_PREFIX + "." + installedActivity.getUuid(), level, fileSupport
+        .newFile(activityFilesystem.getLogDirectory(), ACTIVITY_LOG_FILENAME).getAbsolutePath());
+  }
+
+  @Override
+  public void releaseLog(Log activityLog) {
+    spaceEnvironment.releaseLog(activityLog);
   }
 }

@@ -67,8 +67,15 @@ public interface LiveActivityRuntime extends ActivityRuntime, ManagedResource {
    *
    * @return logger for this activity and configuration
    */
-      Log
-      getActivityLog(InstalledLiveActivity activity, Configuration configuration, ActivityFilesystem activityFilesystem);
+   Log getActivityLog(InstalledLiveActivity activity, Configuration configuration, ActivityFilesystem activityFilesystem);
+
+  /**
+   * Release an activity log.
+   *
+   * @param activityLog
+   *          a logger for an activity
+   */
+  void releaseActivityLog(Log activityLog);
 
   /**
    * Start up all activities in the controller that aren't currently started.
@@ -150,7 +157,7 @@ public interface LiveActivityRuntime extends ActivityRuntime, ManagedResource {
   /**
    * Prepare an instance of an activity to run.
    *
-   * @param liveActivity
+   * @param installedActivity
    *          information about the live activity whose instance is to be initialized
    * @param activityFilesystem
    *          the filesystem for the activity instance
@@ -158,11 +165,13 @@ public interface LiveActivityRuntime extends ActivityRuntime, ManagedResource {
    *          the instance of the activity being started up
    * @param configuration
    *          the configuration for the instance
+   * @param activityLog
+   *          the log for the activity
    * @param executionContext
    *          execution context for this activity
    */
-  void initializeActivityInstance(InstalledLiveActivity liveActivity, ActivityFilesystem activityFilesystem,
-      Activity instance, Configuration configuration, ActivityExecutionContext executionContext);
+  void initializeActivityInstance(InstalledLiveActivity installedActivity, ActivityFilesystem activityFilesystem,
+      Activity instance, Configuration configuration, Log activityLog, ActivityExecutionContext executionContext);
 
   /**
    * Clean the temp data folder for a given activity.
@@ -213,7 +222,7 @@ public interface LiveActivityRuntime extends ActivityRuntime, ManagedResource {
    * Is the specified live activity running?
    *
    * @param uuid
-   *        the UUID of the live activity
+   *          the UUID of the live activity
    *
    * @return {@code true} if the live activities is running
    */

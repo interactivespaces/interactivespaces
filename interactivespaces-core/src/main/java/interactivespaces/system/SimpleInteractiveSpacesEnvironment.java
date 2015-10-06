@@ -112,6 +112,11 @@ public class SimpleInteractiveSpacesEnvironment implements InteractiveSpacesEnvi
   }
 
   @Override
+  public void releaseLog(Log log) {
+    // Nothing to do.
+  }
+
+  @Override
   public String getNetworkType() {
     // TODO Auto-generated method stub
     return null;

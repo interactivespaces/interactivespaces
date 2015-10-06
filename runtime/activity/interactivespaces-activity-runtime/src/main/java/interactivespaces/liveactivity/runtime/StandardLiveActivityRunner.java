@@ -26,6 +26,8 @@ import interactivespaces.liveactivity.runtime.domain.InstalledLiveActivity;
 
 import com.google.common.annotations.VisibleForTesting;
 
+import org.apache.commons.logging.Log;
+
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantLock;
@@ -76,6 +78,11 @@ public class StandardLiveActivityRunner implements LiveActivityRunner {
    * The live activity runtime this activity is running under.
    */
   private LiveActivityRuntime liveActivityRuntime;
+
+  /**
+   * The logger for the activity.
+   */
+  private Log activityLog;
 
   /**
    * The activity being run.
@@ -165,8 +172,10 @@ public class StandardLiveActivityRunner implements LiveActivityRunner {
           try {
             configuration.load();
             instance = activityWrapper.newInstance();
+
+            activityLog = liveActivityRuntime.getActivityLog(installedActivity, configuration, activityFilesystem);
             liveActivityRuntime.initializeActivityInstance(installedActivity, activityFilesystem, instance,
-                configuration, activityWrapper.newExecutionContext());
+                configuration, activityLog, activityWrapper.newExecutionContext());
 
             instance.startup();
 
@@ -178,7 +187,6 @@ public class StandardLiveActivityRunner implements LiveActivityRunner {
             if (!instance.getActivityStatus().getState().isRunning()) {
               instance = null;
             }
-
           } catch (Throwable e) {
             setActivityStatusUnprotected(new ActivityStatus(ActivityState.STARTUP_FAILURE, null, e));
 
@@ -189,8 +197,13 @@ public class StandardLiveActivityRunner implements LiveActivityRunner {
                 liveActivityRuntime.getSpaceEnvironment().getLog()
                     .error("Error cleaning up activity which could not start", e1);
               }
+              instance = null;
             }
+          }
 
+          // If no instance is referenced, then something bad happened.
+          if (instance == null) {
+            cleanupResources();
           }
         } else {
           liveActivityRuntime.getSpaceEnvironment().getLog()
@@ -219,6 +232,7 @@ public class StandardLiveActivityRunner implements LiveActivityRunner {
             setActivityStatusUnprotected(new ActivityStatus(ActivityState.SHUTDOWN_FAILURE, null, e));
           }
 
+          cleanupResources();
           activityWrapper.done();
         } else {
           liveActivityRuntime.getSpaceEnvironment().getLog()
@@ -357,6 +371,13 @@ public class StandardLiveActivityRunner implements LiveActivityRunner {
   @Override
   public String getDisplayName() {
     return installedActivity.getDisplayName();
+  }
+
+  /**
+   * Clean up resources handled through the runner.
+   */
+  private void cleanupResources() {
+    liveActivityRuntime.releaseActivityLog(activityLog);
   }
 
   /**

@@ -132,6 +132,11 @@ public class RosOsgiInteractiveSpacesEnvironment implements InteractiveSpacesEnv
   }
 
   @Override
+  public void releaseLog(Log log) {
+    loggingProvider.releaseLog(log);
+  }
+
+  @Override
   public TimeProvider getTimeProvider() {
     return timeProvider;
   }

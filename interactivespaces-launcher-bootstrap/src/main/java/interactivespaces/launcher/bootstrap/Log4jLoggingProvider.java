@@ -20,6 +20,7 @@ import interactivespaces.system.core.logging.LoggingProvider;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.Log4JLogger;
+import org.apache.log4j.FileAppender;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
@@ -102,6 +103,11 @@ public class Log4jLoggingProvider implements LoggingProvider {
   private Properties loggingProperties;
 
   /**
+   * The log data for all logs.
+   */
+  private Map<Log, LogData> logDataMap = new HashMap<>();
+
+  /**
    * Configure the provider.
    *
    * @param baseInstallDir
@@ -114,10 +120,7 @@ public class Log4jLoggingProvider implements LoggingProvider {
 
     loggingProperties = new Properties();
 
-    FileInputStream fileInputStream = null;
-
-    try {
-      fileInputStream = new FileInputStream(loggingPropertiesFile);
+    try (FileInputStream fileInputStream = new FileInputStream(loggingPropertiesFile)) {
       loggingProperties.load(fileInputStream);
 
       loggingProperties.put(LOG4J_PROPERTY_FILEPATH_INTERACTIVESPACES_LOGGER, new File(baseInstallDir,
@@ -168,33 +171,40 @@ public class Log4jLoggingProvider implements LoggingProvider {
 
   @Override
   public Log getLog(String logName, String level, String filename) {
-    Level l = LOG_4J_LEVELS.get(level.toLowerCase());
-    boolean unknownLevel = false;
-    if (l == null) {
-      unknownLevel = true;
-      l = Level.ERROR;
-    }
-
-    Logger logger = Logger.getLogger("interactivespaces." + logName);
-    logger.setLevel(l);
-
-    if (filename != null) {
-      // Create pattern layout
-      PatternLayout layout = new PatternLayout();
-      layout.setConversionPattern(loggingProperties.getProperty(LOG4J_PROPERTY_CONVERSTION_PATTERN));
-      try {
-        RollingFileAppender fileAppender = new RollingFileAppender(layout, filename);
-        logger.addAppender(fileAppender);
-      } catch (java.io.IOException e) {
-        throw new RuntimeException(String.format("Error while creating a RollingFileAppender for %s", filename), e);
+    synchronized (logDataMap) {
+      Level l = LOG_4J_LEVELS.get(level.toLowerCase());
+      boolean unknownLevel = false;
+      if (l == null) {
+        unknownLevel = true;
+        l = Level.ERROR;
       }
-    }
 
-    if (unknownLevel) {
-      logger.error(String.format("Unknown log level %s, set to ERROR", level));
-    }
+      Logger logger = Logger.getLogger("interactivespaces." + logName);
+      logger.setLevel(l);
 
-    return new Log4JLogger(logger);
+      Log4JLogger log = new Log4JLogger(logger);
+      LogData logData = new LogData();
+      logDataMap.put(log, logData);
+
+      if (filename != null) {
+        // Create pattern layout
+        PatternLayout layout = new PatternLayout();
+        layout.setConversionPattern(loggingProperties.getProperty(LOG4J_PROPERTY_CONVERSTION_PATTERN));
+        try {
+          RollingFileAppender fileAppender = new RollingFileAppender(layout, filename);
+          logger.addAppender(fileAppender);
+          logData.setFileAppender(fileAppender);
+        } catch (java.io.IOException e) {
+          throw new RuntimeException(String.format("Error while creating a RollingFileAppender for %s", filename), e);
+        }
+      }
+
+      if (unknownLevel) {
+        logger.error(String.format("Unknown log level %s, set to ERROR", level));
+      }
+
+      return log;
+    }
   }
 
   @Override
@@ -214,5 +224,63 @@ public class Log4jLoggingProvider implements LoggingProvider {
     }
 
     return false;
+  }
+
+  @Override
+  public void releaseLog(Log log) {
+    if (log == baseContainerLog) {
+      throw new RuntimeException("Cannot release the base container log");
+    }
+
+    synchronized (logDataMap) {
+      LogData logData = logDataMap.remove(log);
+
+      if (logData != null) {
+        logData.release();
+      } else {
+        baseContainerLog.warn("Attempting to release a logger that was not allocated by the log provider");
+      }
+    }
+  }
+
+  /**
+   * Data for a log, including extra components added to the base logger.
+   *
+   * @author Keith M. Hughes
+   */
+  private static class LogData {
+
+    /**
+     * The file appender for the logger.
+     */
+    private FileAppender fileAppender;
+
+    /**
+     * Get the file appender added to the logger.
+     *
+     * @return the file appender, can be {@code null}
+     */
+    public FileAppender getFileAppender() {
+      return fileAppender;
+    }
+
+    /**
+     * Set the file appender added to the logger.
+     *
+     * @param fileAppender
+     *          the file appender, can be {@code null}
+     */
+    public void setFileAppender(FileAppender fileAppender) {
+      this.fileAppender = fileAppender;
+    }
+
+    /**
+     * Release all components of the log.
+     */
+    public void release() {
+      if (fileAppender != null) {
+        fileAppender.close();
+      }
+    }
   }
 }

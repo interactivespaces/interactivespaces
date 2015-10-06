@@ -37,8 +37,7 @@ public interface InteractiveSpacesEnvironment {
   /**
    * Configuration property containing the Interactive Spaces version.
    */
-  String CONFIGURATION_INTERACTIVESPACES_VERSION =
-      CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_VERSION;
+  String CONFIGURATION_INTERACTIVESPACES_VERSION = CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_VERSION;
 
   /**
    * Configuration property giving the Interactive Spaces container type.
@@ -46,20 +45,17 @@ public interface InteractiveSpacesEnvironment {
   String CONFIGURATION_CONTAINER_TYPE = "interactivespaces.container.type";
 
   /**
-   * Configuration property value for the master Interactive Spaces container
-   * type.
+   * Configuration property value for the master Interactive Spaces container type.
    */
   String CONFIGURATION_CONTAINER_TYPE_MASTER = "master";
 
   /**
-   * Configuration property value for the controller Interactive Spaces
-   * container type.
+   * Configuration property value for the controller Interactive Spaces container type.
    */
   String CONFIGURATION_CONTAINER_TYPE_CONTROLLER = "controller";
 
   /**
-   * Configuration property giving the Interactive Spaces type, e.g. prod, dev,
-   * local.
+   * Configuration property giving the Interactive Spaces type, e.g. prod, dev, local.
    */
   String CONFIGURATION_NETWORK_TYPE = "interactivespaces.network.type";
 
@@ -79,12 +75,11 @@ public interface InteractiveSpacesEnvironment {
   String CONFIGURATION_HOST_ADDRESS = "interactivespaces.host.address";
 
   /**
-   * Configuration property which will be {@code true} if the container should
-   * be file controllable.
+   * Configuration property which will be {@code true} if the container should be file controllable.
    *
    * <p>
-   * This is a suggestion, the container may not be file controllable. This is
-   * used to request that the controller be file controllable.
+   * This is a suggestion, the container may not be file controllable. This is used to request that the controller be
+   * file controllable.
    */
   String CONFIGURATION_CONTAINER_FILE_CONTROLLABLE = "interactivespaces.container.control.file";
 
@@ -94,38 +89,32 @@ public interface InteractiveSpacesEnvironment {
   String CONFIGURATION_PROVIDER_TIME = "interactivespaces.provider.time";
 
   /**
-   * Configuration property value which says what the time provider should be
-   * local.
+   * Configuration property value which says what the time provider should be local.
    */
   String CONFIGURATION_VALUE_PROVIDER_TIME_LOCAL = "local";
 
   /**
-   * Configuration property value which says what the time provider should be
-   * ntp.
+   * Configuration property value which says what the time provider should be ntp.
    */
   String CONFIGURATION_VALUE_PROVIDER_TIME_NTP = "ntp";
 
   /**
-   * Configuration property which says what the URL of the NTP time provider
-   * should be.
+   * Configuration property which says what the URL of the NTP time provider should be.
    */
   String CONFIGURATION_PROVIDER_TIME_NTP_URL = "interactivespaces.provider.time.ntp.url";
 
   /**
-   * Configuration property value which says what the default time provider
-   * should be.
+   * Configuration property value which says what the default time provider should be.
    */
   String CONFIGURATION_VALUE_PROVIDER_TIME_DEFAULT = CONFIGURATION_VALUE_PROVIDER_TIME_LOCAL;
 
   /**
-   * Configuration property giving the location of the system's permanent data
-   * directory.
+   * Configuration property giving the location of the system's permanent data directory.
    */
   String CONFIGURATION_SYSTEM_FILESYSTEM_DIR_DATA = "system.datadir";
 
   /**
-   * Configuration property giving the location of the system's temp data
-   * directory.
+   * Configuration property giving the location of the system's temp data directory.
    */
   String CONFIGURATION_SYSTEM_FILESYSTEM_DIR_TMP = "system.tmpdir";
 
@@ -179,13 +168,11 @@ public interface InteractiveSpacesEnvironment {
   InteractiveSpacesFilesystem getFilesystem();
 
   /**
-   * Get the {@link ScheduledExecutorService} to be used inside Interactive
-   * Spaces.
+   * Get the {@link ScheduledExecutorService} to be used inside Interactive Spaces.
    *
    * <p>
-   * An executor service gives thread pools to be used. Interactive Spaces needs
-   * to control as many threads as possible, so anything in Interactive Spaces
-   * should try and use this service.
+   * An executor service gives thread pools to be used. Interactive Spaces needs to control as many threads as possible,
+   * so anything in Interactive Spaces should try and use this service.
    *
    * @return the executor service to be used for all thread usage
    */
@@ -234,12 +221,23 @@ public interface InteractiveSpacesEnvironment {
    */
   boolean modifyLogLevel(Log log, String level);
 
+/**
+   * Release the log and any resources it is using that are unique to itself.
+   *
+   * <p>
+   * The log should not be used after it is released. This method does nothing if the log was not created with
+   * {@link #getLog(String, String, String) or #getExtendedLog()
+   *
+   * @param log
+   *          the log to release
+   */
+  void releaseLog(Log log);
+
   /**
    * Get the network type for the Interactive Spaces container.
    *
    * <p>
-   * This allows distinguishing between different Interactive Spaces networks,
-   * e.g. localdev, prod, fredbot.
+   * This allows distinguishing between different Interactive Spaces networks, e.g. localdev, prod, fredbot.
    *
    * @return network type currently used
    */

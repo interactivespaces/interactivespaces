@@ -151,6 +151,11 @@ public final class StandaloneInteractiveSpacesEnvironment implements Interactive
   }
 
   @Override
+  public void releaseLog(Log log) {
+    // Nothing to do
+  }
+
+  @Override
   public String getNetworkType() {
     // TODO Auto-generated method stub
     return null;

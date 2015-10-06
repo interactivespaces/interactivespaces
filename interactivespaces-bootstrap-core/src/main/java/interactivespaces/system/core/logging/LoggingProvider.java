@@ -18,7 +18,6 @@ package interactivespaces.system.core.logging;
 
 import org.apache.commons.logging.Log;
 
-
 /**
  * The platform logging provider.
  *
@@ -77,11 +76,11 @@ public interface LoggingProvider {
    * Get a named log.
    *
    * @param logName
-   *         the name of the log
+   *          the name of the log
    * @param level
-   *         the level to use for the log
+   *          the level to use for the log
    * @param filename
-   *         the filename to write the log to
+   *          the filename to write the log to
    * @return the log
    */
   Log getLog(String logName, String level, String filename);
@@ -100,4 +99,15 @@ public interface LoggingProvider {
    * @return {@code true} if able to modify the log
    */
   boolean modifyLogLevel(Log log, String level);
+
+  /**
+   * Release the log and any resources it is using that are unique to itself.
+   *
+   * <p>
+   * The log should not be used after it is released.
+   *
+   * @param log
+   *          the log to release
+   */
+  void releaseLog(Log log);
 }

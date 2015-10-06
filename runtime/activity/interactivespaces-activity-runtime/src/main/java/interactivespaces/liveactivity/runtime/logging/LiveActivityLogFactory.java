@@ -31,7 +31,7 @@ public interface LiveActivityLogFactory {
   /**
    * Get the logger for a local activity.
    *
-   * @param activity
+   * @param installedActivity
    *          the activity a logger is needed for
    * @param level
    *          initial level for the logger
@@ -40,5 +40,13 @@ public interface LiveActivityLogFactory {
    *
    * @return a fully configured logger at the requested level
    */
-  Log createLogger(InstalledLiveActivity activity, String level, ActivityFilesystem activityFilesystem);
+  Log createLogger(InstalledLiveActivity installedActivity, String level, ActivityFilesystem activityFilesystem);
+
+  /**
+   * Release an activity log.
+   *
+   * @param activityLog
+   *          the activity log to release
+   */
+  void releaseLog(Log activityLog);
 }

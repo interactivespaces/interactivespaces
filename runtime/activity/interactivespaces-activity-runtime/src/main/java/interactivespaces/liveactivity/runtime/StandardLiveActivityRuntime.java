@@ -500,13 +500,13 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
   }
 
   @Override
-  public void initializeActivityInstance(InstalledLiveActivity liveActivity, ActivityFilesystem activityFilesystem,
-      Activity instance, Configuration configuration, ActivityExecutionContext executionContext) {
-
+  public void initializeActivityInstance(InstalledLiveActivity installedActivity,
+      ActivityFilesystem activityFilesystem, Activity instance, Configuration configuration, Log activityLog,
+      ActivityExecutionContext executionContext) {
     // Set log first to enable logging of any configuration/startup errors.
-    instance.setLog(getActivityLog(liveActivity, configuration, activityFilesystem));
+    instance.setLog(activityLog);
 
-    String uuid = liveActivity.getUuid();
+    String uuid = installedActivity.getUuid();
     instance.setActivityRuntime(this);
     instance.setUuid(uuid);
 
@@ -547,10 +547,15 @@ public class StandardLiveActivityRuntime extends BaseActivityRuntime implements 
   }
 
   @Override
-  public Log getActivityLog(InstalledLiveActivity activity, Configuration configuration,
+  public Log getActivityLog(InstalledLiveActivity installedActivity, Configuration configuration,
       ActivityFilesystem activityFilesystem) {
-    return activityLogFactory.createLogger(activity, configuration.getPropertyString(
+    return activityLogFactory.createLogger(installedActivity, configuration.getPropertyString(
         Activity.CONFIGURATION_PROPERTY_LOG_LEVEL, InteractiveSpacesEnvironment.LOG_LEVEL_ERROR), activityFilesystem);
+  }
+
+  @Override
+  public void releaseActivityLog(Log activityLog) {
+    activityLogFactory.releaseLog(activityLog);
   }
 
   /**
