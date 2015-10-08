@@ -438,7 +438,7 @@ class AttrDict(dict):
     self.__dict__ = self
 
 
-class Command:
+class Command(object):
   """Base class for command steps."""
 
   def set_config(self, config, server_connection):
