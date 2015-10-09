@@ -29,6 +29,7 @@ import interactivespaces.util.net.NetworkBindSimpleInteractiveSpacesException;
 import com.google.common.collect.Lists;
 
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * The standard remote live activity runtime monitoring system.
@@ -61,7 +62,7 @@ public class StandardRemoteLiveActivityRuntimeMonitorService implements RemoteLi
   /**
    * The collection of installed plugins.
    */
-  private List<LiveActivityRuntimeMonitorPlugin> plugins = Lists.newCopyOnWriteArrayList();
+  private List<LiveActivityRuntimeMonitorPlugin> plugins = new CopyOnWriteArrayList<>();
 
   /**
    * The index plugin.
@@ -199,12 +200,17 @@ public class StandardRemoteLiveActivityRuntimeMonitorService implements RemoteLi
     return liveActivityRuntime.getSpaceEnvironment().getExtendedLog();
   }
 
+  @Override
+  public WebServer getWebServer() {
+    return webServer;
+  }
+
   /**
    * Add in all plugins that are part of a base monitoring service.
    */
   private void addBasePlugins() {
-    addPlugin(new ScreenshotLiveActivityRuntimeMonitorPlugin());
     addPlugin(new RuntimeLiveActivityRuntimeMonitorPlugin());
     addPlugin(new LiveActivityLiveActivityRuntimeMonitorPlugin());
+    addPlugin(new ScreenshotLiveActivityRuntimeMonitorPlugin());
   }
 }

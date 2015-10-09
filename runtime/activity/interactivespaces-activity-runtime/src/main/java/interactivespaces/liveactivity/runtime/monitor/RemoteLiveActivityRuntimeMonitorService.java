@@ -18,6 +18,7 @@ package interactivespaces.liveactivity.runtime.monitor;
 
 import interactivespaces.liveactivity.runtime.LiveActivityRuntime;
 import interactivespaces.logging.ExtendedLog;
+import interactivespaces.service.web.server.WebServer;
 import interactivespaces.util.resource.ManagedResource;
 
 import java.util.List;
@@ -90,4 +91,11 @@ public interface RemoteLiveActivityRuntimeMonitorService extends ManagedResource
    * @return the logger
    */
   ExtendedLog getLog();
+
+  /**
+   * Get the web server for the monitor.
+   *
+   * @return the web server
+   */
+  WebServer getWebServer();
 }

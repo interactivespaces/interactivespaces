@@ -243,10 +243,14 @@ public abstract class ActivitySupport implements Activity {
   /**
    * Potentially modify the status of the activity.
    *
+   * <p>
+   * This can be used to add information to the status that may not have been available to whoever created the status
+   * initially, e.g. full runtime detail of the activity.
+   *
    * @param activityStatus
    *          the status
    *
-   * @return a potentially modified status
+   * @return either a new status with modifications or the original status if no changes were made
    */
   protected ActivityStatus potentiallyModifyStatus(ActivityStatus activityStatus) {
     // Default is no rewrite

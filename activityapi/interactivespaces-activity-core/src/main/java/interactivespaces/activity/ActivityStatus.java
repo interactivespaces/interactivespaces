@@ -136,8 +136,8 @@ public class ActivityStatus {
       if (detail.length() != 0) {
         detail.append("\n\n");
       }
+      detail.append(getExceptionAsString());
     }
-    detail.append(getExceptionAsString());
 
     return detail.toString();
   }

@@ -63,4 +63,9 @@ public class PluginFunctionalityDescriptor {
   public String getDisplayName() {
     return displayName;
   }
+
+  @Override
+  public String toString() {
+    return "PluginFunctionalityDescriptor [url=" + url + ", displayName=" + displayName + "]";
+  }
 }

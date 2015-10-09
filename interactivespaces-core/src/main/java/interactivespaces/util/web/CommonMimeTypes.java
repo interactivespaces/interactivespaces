@@ -32,4 +32,9 @@ public class CommonMimeTypes {
    * The JSON MIME type.
    */
   public static final String MIME_TYPE_APPLICATION_JSON = "application/json";
+
+  /**
+   * The PNG MIME type.
+   */
+  public static final String MIME_TYPE_IMAGE_PNG = "image/png";
 }

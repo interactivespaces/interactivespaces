@@ -192,6 +192,8 @@ public class ScreenshotLiveActivityRuntimeMonitorPlugin extends BaseLiveActivity
    * @param response
    *          the HTTP response
    *
+   * @throws InterruptedException
+   *           the thread got interrupted
    * @throws IOException
    *           something bad happened while writing IO
    */
@@ -200,7 +202,11 @@ public class ScreenshotLiveActivityRuntimeMonitorPlugin extends BaseLiveActivity
 
     OutputStream outputStream = response.getOutputStream();
     if (fileSupport.exists(screenshotFile)) {
+      response.setResponseCode(HttpResponseCode.OK);
+      response.setContentType(CommonMimeTypes.MIME_TYPE_IMAGE_PNG);
+
       fileSupport.copyFileToStream(screenshotFile, outputStream, false);
+      outputStream.flush();
     } else {
       String message = String.format("Screenshot file not found: %s", fileSupport.getAbsolutePath(screenshotFile));
       getMonitorService().getLog().warn(message);
