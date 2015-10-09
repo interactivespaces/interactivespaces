@@ -862,7 +862,6 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
 
   @Override
   protected ActivityStatus potentiallyModifyStatus(ActivityStatus activityStatus) {
-    System.out.println("Yada!" + activityStatus.getExceptionAsString());
     return new ActivityStatus(activityStatus.getState(), getActivityStatusDetailComposite(activityStatus),
         activityStatus.getException());
   }
