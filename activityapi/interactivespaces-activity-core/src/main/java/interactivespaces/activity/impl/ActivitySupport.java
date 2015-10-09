@@ -184,7 +184,8 @@ public abstract class ActivitySupport implements Activity {
     if (uuid != null) {
       return uuid;
     } else {
-      throw new SimpleInteractiveSpacesException("The uuid has not been set yet. Are you accessing in the constructor?");
+      throw new SimpleInteractiveSpacesException(
+          "The uuid has not been set yet. Are you accessing in the constructor?");
     }
 
   }
@@ -231,10 +232,25 @@ public abstract class ActivitySupport implements Activity {
 
   @Override
   public void setActivityStatus(ActivityStatus activityStatus) {
+    activityStatus = potentiallyModifyStatus(activityStatus);
+
     ActivityStatus oldStatus = this.activityStatus;
     this.activityStatus = activityStatus;
 
     activityListeners.signalActivityStatusChange(oldStatus, activityStatus);
+  }
+
+  /**
+   * Potentially modify the status of the activity.
+   *
+   * @param activityStatus
+   *          the status
+   *
+   * @return a potentially modified status
+   */
+  protected ActivityStatus potentiallyModifyStatus(ActivityStatus activityStatus) {
+    // Default is no rewrite
+    return activityStatus;
   }
 
   /**

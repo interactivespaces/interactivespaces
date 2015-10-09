@@ -19,6 +19,7 @@ package interactivespaces.activity.impl;
 import interactivespaces.InteractiveSpacesException;
 import interactivespaces.activity.Activity;
 import interactivespaces.activity.ActivityState;
+import interactivespaces.activity.ActivityStatus;
 import interactivespaces.activity.SupportedActivity;
 import interactivespaces.activity.annotation.ConfigurationPropertyAnnotationProcessor;
 import interactivespaces.activity.annotation.StandardConfigurationPropertyAnnotationProcessor;
@@ -37,6 +38,7 @@ import interactivespaces.util.resource.ManagedResources;
 import com.google.common.collect.Maps;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -66,6 +68,11 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
    * Display header to use for the activity status.
    */
   public static final String ACTIVITY_STATUS_HEADER = "Activity Status";
+
+  /**
+   * Display header to use for the activity status description.
+   */
+  public static final String ACTIVITY_STATUS_DESCRIPTION_HEADER = "Activity Status Description";
 
   /**
    * Context all activity components will run under.
@@ -222,13 +229,13 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
   public void startup() {
     long beginStartTime = getSpaceEnvironment().getTimeProvider().getCurrentTime();
 
-    setActivityStatus(ActivityState.STARTUP_ATTEMPT, null);
-
     componentContext = new ActivityComponentContext(this, getActivityRuntime().getActivityComponentFactory());
 
     managedResources = new ManagedResources(getLog());
 
     managedCommands = new SimpleManagedCommands(getSpaceEnvironment().getExecutorService(), getLog());
+
+    setActivityStatus(ActivityState.STARTUP_ATTEMPT);
 
     componentContext.beginStartupPhase();
     try {
@@ -256,7 +263,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
 
       callOnActivityStartup();
 
-      setCompositeActivityState(ActivityState.RUNNING);
+      setActivityStatus(ActivityState.RUNNING);
 
       if (getLog().isInfoEnabled()) {
         getLog().info(
@@ -372,16 +379,24 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
    * Get the active status detail for this activity. By default this is simply an 'active' indicator along with status
    * details from any managed components.
    *
-   * @param baseDetail
-   *          basic detail for this activity, sans components
+   * @param activityStatus
+   *          the raw status of the activity
    *
    * @return status detail for this activity including components
    */
-  protected String getActivityStatusDetailComposite(String baseDetail) {
+  protected String getActivityStatusDetailComposite(ActivityStatus activityStatus) {
     StringBuilder detailString = new StringBuilder();
     detailString.append(String.format(StatusDetail.HEADER_FORMAT, "status-detail"))
         .append(String.format(StatusDetail.PREFIX_FORMAT, "activity-status")).append(ACTIVITY_STATUS_HEADER)
-        .append(StatusDetail.SEPARATOR).append(baseDetail).append(StatusDetail.POSTFIX);
+        .append(StatusDetail.SEPARATOR).append(activityStatus.getState()).append(StatusDetail.POSTFIX);
+
+    String description = activityStatus.getDescription();
+    if (description != null && !description.trim().isEmpty()) {
+      detailString.append(String.format(StatusDetail.PREFIX_FORMAT, "activity-status-description"))
+          .append(ACTIVITY_STATUS_DESCRIPTION_HEADER).append(StatusDetail.SEPARATOR).append(description)
+          .append(StatusDetail.POSTFIX);
+    }
+
     for (ActivityComponent component : componentContext.getConfiguredComponents()) {
       String detail = component.getComponentStatusDetail();
       if (detail != null) {
@@ -391,14 +406,18 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
       }
     }
 
-    detailString.append(String.format(StatusDetail.PREFIX_FORMAT, "managed-resources")).append("Managed Resources")
-        .append(StatusDetail.SEPARATOR);
-    for (ManagedResource managedResource : managedResources.getResources()) {
-      detailString.append(managedResource.toString()).append(StatusDetail.BREAK);
+    List<ManagedResource> resources = managedResources.getResources();
+    if (!resources.isEmpty()) {
+      detailString.append(String.format(StatusDetail.PREFIX_FORMAT, "managed-resources")).append("Managed Resources")
+          .append(StatusDetail.SEPARATOR);
+      for (ManagedResource managedResource : resources) {
+        detailString.append(managedResource.toString()).append(StatusDetail.BREAK);
+      }
+      detailString.append(StatusDetail.POSTFIX);
     }
-    detailString.append(StatusDetail.POSTFIX);
 
     detailString.append(StatusDetail.FOOTER);
+
     return detailString.toString();
   }
 
@@ -409,7 +428,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
 
       callOnActivityActivate();
 
-      setCompositeActivityState(ActivityState.ACTIVE);
+      setActivityStatus(ActivityState.ACTIVE);
     } catch (Throwable e) {
       logException("Cannot activate activity", e);
 
@@ -449,7 +468,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
 
       callOnActivityDeactivate();
 
-      setCompositeActivityState(ActivityState.RUNNING);
+      setActivityStatus(ActivityState.RUNNING);
     } catch (Throwable e) {
       logException("Cannot deactivate activity", e);
 
@@ -841,14 +860,11 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
     // Default is to do nothing.
   }
 
-  /**
-   * Set the activity status and include detail of internal components.
-   *
-   * @param status
-   *          new status of the activity.
-   */
-  private void setCompositeActivityState(ActivityState status) {
-    setActivityStatus(status, getActivityStatusDetailComposite(status.toString()), null);
+  @Override
+  protected ActivityStatus potentiallyModifyStatus(ActivityStatus activityStatus) {
+    System.out.println("Yada!" + activityStatus.getExceptionAsString());
+    return new ActivityStatus(activityStatus.getState(), getActivityStatusDetailComposite(activityStatus),
+        activityStatus.getException());
   }
 
   /**
@@ -863,7 +879,7 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
       getLog().info("Logging activity configuration to " + logFile);
       Configuration configuration = getConfiguration();
       Map<String, String> configMap = configuration.getCollapsedMap();
-      TreeMap<String, String> sortedMap = new TreeMap<String, String>(configMap);
+      TreeMap<String, String> sortedMap = new TreeMap<>(configMap);
       for (Map.Entry<String, String> entry : sortedMap.entrySet()) {
         String value;
         try {

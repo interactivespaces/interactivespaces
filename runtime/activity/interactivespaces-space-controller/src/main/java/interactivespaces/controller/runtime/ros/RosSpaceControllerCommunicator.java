@@ -705,15 +705,8 @@ public class RosSpaceControllerCommunicator implements SpaceControllerCommunicat
       LiveActivityRuntimeStatus status = rosMessageFactory.newFromType(LiveActivityRuntimeStatus._TYPE);
       status.setUuid(uuid);
       status.setStatus(translateActivityState(astatus.getState()));
-      String exceptionDetail = astatus.getExceptionAsString();
-      if (exceptionDetail != null) {
-        status.setStatusDetail(exceptionDetail);
-      }
 
-      String description = astatus.getDescription();
-      if (description != null) {
-        status.setStatusDetail(astatus.getDescription());
-      }
+      status.setStatusDetail(astatus.getCombinedDetail());
 
       publishControllerStatus(ControllerStatus.STATUS_CONTROLLER_LIVE_ACTIVITY_RUNTIME_STATUS,
           liveActivityRuntimeStatusSerializer.serialize(status));

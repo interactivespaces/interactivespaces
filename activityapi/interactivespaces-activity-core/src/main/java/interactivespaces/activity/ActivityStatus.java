@@ -110,14 +110,36 @@ public class ActivityStatus {
   public String getExceptionAsString() {
     if (exception != null) {
       if (exception instanceof SimpleInteractiveSpacesException) {
-        return (String.format("Exception message: %s",
-            ((SimpleInteractiveSpacesException) exception).getCompoundMessage()));
+        return String.format("Exception message: %s",
+            ((SimpleInteractiveSpacesException) exception).getCompoundMessage());
       } else {
         return InteractiveSpacesException.getStackTrace(exception);
       }
     } else {
       return null;
     }
+  }
+
+  /**
+   * Get the combined detail of the description, if any, and the exception as a string, if any.
+   *
+   * @return the combined detail, if none then the empty string
+   */
+  public String getCombinedDetail() {
+    StringBuilder detail = new StringBuilder();
+
+    if (description != null) {
+      detail.append(description);
+    }
+
+    if (exception != null) {
+      if (detail.length() != 0) {
+        detail.append("\n\n");
+      }
+    }
+    detail.append(getExceptionAsString());
+
+    return detail.toString();
   }
 
   @Override
