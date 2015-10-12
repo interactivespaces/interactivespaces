@@ -397,23 +397,27 @@ public abstract class BaseActivity extends ActivitySupport implements SupportedA
           .append(StatusDetail.POSTFIX);
     }
 
-    for (ActivityComponent component : componentContext.getConfiguredComponents()) {
-      String detail = component.getComponentStatusDetail();
-      if (detail != null) {
-        detailString.append(String.format(StatusDetail.PREFIX_FORMAT, "component-status"))
-            .append(component.getDescription()).append(StatusDetail.SEPARATOR).append(detail)
-            .append(StatusDetail.POSTFIX);
+    if (componentContext != null) {
+      for (ActivityComponent component : componentContext.getConfiguredComponents()) {
+        String detail = component.getComponentStatusDetail();
+        if (detail != null) {
+          detailString.append(String.format(StatusDetail.PREFIX_FORMAT, "component-status"))
+              .append(component.getDescription()).append(StatusDetail.SEPARATOR).append(detail)
+              .append(StatusDetail.POSTFIX);
+        }
       }
     }
 
-    List<ManagedResource> resources = managedResources.getResources();
-    if (!resources.isEmpty()) {
-      detailString.append(String.format(StatusDetail.PREFIX_FORMAT, "managed-resources")).append("Managed Resources")
-          .append(StatusDetail.SEPARATOR);
-      for (ManagedResource managedResource : resources) {
-        detailString.append(managedResource.toString()).append(StatusDetail.BREAK);
+    if (managedResources != null) {
+      List<ManagedResource> resources = managedResources.getResources();
+      if (!resources.isEmpty()) {
+        detailString.append(String.format(StatusDetail.PREFIX_FORMAT, "managed-resources"))
+            .append("Managed Resources").append(StatusDetail.SEPARATOR);
+        for (ManagedResource managedResource : resources) {
+          detailString.append(managedResource.toString()).append(StatusDetail.BREAK);
+        }
+        detailString.append(StatusDetail.POSTFIX);
       }
-      detailString.append(StatusDetail.POSTFIX);
     }
 
     detailString.append(StatusDetail.FOOTER);

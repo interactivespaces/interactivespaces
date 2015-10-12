@@ -35,6 +35,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -43,6 +44,17 @@ import java.util.List;
  * @author Keith M. Hughes
  */
 public abstract class BaseLiveActivityRuntimeMonitorPlugin implements LiveActivityRuntimeMonitorPlugin {
+
+  /**
+   * A file comparator that will order by ascending file names.
+   */
+  public static final Comparator<File> FILE_COMPARATOR_NAME_ASCENDING = new Comparator<File>() {
+
+    @Override
+    public int compare(File o1, File o2) {
+      return o1.getName().compareToIgnoreCase(o2.getName());
+    }
+  };
 
   /**
    * The title for the web page for the remote monitoring.
@@ -285,6 +297,9 @@ public abstract class BaseLiveActivityRuntimeMonitorPlugin implements LiveActivi
   /**
    * List all files in a directory.
    *
+   * <p>
+   * The files will be sorted in ascending order by name.
+   *
    * @param completeUrlPath
    *          the URL path to the directory
    * @param directory
@@ -297,11 +312,32 @@ public abstract class BaseLiveActivityRuntimeMonitorPlugin implements LiveActivi
    */
   protected void listDirectoryFiles(String completeUrlPath, File directory, OutputStream outputStream)
       throws IOException {
+    listDirectoryFiles(completeUrlPath, directory, outputStream, FILE_COMPARATOR_NAME_ASCENDING);
+  }
+
+  /**
+   * List all files in a directory.
+   *
+   * @param completeUrlPath
+   *          the URL path to the directory
+   * @param directory
+   *          the directory to get the contents from
+   * @param outputStream
+   *          the HTTP response output stream
+   * @param comparator
+   *          the comparator for determining sort order of the files
+   *
+   * @throws IOException
+   *           an issue happened while writing the response
+   */
+  protected void listDirectoryFiles(String completeUrlPath, File directory, OutputStream outputStream,
+      Comparator<File> comparator) throws IOException {
     File[] files = fileSupport.listFiles(directory);
     if (files == null) {
       files = new File[0];
     }
-    Arrays.sort(files);
+
+    Arrays.sort(files, comparator);
     for (File file : files) {
       String name = fileSupport.getName(file);
       writeDirectoryEntry(outputStream, completeUrlPath + HttpConstants.URL_PATH_COMPONENT_SEPARATOR + name,

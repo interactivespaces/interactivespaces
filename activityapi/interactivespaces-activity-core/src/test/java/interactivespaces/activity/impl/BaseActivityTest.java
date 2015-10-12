@@ -440,7 +440,7 @@ public class BaseActivityTest {
 
     Mockito.verify(resource).startup();
     Mockito.verify(resource, Mockito.times(0)).shutdown();
- }
+  }
 
   /**
    * Test that a broken onActivate works.
@@ -501,7 +501,7 @@ public class BaseActivityTest {
     assertFalse(activity.getActivityComponentContext().areHandlersAllowed());
 
     Mockito.verify(resource).shutdown();
- }
+  }
 
   /**
    * Test that a broken onShutdown works.
@@ -575,7 +575,7 @@ public class BaseActivityTest {
     // object for the listener isn't the same as the spy makes a wrapper
     // class
     Mockito.verify(listener, Mockito.times(1)).onActivityStatusChange(Mockito.any(Activity.class),
-        Mockito.eq(oldStatus), Mockito.eq(newStatus));
+        Mockito.eq(oldStatus), Mockito.any(ActivityStatus.class));
   }
 
   private class MyBaseActivity extends BaseActivity {
