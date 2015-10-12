@@ -19,6 +19,7 @@ package interactivespaces.liveactivity.runtime.monitor.internal;
 import interactivespaces.configuration.Configuration;
 import interactivespaces.liveactivity.runtime.LiveActivityRuntime;
 import interactivespaces.liveactivity.runtime.monitor.PluginFunctionalityDescriptor;
+import interactivespaces.service.web.HttpConstants;
 import interactivespaces.service.web.HttpResponseCode;
 import interactivespaces.service.web.server.HttpRequest;
 import interactivespaces.service.web.server.HttpResponse;
@@ -206,7 +207,7 @@ public class ScreenshotLiveActivityRuntimeMonitorPlugin extends BaseLiveActivity
   @Override
   protected void onHandleRequest(HttpRequest request, HttpResponse response, String fullPath) throws Exception {
     String requestPath = request.getUri().getPath().substring(URL_PREFIX_SCREENSHOT.length());
-    String[] requestPathComponents = requestPath.split("/");
+    String[] requestPathComponents = requestPath.split(HttpConstants.URL_PATH_COMPONENT_SEPARATOR);
 
     if (requestPathComponents.length == 1) {
       performScreenshot(response);

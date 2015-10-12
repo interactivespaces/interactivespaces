@@ -12,5 +12,4 @@ for DISPLAY_INDEX in {0..11}; do
   OUTFILES="${OUTFILES} ${SCREENSHOT_FILE}-disp${DISPLAY}.${SCREENSHOT_FILE_EXTENSION}"
 done
 
-echo $OUTFILES
 screencapture -C "${OUTFILES}"
