@@ -3,6 +3,25 @@
 # Usage:  'isbuild' will scan all subdirectories and make any project.xml files found.
 #   or, first argument is subdirectory in which to build.
 
+# Determine if we are running GNU utilities or not
+function have_gnu_utils() {
+  # Check if readlink is the GNU version of the utility or not
+  # If it is, we assume we are using the rest of the standard GNU utilities
+  if readlink --help 2>/dev/null | grep GNU >/dev/null ; then
+    return 0
+  fi
+  return 1
+}
+
+if ! have_gnu_utils; then
+  echo "Error: GNU utilities not found in PATH." >&2
+  if [[ "$(uname)" == Darwin ]] ; then
+    echo "Possible fix - Run setpath.sh script with the command:"
+    echo "source ~/interactivespaces/prod/ecp/bin/setpath.sh set"
+  fi
+  exit 1
+fi
+
 CMD=build
 if [ "$1" == "debug" ]; then
   CMD=$1
