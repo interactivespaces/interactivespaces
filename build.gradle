@@ -36,8 +36,8 @@ allprojects {
     // be pushed to production.
     //
     // Final versions should set the qualifier to null.
-    interactiveSpacesVersion = '1.8.1'
-    interactiveSpacesVersionQualifier = 'BETA4'
+    interactiveSpacesVersion = '1.8.2'
+    interactiveSpacesVersionQualifier = 'SNAPSHOT'
 
     // These specify the layout of IS containers.
     
@@ -203,7 +203,7 @@ subprojects {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.5'
+    gradleVersion = '2.8'
 }
 
 defaultTasks 'install'
