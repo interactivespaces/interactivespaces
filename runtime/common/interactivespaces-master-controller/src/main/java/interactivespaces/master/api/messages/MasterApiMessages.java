@@ -193,6 +193,12 @@ public class MasterApiMessages {
       + "/status";
 
   /**
+   * Web socket command for editing a live activity.
+   */
+  public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_EDIT = MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY
+      + "/edit";
+
+  /**
    * Web socket command for deleting the master's entry for a live activity.
    */
   public static final String MASTER_API_COMMAND_LIVE_ACTIVITY_DELETE_LOCAL = MASTER_API_COMMAND_PREFIX_LIVE_ACTIVITY

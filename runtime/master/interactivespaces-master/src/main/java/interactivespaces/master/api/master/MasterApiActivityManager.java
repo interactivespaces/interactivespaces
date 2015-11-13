@@ -191,6 +191,16 @@ public interface MasterApiActivityManager extends ManagedResource {
   Map<String, Object> configureLiveActivity(String id, Map<String, String> map);
 
   /**
+   * Edit a live activity.
+   *
+   * @param args
+   *          the arguments for the edit
+   *
+   * @return API response
+   */
+  Map<String, Object> editLiveActivity(Map<String, Object> args);
+
+  /**
    * Get basic information about a space controller.
    *
    * @param controller

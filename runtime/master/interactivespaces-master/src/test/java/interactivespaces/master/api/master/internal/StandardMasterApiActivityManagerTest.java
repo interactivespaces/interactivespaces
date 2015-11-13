@@ -18,10 +18,14 @@ package interactivespaces.master.api.master.internal;
 
 import interactivespaces.container.control.message.activity.LiveActivityDeploymentResponse;
 import interactivespaces.container.control.message.activity.LiveActivityDeploymentResponse.ActivityDeployStatus;
+import interactivespaces.domain.basic.Activity;
 import interactivespaces.domain.basic.LiveActivity;
+import interactivespaces.domain.basic.SpaceController;
+import interactivespaces.master.api.messages.MasterApiMessages;
 import interactivespaces.master.event.MasterEventManager;
 import interactivespaces.master.server.services.ActiveLiveActivity;
 import interactivespaces.master.server.services.ActivityRepository;
+import interactivespaces.master.server.services.SpaceControllerRepository;
 import interactivespaces.system.InteractiveSpacesEnvironment;
 
 import org.apache.commons.logging.Log;
@@ -30,6 +34,8 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * test the {@link StandardMasterApiActivityManager}.
@@ -39,6 +45,7 @@ import java.util.Date;
 public class StandardMasterApiActivityManagerTest {
   private StandardMasterApiActivityManager masterApiActivityManager;
   private ActivityRepository activityRepository;
+  private SpaceControllerRepository spaceControllerRepository;
   private MasterEventManager masterEventManager;
   private InteractiveSpacesEnvironment spaceEnvironment;
   private Log log;
@@ -52,11 +59,13 @@ public class StandardMasterApiActivityManagerTest {
     Mockito.when(spaceEnvironment.getLog()).thenReturn(log);
 
     activityRepository = Mockito.mock(ActivityRepository.class);
+    spaceControllerRepository = Mockito.mock(SpaceControllerRepository.class);
 
     masterEventManager = Mockito.mock(MasterEventManager.class);
 
     masterApiActivityManager = new StandardMasterApiActivityManager();
     masterApiActivityManager.setActivityRepository(activityRepository);
+    masterApiActivityManager.setSpaceControllerRepository(spaceControllerRepository);
     masterApiActivityManager.setMasterEventManager(masterEventManager);
   }
 
@@ -91,6 +100,42 @@ public class StandardMasterApiActivityManagerTest {
     masterApiActivityManager.getMasterEventListener().onLiveActivityDeploy(activeLiveActivity, result, timestamp);
 
     Mockito.verify(liveActivity).setLastDeployDate(new Date(timestamp));
+    Mockito.verify(activityRepository).saveLiveActivity(liveActivity);
+  }
+
+  /**
+   * Test the successful edit of a live activity.
+   */
+  @Test
+  public void testLiveActivityEdit() {
+    String liveActivityId = "liveActivity";
+    LiveActivity liveActivity = Mockito.mock(LiveActivity.class);
+    Mockito.when(activityRepository.getLiveActivityByTypedId(liveActivityId)).thenReturn(liveActivity);
+
+    String activityId = "activity";
+    Activity activity = Mockito.mock(Activity.class);
+    Mockito.when(activityRepository.getActivityById(activityId)).thenReturn(activity);
+
+    String spaceControllerId = "spaceController";
+    SpaceController spaceController = Mockito.mock(SpaceController.class);
+    Mockito.when(spaceControllerRepository.getSpaceControllerById(spaceControllerId)).thenReturn(spaceController);
+
+    Map<String, Object> args = new HashMap<>();
+
+    args.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID, liveActivityId);
+    String name = "name";
+    args.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_NAME, name);
+    String description = "description";
+    args.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_DESCRIPTION, description);
+    args.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_ACTIVITY_ID, activityId);
+    args.put(MasterApiMessages.MASTER_API_PARAMETER_NAME_SPACE_CONTROLLER_ID, spaceControllerId);
+
+    masterApiActivityManager.editLiveActivity(args);
+
+    Mockito.verify(liveActivity).setName(name);
+    Mockito.verify(liveActivity).setDescription(description);
+    Mockito.verify(liveActivity).setActivity(activity);
+    Mockito.verify(liveActivity).setController(spaceController);
     Mockito.verify(activityRepository).saveLiveActivity(liveActivity);
   }
 }

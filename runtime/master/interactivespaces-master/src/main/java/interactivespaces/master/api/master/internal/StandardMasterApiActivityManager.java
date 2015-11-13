@@ -478,6 +478,61 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
     }
   }
 
+  @Override
+  public Map<String, Object> editLiveActivity(Map<String, Object> args) {
+    String liveActivityId = (String) args.get(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_ID);
+    LiveActivity liveActivity = activityRepository.getLiveActivityByTypedId(liveActivityId);
+    if (liveActivity == null) {
+      return getNoSuchLiveActivityResponse(liveActivityId);
+    }
+
+    boolean editted = false;
+
+    String name = (String) args.get(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_NAME);
+    if (name != null) {
+      liveActivity.setName(name);
+
+      editted |= true;
+    }
+
+    String description = (String) args.get(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_DESCRIPTION);
+    if (description != null) {
+      liveActivity.setDescription(description);
+
+      editted |= true;
+    }
+
+    String activityId = (String) args.get(MasterApiMessages.MASTER_API_PARAMETER_NAME_ACTIVITY_ID);
+    if (activityId != null) {
+      Activity newActivity = activityRepository.getActivityById(activityId);
+      if (newActivity == null) {
+        return getNoSuchActivityResponse(activityId);
+      }
+
+      liveActivity.setActivity(newActivity);
+
+      editted |= true;
+    }
+
+    String spaceControllerId = (String) args.get(MasterApiMessages.MASTER_API_PARAMETER_NAME_SPACE_CONTROLLER_ID);
+    if (spaceControllerId != null) {
+      SpaceController spaceController = spaceControllerRepository.getSpaceControllerById(spaceControllerId);
+      if (spaceController == null) {
+        return getNoSuchSpaceControllerResponse(spaceControllerId);
+      }
+
+      liveActivity.setController(spaceController);
+
+      editted |= true;
+    }
+
+    if (editted) {
+      activityRepository.saveLiveActivity(liveActivity);
+    }
+
+    return MasterApiMessageSupport.getSimpleSuccessResponse();
+  }
+
   /**
    * Get the new configuration into the live activity.
    *
