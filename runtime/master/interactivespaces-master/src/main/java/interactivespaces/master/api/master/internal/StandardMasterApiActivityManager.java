@@ -486,20 +486,20 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
       return getNoSuchLiveActivityResponse(liveActivityId);
     }
 
-    boolean editted = false;
+    boolean edited = false;
 
     String name = (String) args.get(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_NAME);
     if (name != null) {
       liveActivity.setName(name);
 
-      editted |= true;
+      edited |= true;
     }
 
     String description = (String) args.get(MasterApiMessages.MASTER_API_PARAMETER_NAME_ENTITY_DESCRIPTION);
     if (description != null) {
       liveActivity.setDescription(description);
 
-      editted |= true;
+      edited |= true;
     }
 
     String activityId = (String) args.get(MasterApiMessages.MASTER_API_PARAMETER_NAME_ACTIVITY_ID);
@@ -511,7 +511,7 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
 
       liveActivity.setActivity(newActivity);
 
-      editted |= true;
+      edited |= true;
     }
 
     String spaceControllerId = (String) args.get(MasterApiMessages.MASTER_API_PARAMETER_NAME_SPACE_CONTROLLER_ID);
@@ -523,10 +523,10 @@ public class StandardMasterApiActivityManager extends BaseMasterApiManager imple
 
       liveActivity.setController(spaceController);
 
-      editted |= true;
+      edited |= true;
     }
 
-    if (editted) {
+    if (edited) {
       activityRepository.saveLiveActivity(liveActivity);
     }
 
