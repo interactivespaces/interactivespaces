@@ -24,7 +24,6 @@ buildscript {
     classpath 'org.gradle.api.plugins:gradle-izpack-plugin:0.2.3'
     classpath 'org.gradle.api.plugins:gradle-android-plugin:1.2.1'
   }
-
 }
 
 allprojects {
@@ -184,6 +183,11 @@ subprojects {
     eclipse.classpath.plusConfigurations += [configurations.expandedJars]
     eclipse.classpath.plusConfigurations += [configurations.extrasCompile]
     eclipse.classpath.plusConfigurations += [configurations.extrasSupportCompile]
+
+    artifacts {
+      archives jar
+    }
+
     install.dependsOn build
   }
 
@@ -203,7 +207,7 @@ subprojects {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.8'
+  gradleVersion = '2.9'
 }
 
 defaultTasks 'install'

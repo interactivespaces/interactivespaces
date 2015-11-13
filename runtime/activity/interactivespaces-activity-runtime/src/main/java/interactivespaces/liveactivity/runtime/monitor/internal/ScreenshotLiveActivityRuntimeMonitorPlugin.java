@@ -28,6 +28,7 @@ import interactivespaces.system.core.configuration.CoreConfiguration;
 import interactivespaces.util.io.FileSupport;
 import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.util.process.NativeApplicationDescription;
+import interactivespaces.util.process.NativeApplicationRunner.NativeApplicationRunnerState;
 import interactivespaces.util.process.NativeApplicationRunnerCollection;
 import interactivespaces.util.process.StandardNativeApplicationRunnerCollection;
 import interactivespaces.util.web.CommonMimeTypes;
@@ -88,8 +89,8 @@ public class ScreenshotLiveActivityRuntimeMonitorPlugin extends BaseLiveActivity
   /**
    * The formatter for the date portion of a screenshot filename.
    */
-  private static final SimpleDateFormat SCREENSHOT_FILENAME_DATETIME_FORMATTER = new SimpleDateFormat(
-      SCREENSHOT_FILENAME_DATETIME_FORMAT);
+  private static final SimpleDateFormat SCREENSHOT_FILENAME_DATETIME_FORMATTER =
+      new SimpleDateFormat(SCREENSHOT_FILENAME_DATETIME_FORMAT);
 
   /**
    * Configuration property giving the location of the application executable relative to the application installation
@@ -107,6 +108,17 @@ public class ScreenshotLiveActivityRuntimeMonitorPlugin extends BaseLiveActivity
    * URL prefix for screenshots.
    */
   private static final String URL_PREFIX_SCREENSHOT = "/screenshot";
+
+  /**
+   * HTML message for a successful screenshot.
+   */
+  private static final byte[] RESPONSE_MESSAGE_SCREENSHOT_SUCCESSFUL = "<p>The screenshot succeeded.</p>".getBytes();
+
+  /**
+   * HTML message for a failed screenshot.
+   */
+  private static final byte[] RESPONSE_MESSAGE_SCREENSHOT_FAILURE =
+      "<p style=\"color:red\">The screenshot failed! See controller logs for details.</p>".getBytes();
 
   /**
    * A file comparator that will order by ascending file names.
@@ -155,8 +167,8 @@ public class ScreenshotLiveActivityRuntimeMonitorPlugin extends BaseLiveActivity
   /**
    * The functionality descriptors for this plugin.
    */
-  private List<PluginFunctionalityDescriptor> functionalityDescriptors = Collections.unmodifiableList(Lists
-      .newArrayList(new PluginFunctionalityDescriptor(URL_PREFIX_SCREENSHOT, "Machine Screenshot")));
+  private List<PluginFunctionalityDescriptor> functionalityDescriptors = Collections.unmodifiableList(
+      Lists.newArrayList(new PluginFunctionalityDescriptor(URL_PREFIX_SCREENSHOT, "Machine Screenshot")));
 
   /**
    * File support to use.
@@ -170,14 +182,12 @@ public class ScreenshotLiveActivityRuntimeMonitorPlugin extends BaseLiveActivity
     Configuration configuration = spaceEnvironment.getSystemConfiguration();
 
     String platformOs = configuration.getPropertyString(CoreConfiguration.CONFIGURATION_INTERACTIVESPACES_PLATFORM_OS);
-    String screenShotExecutableDefault =
-        fileSupport.newFile(
-            getMonitorService().getLiveActivityRuntime().getSpaceEnvironment().getFilesystem()
-                .getLibraryDirectory(LIBRARY_NATIVE_FOLDER), SCREENSHOT_EXECUTABLE_PREFIX_DEFAULT + platformOs)
-            .getAbsolutePath();
-    screenshotExecutable =
-        configuration.getPropertyString(CONFIGURATION_SCREENSHOT_EXECUTABLE_PREFIX + platformOs,
-            screenShotExecutableDefault);
+    String screenShotExecutableDefault = fileSupport
+        .newFile(getMonitorService().getLiveActivityRuntime().getSpaceEnvironment().getFilesystem()
+            .getLibraryDirectory(LIBRARY_NATIVE_FOLDER), SCREENSHOT_EXECUTABLE_PREFIX_DEFAULT + platformOs)
+        .getAbsolutePath();
+    screenshotExecutable = configuration.getPropertyString(CONFIGURATION_SCREENSHOT_EXECUTABLE_PREFIX + platformOs,
+        screenShotExecutableDefault);
 
     screenshotSleepTime =
         configuration.getPropertyInteger(CONFIGURATION_SCREENSHOT_DELAY, CONFIGURATION_DEFAULT_SCREENSHOT_DELAY);
@@ -232,9 +242,9 @@ public class ScreenshotLiveActivityRuntimeMonitorPlugin extends BaseLiveActivity
    */
   private void performScreenshot(HttpResponse response) throws InterruptedException, IOException {
     if (screenshotExecutable != null) {
-      captureScreenshots();
+      boolean captureSuccessful = captureScreenshots();
 
-      showDirectoryIndex(response);
+      showDirectoryIndex(response, captureSuccessful);
     } else {
       reportLackOfScreenshotExecutable(response);
     }
@@ -264,14 +274,22 @@ public class ScreenshotLiveActivityRuntimeMonitorPlugin extends BaseLiveActivity
    *
    * @param response
    *          the HTTP response to write the index into
+   * @param captureSuccessful
+   *          {@code true} if the capture was success
    *
    * @throws IOException
    *           there was an error while writing
    */
-  private void showDirectoryIndex(HttpResponse response) throws IOException {
+  private void showDirectoryIndex(HttpResponse response, boolean captureSuccessful) throws IOException {
     OutputStream outputStream = response.getOutputStream();
 
     addCommonPageHeader(outputStream, "Directory listing for screenshots");
+
+    if (captureSuccessful) {
+      outputStream.write(RESPONSE_MESSAGE_SCREENSHOT_SUCCESSFUL);
+    } else {
+      outputStream.write(RESPONSE_MESSAGE_SCREENSHOT_FAILURE);
+    }
 
     listDirectoryFiles(URL_PREFIX_SCREENSHOT, screenshotFolder, outputStream, FILE_COMPARATOR_DATE_DESCENDING);
 
@@ -313,10 +331,12 @@ public class ScreenshotLiveActivityRuntimeMonitorPlugin extends BaseLiveActivity
   /**
    * Capture the screenshot.
    *
+   * @return {@code true} if capture was successful
+   *
    * @throws InterruptedException
    *           the thread waiting for the screenshot to complete
    */
-  private void captureScreenshots() throws InterruptedException {
+  private boolean captureScreenshots() throws InterruptedException {
     NativeApplicationDescription description = new NativeApplicationDescription();
     description.setExecutablePath(screenshotExecutable);
 
@@ -326,14 +346,16 @@ public class ScreenshotLiveActivityRuntimeMonitorPlugin extends BaseLiveActivity
     description.parseArguments(escapedSceenshotFolderFilepath).addArguments(screenshotFilenamePrefix,
         SCREENSHOT_FILE_EXTENSION);
 
-    NativeApplicationRunnerCollection runnerCollection =
-        new StandardNativeApplicationRunnerCollection(liveActivityRuntime.getSpaceEnvironment(), liveActivityRuntime
-            .getSpaceEnvironment().getLog());
+    NativeApplicationRunnerCollection runnerCollection = new StandardNativeApplicationRunnerCollection(
+        liveActivityRuntime.getSpaceEnvironment(), liveActivityRuntime.getSpaceEnvironment().getLog());
 
     try {
       // TODO(keith): Once used, should this runner collection stay running until plugin shutdown?
       runnerCollection.startup();
-      runnerCollection.runNativeApplicationRunner(description, screenshotSleepTime);
+      NativeApplicationRunnerState state =
+          runnerCollection.runNativeApplicationRunner(description, screenshotSleepTime);
+
+      return state == NativeApplicationRunnerState.SHUTDOWN;
     } finally {
       runnerCollection.shutdown();
     }
