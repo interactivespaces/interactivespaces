@@ -32,24 +32,9 @@ import java.util.Map;
 public interface LiveActivityRunner extends ActivityControl {
 
   /**
-   * A live activity status for installed live activities that currently aren't running.
-   */
-  ActivityStatus LIVE_ACTIVITY_STATUS_READY = new ActivityStatus(ActivityState.READY, null);
-
-  /**
-   * A live activity status for installed live activities that currently are running.
-   */
-  ActivityStatus LIVE_ACTIVITY_STATUS_RUNNING = new ActivityStatus(ActivityState.RUNNING, null);
-
-  /**
-   * A live activity status for installed live activities that currently are active.
-   */
-  ActivityStatus LIVE_ACTIVITY_STATUS_ACTIVE = new ActivityStatus(ActivityState.ACTIVE, null);
-
-  /**
    * Initial status for an activity.
    */
-  ActivityStatus INITIAL_ACTIVITY_STATUS = LIVE_ACTIVITY_STATUS_READY;
+  ActivityStatus INITIAL_ACTIVITY_STATUS = new ActivityStatus(ActivityState.READY, null);
 
   /**
    * Get the UUID of the underlying live activity.
