@@ -16,6 +16,13 @@
 
 buildscript {
   repositories {
+    maven {
+      url 'http://130.211.175.45:8081/artifactory/plugins-release'
+      credentials {
+        username = "${artifactory_user}"
+        password = "${artifactory_password}"
+      }
+    }
     jcenter()
     mavenCentral()
   }
@@ -23,8 +30,8 @@ buildscript {
   dependencies {
     classpath 'org.gradle.api.plugins:gradle-izpack-plugin:0.2.3'
     classpath 'org.gradle.api.plugins:gradle-android-plugin:1.2.1'
+    classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:3.1.1'
   }
-
 }
 
 allprojects {
@@ -37,7 +44,7 @@ allprojects {
     //
     // Final versions should set the qualifier to null.
     interactiveSpacesVersion = '1.8.1'
-    interactiveSpacesVersionQualifier = 'BETA4'
+    interactiveSpacesVersionQualifier = null
 
     // These specify the layout of IS containers.
     
@@ -97,6 +104,8 @@ allprojects {
       ext.testSizing = "small"
     }
   }
+
+  apply plugin: 'com.jfrog.artifactory-upload'
 
   group = 'interactivespaces'
   version = osgiVersion
@@ -184,6 +193,11 @@ subprojects {
     eclipse.classpath.plusConfigurations += [configurations.expandedJars]
     eclipse.classpath.plusConfigurations += [configurations.extrasCompile]
     eclipse.classpath.plusConfigurations += [configurations.extrasSupportCompile]
+
+    artifacts {
+      archives jar
+    }
+
     install.dependsOn build
   }
 
@@ -202,8 +216,29 @@ subprojects {
   }
 }
 
+artifactory {
+  //The base Artifactory URL if not overridden by the publisher/resolver
+  contextUrl = "${artifactory_contextUrl}"
+  publish {
+    repository {
+      repoKey = 'libs-release-local'
+      username = "${artifactory_user}"
+      password = "${artifactory_password}"
+      maven = true
+    }
+  }
+  resolve {
+    repository {
+      repoKey = 'libs-release'
+      username = "${artifactory_user}"
+      password = "${artifactory_password}"
+      maven = true
+    }
+  }
+}
+
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.5'
+  gradleVersion = '2.8'
 }
 
 defaultTasks 'install'
