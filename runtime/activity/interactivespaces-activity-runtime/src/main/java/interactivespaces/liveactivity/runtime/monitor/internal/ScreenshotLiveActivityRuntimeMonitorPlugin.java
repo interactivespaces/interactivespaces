@@ -112,7 +112,7 @@ public class ScreenshotLiveActivityRuntimeMonitorPlugin extends BaseLiveActivity
   /**
    * HTML message for a successful screenshot.
    */
-  private static final byte[] RESPONSE_MESSAGE_SCREENSHOT_SUCCESSFUL = "<p>The screenshot succeeded.</p>".getBytes();
+  private static final byte[] RESPONSE_MESSAGE_SCREENSHOT_SUCCESS = "<p>The screenshot succeeded.</p>".getBytes();
 
   /**
    * HTML message for a failed screenshot.
@@ -286,7 +286,7 @@ public class ScreenshotLiveActivityRuntimeMonitorPlugin extends BaseLiveActivity
     addCommonPageHeader(outputStream, "Directory listing for screenshots");
 
     if (captureSuccessful) {
-      outputStream.write(RESPONSE_MESSAGE_SCREENSHOT_SUCCESSFUL);
+      outputStream.write(RESPONSE_MESSAGE_SCREENSHOT_SUCCESS);
     } else {
       outputStream.write(RESPONSE_MESSAGE_SCREENSHOT_FAILURE);
     }
