@@ -17,7 +17,7 @@
 buildscript {
   repositories {
     maven {
-      url 'http://130.211.175.45:8081/artifactory/plugins-release'
+      url "${artifactory_contextUrl}/plugins-release"
       credentials {
         username = "${artifactory_user}"
         password = "${artifactory_password}"
