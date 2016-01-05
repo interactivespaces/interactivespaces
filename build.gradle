@@ -33,7 +33,7 @@ buildscript {
     classpath 'org.gradle.api.plugins:gradle-izpack-plugin:0.2.3'
     classpath 'org.gradle.api.plugins:gradle-android-plugin:1.2.1'
     if (project.hasProperty("artifactory")) {
-      classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:3.1.1'
+      classpath 'org.jfrog.buildinfo:build-info-extractor-gradle:4.0.0'
     }
   }
 }
@@ -109,10 +109,6 @@ allprojects {
     }
   }
 
-  if (project.hasProperty("artifactory")) {
-    apply plugin: 'com.jfrog.artifactory-upload'
-  }
-
   group = 'interactivespaces'
   version = osgiVersion
 
@@ -123,7 +119,6 @@ allprojects {
 }
 
 subprojects {
-
   ext {
     extrasBuildFolder = "build/staging/controller/extras"
   }
@@ -133,6 +128,14 @@ subprojects {
     apply plugin: 'maven'
     apply plugin: 'eclipse'
     apply plugin: 'idea'
+
+    artifacts {
+      archives jar
+    }
+
+    if (project.hasProperty("artifactory")) {
+      apply plugin: 'com.jfrog.artifactory'
+    }
 
     if (name != 'interactivespaces-bootstrap-core') {
       apply plugin: 'osgi'
@@ -232,6 +235,11 @@ if (project.hasProperty("artifactory")) {
         username = "${artifactory_user}"
         password = "${artifactory_password}"
         maven = true
+      }
+      defaults {
+        publishConfigs('archives')
+        publishArtifacts = true
+        publishPom = true
       }
     }
     resolve {
