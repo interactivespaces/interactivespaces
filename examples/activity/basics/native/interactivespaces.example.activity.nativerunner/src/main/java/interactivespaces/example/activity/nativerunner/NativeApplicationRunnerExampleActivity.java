@@ -16,7 +16,6 @@
 
 package interactivespaces.example.activity.nativerunner;
 
-import interactivespaces.activity.binary.NativeActivityRunner;
 import interactivespaces.activity.impl.BaseActivity;
 import interactivespaces.util.process.BaseNativeApplicationRunnerListener;
 import interactivespaces.util.process.NativeApplicationRunner;
@@ -25,7 +24,7 @@ import interactivespaces.util.process.StandardNativeApplicationRunnerCollection;
 import interactivespaces.util.process.restart.RestartStrategy;
 
 /**
- * An example activity which shows how to use the {@link NativeActivityRunner}.
+ * An example activity which shows how to use the {@link NativeApplicationRunner}.
  *
  * @author Keith M. Hughes
  */
@@ -61,8 +60,8 @@ public class NativeApplicationRunnerExampleActivity extends BaseActivity {
     NativeApplicationRunner runner = nativeAppRunnerCollection.newNativeApplicationRunner();
 
     runner.setExecutablePath(getConfiguration().getRequiredPropertyString(CONFIGURATION_APPLICATION_EXECUTABLE));
-    runner.parseCommandArguments(getConfiguration().getRequiredPropertyString(
-        CONFIGURATION_APPLICATION_EXECUTABLE_FLAGS));
+    runner.parseCommandArguments(
+        getConfiguration().getRequiredPropertyString(CONFIGURATION_APPLICATION_EXECUTABLE_FLAGS));
 
     // If extending BaseNativeApplicationRunnerListener, it is not necessary to override every
     // method. Just showing this as an example.
