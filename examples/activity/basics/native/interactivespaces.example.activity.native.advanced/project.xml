@@ -1,16 +1,16 @@
 <?xml version="1.0"?>
 <project type="activity" builder="java">
-  <name>Native Application Runner Activity Example in Java</name>
+  <name>Native Application Runner Activity Advanced Example in Java</name>
   <description>
-    A very simple Java-based activity that demonstrates the use of a native activity
-    runner.
+    A very simple Java-based activity that demonstrates the use of the native activity
+    runner API.
   </description>
 
-  <identifyingName>interactivespaces.example.activity.nativerunner</identifyingName>
+  <identifyingName>interactivespaces.example.activity.native.advanced</identifyingName>
   <version>1.0.0</version>
 
   <activity type="interactivespaces_native" logLevel="info">
-    <name>exampleActivityNativeRunner</name>
+    <name>exampleActivityNativeAdvanced</name>
     <class>
       interactivespaces.example.activity.nativerunner.NativeApplicationRunnerExampleActivity
     </class>
@@ -18,15 +18,15 @@
     <configuration>
       <property name="space.nativeapplication.executable" required="true">
         <description>
-          The executable to run in a Linux environment.
+          The executable to run.
         </description>
-        <value>/usr/bin/mpg321</value>
+        <value>application.sh</value>
       </property>
       <property name="space.nativeapplication.executable.flags" required="true">
         <description>
-          The flags for the executable to run in a Linux environment.
+          The flags for the executable.
         </description>
-        <value>-q ${activity.installdir}/NativeActivityExample.mp3</value>
+        <value>Running in ${activity.installdir}</value>
       </property>
 
       <property name="space.activity.log.level" value="info" />

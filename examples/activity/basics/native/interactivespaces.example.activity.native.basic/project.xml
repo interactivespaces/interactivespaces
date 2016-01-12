@@ -1,23 +1,22 @@
 <?xml version="1.0"?>
 <project type="activity">
-  <name>Native Example</name>
+  <name>Native Application Runner Activity Basic Example</name>
   <description>
-    An example of a pure native code activity.
+    An example of a pure native code activity that only uses configuration and the
+    'native' activity type.
   </description>
 
-  <identifyingName>interactivespaces.example.activity.native</identifyingName>
+  <identifyingName>interactivespaces.example.activity.native.basic</identifyingName>
   <version>1.0.0</version>
 
-
   <activity type="native">
-    <name>interactivespacesExampleActivityNative</name>
+    <name>exampleActivityNativeBasic</name>
 
     <configuration>
-      <property name="space.activity.log.level" value="info" />
-      
       <property name="space.activity.executable.linux" required="true">
         <description>
-          The executable to run in a Linux environment. This can be any application, not just a shell script.
+          The executable to run in a Linux environment. This can be any application, not
+          just a shell script.
         </description>
         <value>linuxactivity.sh</value>
       </property>
@@ -29,7 +28,8 @@
       </property>
       <property name="space.activity.executable.osx" required="true">
         <description>
-          The executable to run in a OSX environment. This can be any application, not just a shell script.
+          The executable to run in a OSX environment. This can be any application, not
+          just a shell script.
         </description>
         <value>osxactivity.sh</value>
       </property>
@@ -40,5 +40,8 @@
         <value>Running OSX in ${activity.installdir}</value>
       </property>
     </configuration>
+
+    <property name="space.activity.log.level" value="info" />
+
   </activity>
 </project>
