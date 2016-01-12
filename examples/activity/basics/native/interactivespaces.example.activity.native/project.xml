@@ -13,6 +13,8 @@
     <name>interactivespacesExampleActivityNative</name>
 
     <configuration>
+      <property name="space.activity.log.level" value="info" />
+      
       <property name="space.activity.executable.linux" required="true">
         <description>
           The executable to run in a Linux environment. This can be any application, not just a shell script.
