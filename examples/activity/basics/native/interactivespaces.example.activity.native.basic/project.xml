@@ -39,9 +39,9 @@
         </description>
         <value>Running OSX in ${activity.installdir}</value>
       </property>
-    </configuration>
 
-    <property name="space.activity.log.level" value="info" />
+      <property name="space.activity.log.level" value="info" />
+    </configuration>
 
   </activity>
 </project>

@@ -16,12 +16,18 @@
 
 package interactivespaces.example.activity.nativerunner;
 
+import interactivespaces.SimpleInteractiveSpacesException;
+import interactivespaces.activity.ActivityFilesystem;
 import interactivespaces.activity.impl.BaseActivity;
+import interactivespaces.util.io.FileSupport;
+import interactivespaces.util.io.FileSupportImpl;
 import interactivespaces.util.process.BaseNativeApplicationRunnerListener;
 import interactivespaces.util.process.NativeApplicationRunner;
 import interactivespaces.util.process.NativeApplicationRunnerCollection;
 import interactivespaces.util.process.StandardNativeApplicationRunnerCollection;
 import interactivespaces.util.process.restart.RestartStrategy;
+
+import java.io.File;
 
 /**
  * An example activity which shows how to use the {@link NativeApplicationRunner}.
@@ -46,6 +52,11 @@ public class NativeApplicationRunnerExampleActivity extends BaseActivity {
    */
   private NativeApplicationRunnerCollection nativeAppRunnerCollection;
 
+  /**
+   * The file support to use.
+   */
+  private FileSupport fileSupport = FileSupportImpl.INSTANCE;
+
   @Override
   public void onActivitySetup() {
     nativeAppRunnerCollection = new StandardNativeApplicationRunnerCollection(getSpaceEnvironment(), getLog());
@@ -59,7 +70,26 @@ public class NativeApplicationRunnerExampleActivity extends BaseActivity {
 
     NativeApplicationRunner runner = nativeAppRunnerCollection.newNativeApplicationRunner();
 
-    runner.setExecutablePath(getConfiguration().getRequiredPropertyString(CONFIGURATION_APPLICATION_EXECUTABLE));
+    String executablePath = getConfiguration().getRequiredPropertyString(CONFIGURATION_APPLICATION_EXECUTABLE);
+
+    // The Workbench build system does not zip files with their executable bit set, so if the executable is
+    // part of the activity build then we need to make sure that the executable bit gets set before we
+    // try running it. We will only set the bit if it is in the activity's install folder, otherwise this is a bit
+    // of a security hole.
+    ActivityFilesystem activityFilesystem = getActivityFilesystem();
+    File executableFile = fileSupport.resolveFile(activityFilesystem.getInstallDirectory(), executablePath);
+    if (fileSupport.isParent(activityFilesystem.getInstallDirectory(), executableFile)) {
+      if (fileSupport.exists(executableFile)) {
+        if (!executableFile.canExecute()) {
+          executableFile.setExecutable(true);
+        }
+      } else {
+        throw new SimpleInteractiveSpacesException(
+            String.format("The native application executable %s does not exist", executableFile.getAbsolutePath()));
+      }
+    }
+
+    runner.setExecutablePath(executableFile.getAbsolutePath());
     runner.parseCommandArguments(
         getConfiguration().getRequiredPropertyString(CONFIGURATION_APPLICATION_EXECUTABLE_FLAGS));
 
